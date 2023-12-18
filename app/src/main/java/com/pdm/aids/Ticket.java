@@ -7,8 +7,7 @@ public class Ticket {
     private String description;
     private byte[] picture;
 
-    public Ticket(int id, String title, String description, byte[] picture) {
-        this.id = id;
+    public Ticket(String title, String description, byte[] picture) {
         this.title = title;
         this.description = description;
         this.picture = picture;

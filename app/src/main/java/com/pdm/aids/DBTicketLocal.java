@@ -81,7 +81,7 @@ public class DBTicketLocal extends SQLiteOpenHelper {
                 @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
                 @SuppressLint("Range") byte[] picture = cursor.getBlob(cursor.getColumnIndex(COLUMN_PICTURE));
 
-                Ticket ticket = new Ticket(id, title, description, picture);
+                Ticket ticket = new Ticket(title, description, picture);
                 ticketList.add(ticket);
             } while (cursor.moveToNext());
         }
@@ -101,7 +101,7 @@ public class DBTicketLocal extends SQLiteOpenHelper {
             @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
             @SuppressLint("Range") byte[] picture = cursor.getBlob(cursor.getColumnIndex(COLUMN_PICTURE));
 
-            ticket = new Ticket(id, title, description, picture);
+            ticket = new Ticket(title, description, picture);
         }
 
         cursor.close();

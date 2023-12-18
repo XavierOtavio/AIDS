@@ -79,7 +79,7 @@ public class CreateTicketActivity extends AppCompatActivity {
         String description = descriptionEditText.getText().toString();
 
         if (!title.isEmpty() && !description.isEmpty() && pictureByteArray != null) {
-            Ticket newTicket = new Ticket(0, title, description, pictureByteArray);
+            Ticket newTicket = new Ticket(title, description, pictureByteArray);
             boolean isInserted = dbTicketLocal.createTicket(newTicket);
             if (isInserted) {
                 showToast("Ticket saved successfully");
