@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.pdm.aids"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.pdm.aids"
