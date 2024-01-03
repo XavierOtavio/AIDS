@@ -1,5 +1,6 @@
 package com.pdm.aids.Tickets;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.pdm.aids.R;
 
@@ -48,16 +50,20 @@ public class CreateTicketActivity extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
     private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        PackageManager packageManager = getPackageManager();
-        if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(CreateTicketActivity.this, new String[]{Manifest.permission.CAMERA}, 1);
         } else {
-            // No camera available, handle accordingly (show a message, disable functionality, etc.)
-            Toast.makeText(this, "No camera available", Toast.LENGTH_SHORT).show();
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            PackageManager packageManager = getPackageManager();
+            if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            } else{
+                // No camera available, handle accordingly (show a message, disable functionality, etc.)
+                Toast.makeText(this, "No camera available", Toast.LENGTH_SHORT).show();
+            }
         }
-
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
