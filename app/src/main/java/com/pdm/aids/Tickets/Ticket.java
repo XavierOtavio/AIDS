@@ -1,4 +1,4 @@
-package com.pdm.aids;
+package com.pdm.aids.Tickets;
 
 public class Ticket {
 

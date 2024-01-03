@@ -1,4 +1,4 @@
-package com.pdm.aids;
+package com.pdm.aids.Tickets;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -11,13 +11,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.pdm.aids.R;
+
 import java.util.ArrayList;
 
 public class ListAdapter extends ArrayAdapter<ListData> {
 
-    Home binding;
+    TicketListActivity binding;
 
-    public ListAdapter(@NonNull Context context, ArrayList<ListData> dataArrayList, Home binding) {
+    public ListAdapter(@NonNull Context context, ArrayList<ListData> dataArrayList, TicketListActivity binding) {
         super(context, R.layout.list_item, dataArrayList);
         this.binding = binding;
     }

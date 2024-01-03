@@ -1,4 +1,4 @@
-package com.pdm.aids;
+package com.pdm.aids.Tickets;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,13 +8,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.pdm.aids.databinding.ActivityMainBinding;
+import com.pdm.aids.R;
+import com.pdm.aids.databinding.ActivityTicketListBinding;
 
 import java.util.ArrayList;
 
 
-public class Home extends AppCompatActivity {
-    ActivityMainBinding binding;
+public class TicketListActivity extends AppCompatActivity {
+    ActivityTicketListBinding binding;
     ListAdapter listAdapter;
     ArrayList<ListData> dataArrayList = new ArrayList<>();
 
@@ -25,8 +26,8 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(R.layout.activity_ticket_list);
+        binding = ActivityTicketListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot()); // Set the root view of the binding object
 
         TextView textTitle_toolbar = findViewById(R.id.toolbar_title);

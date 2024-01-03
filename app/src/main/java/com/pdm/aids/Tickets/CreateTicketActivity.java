@@ -1,4 +1,4 @@
-package com.pdm.aids;
+package com.pdm.aids.Tickets;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,6 +12,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.pdm.aids.R;
+
 import java.io.ByteArrayOutputStream;
 
 public class CreateTicketActivity extends AppCompatActivity {
