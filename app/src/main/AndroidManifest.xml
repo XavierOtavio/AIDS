@@ -19,6 +19,12 @@
         android:theme="@style/Theme.AIDS"
         tools:targetApi="31">
         <activity
+            android:name=".Login.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Common.HomeActivity"
+            android:exported="false" />
+        <activity
             android:name=".Login.LoginActivity"
             android:exported="false" />
         <activity
@@ -27,7 +33,7 @@
             android:label="@string/title_activity_login" />
         <activity
             android:name=".Tickets.CreateTicketActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".Tickets.TicketListActivity"
             android:exported="true">
