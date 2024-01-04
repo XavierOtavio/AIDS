@@ -48,5 +48,5 @@
         android:divider="@android:color/transparent"
         android:dividerHeight="10dp"
         android:listSelector="@android:color/transparent"
-        tools:listitem="@layout/list_item" />
+        tools:listitem="@layout/list_item_booking" />
 </RelativeLayout>

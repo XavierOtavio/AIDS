@@ -25,6 +25,7 @@ public class Booking {
     private Date actualEndDate;
     private Date dateTime;
     private String hash;
+    private byte[] qrImage;
 
     public Booking(int roomId, int userId, int bookingStatusId, Date expectedStartDate,
                    Date expectedEndDate, Date actualStartDate, Date actualEndDate, Date dateTime, String hash) {
@@ -97,5 +98,49 @@ public class Booking {
         } catch (WriterException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setActualEndDate(Date actualEndDate) {
+        this.actualEndDate = actualEndDate;
+    }
+
+    public void setActualStartDate(Date actualStartDate) {
+        this.actualStartDate = actualStartDate;
+    }
+
+    public void setBookingStatusId(int bookingStatusId) {
+        this.bookingStatusId = bookingStatusId;
+    }
+
+    public void setDateTime(Date dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public void setExpectedEndDate(Date expectedEndDate) {
+        this.expectedEndDate = expectedEndDate;
+    }
+
+    public void setExpectedStartDate(Date expectedStartDate) {
+        this.expectedStartDate = expectedStartDate;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setRoomId(int roomId) {
+        this.roomId = roomId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public void setQrImage(byte[] qrImage) {
+        this.qrImage = qrImage;
     }
 }
