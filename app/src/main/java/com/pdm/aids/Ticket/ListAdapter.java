@@ -1,4 +1,4 @@
-package com.pdm.aids.Tickets;
+package com.pdm.aids.Ticket;
 
 import android.content.Context;
 import android.content.res.ColorStateList;

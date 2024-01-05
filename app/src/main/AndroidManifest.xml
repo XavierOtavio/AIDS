@@ -28,13 +28,13 @@
             android:name=".Login.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".Tickets.CreateTicketActivity"
+            android:name=".Ticket.CreateTicketActivity"
             android:exported="true" />
         <activity
-            android:name=".booking.BookingListActivity"
+            android:name=".Booking.BookingListActivity"
             android:exported="true" />
         <activity
-            android:name=".Tickets.TicketListActivity"
+            android:name=".Ticket.TicketListActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
