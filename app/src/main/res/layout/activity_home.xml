@@ -4,6 +4,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Common.HomeActivity">
+    android:background="@drawable/page_background"
+    tools:context=".Login.LoginActivity">
+
+
+
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:srcCompat="@drawable/pvestgv"
+        app:tint="@color/white"
+        tools:ignore="MissingConstraints" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="30dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:text="Reservar"
+            android:backgroundTint="#F39C12"
+            android:layout_marginBottom="35dp"/>
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:text="Reportar"
+            android:backgroundTint="#F39C12"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginBottom="80dp"
+        android:src="@drawable/logo_aids"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:tint="@color/white" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
