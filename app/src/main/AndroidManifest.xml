@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
@@ -20,13 +22,19 @@
         tools:targetApi="31">
         <activity
             android:name=".Login.RegisterActivity"
-            android:exported="false" />
+            android:exported="false" ></activity>
         <activity
             android:name=".Common.HomeActivity"
             android:exported="false" />
         <activity
             android:name=".Login.LoginActivity"
-            android:exported="false" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".Ticket.CreateTicketActivity"
             android:exported="true" />
@@ -36,11 +44,6 @@
         <activity
             android:name=".Ticket.TicketListActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 
