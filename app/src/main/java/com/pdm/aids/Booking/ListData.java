@@ -1,4 +1,4 @@
-package com.pdm.aids.Booking;
+package com.pdm.aids.booking;
 
 public class ListData {
     String id;

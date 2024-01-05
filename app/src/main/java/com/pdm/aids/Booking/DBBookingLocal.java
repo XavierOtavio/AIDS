@@ -1,4 +1,4 @@
-package com.pdm.aids.Booking;
+package com.pdm.aids.booking;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;

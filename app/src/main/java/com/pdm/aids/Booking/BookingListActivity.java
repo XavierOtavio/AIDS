@@ -1,4 +1,6 @@
-package com.pdm.aids.Booking;
+package com.pdm.aids.booking;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,10 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.pdm.aids.R;
-import com.pdm.aids.Ticket.CreateTicketActivity;
+import com.pdm.aids.Tickets.CreateTicketActivity;
 import com.pdm.aids.databinding.ActivityTicketListBinding;
 
 import java.util.ArrayList;
@@ -19,10 +19,10 @@ public class BookingListActivity extends AppCompatActivity {
 
     ActivityTicketListBinding binding;
     BookingListAdapter listAdapter;
-    ArrayList<com.pdm.aids.Booking.ListData> dataArrayList = new ArrayList<>();
+    ArrayList<com.pdm.aids.booking.ListData> dataArrayList = new ArrayList<>();
 
     List<Booking> bookings = new ArrayList<>();
-    com.pdm.aids.Booking.ListData listData;
+    com.pdm.aids.booking.ListData listData;
 
 
     @Override
@@ -45,7 +45,7 @@ public class BookingListActivity extends AppCompatActivity {
             bookings = dataBaseHelper.getAllBookings();
 
             for (int i = 0; i < bookings.size(); i++) {
-                listData = new com.pdm.aids.Booking.ListData(bookings.get(i).getId(), bookings.get(i).getRoomId(), bookings.get(i).getQrImage(bookings.get(i).getHash()));
+                listData = new com.pdm.aids.booking.ListData(bookings.get(i).getId(), bookings.get(i).getRoomId(), bookings.get(i).getQrImage(bookings.get(i).getHash()));
                 dataArrayList.add(listData);
             }
 

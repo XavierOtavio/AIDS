@@ -1,4 +1,4 @@
-package com.pdm.aids.Tickets;
+package com.pdm.aids.Ticket;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;

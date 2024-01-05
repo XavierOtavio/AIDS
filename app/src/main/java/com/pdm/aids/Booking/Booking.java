@@ -1,6 +1,8 @@
-package com.pdm.aids.Booking;
+package com.pdm.aids.booking;
 
 import android.graphics.Bitmap;
+import android.view.View;
+import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -10,6 +12,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Date;
+import java.util.UUID;
 
 public class Booking {
     private int id;
