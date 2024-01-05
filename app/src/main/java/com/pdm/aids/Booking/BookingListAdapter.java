@@ -1,4 +1,4 @@
-package com.pdm.aids.booking;
+package com.pdm.aids.Booking;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -44,8 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:src="@drawable/QRdummy"/>
+            android:gravity="center_vertical" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
