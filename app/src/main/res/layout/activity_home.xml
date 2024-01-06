@@ -23,8 +23,9 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="30dp"
         android:gravity="center"
+        android:showDividers="middle"
+        android:divider="@drawable/divider_gap_transparent"
         android:orientation="vertical">
-
 
         <Button
             android:id="@+id/button"
@@ -32,14 +33,21 @@
             android:layout_height="60dp"
             android:text="Reservar"
             android:textSize="20sp"
-            android:backgroundTint="#F39C12"
-            android:layout_marginBottom="35dp"/>
+            android:backgroundTint="#F39C12" />
 
         <Button
             android:id="@+id/button2"
             android:layout_width="300dp"
             android:layout_height="60dp"
             android:text="Reportar"
+            android:textSize="20sp"
+            android:backgroundTint="#F39C12"/>
+
+        <Button
+            android:id="@+id/button_logout"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:text="Logout"
             android:textSize="20sp"
             android:backgroundTint="#F39C12"/>
     </LinearLayout>

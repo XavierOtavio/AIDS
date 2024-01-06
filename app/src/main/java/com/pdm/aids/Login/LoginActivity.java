@@ -14,10 +14,11 @@ import com.pdm.aids.Common.HomeActivity;
 import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.R;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class LoginActivity extends AppCompatActivity {
-    public static final String MyPREFERENCES = "MyPrefs" ;
+    public static final String MyPREFERENCES = "MyPrefs";
     SharedPreferences sharedpreferences;
 
     @Override
@@ -26,6 +27,12 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+
+        final Button btnRegister = (Button) findViewById(R.id.button_register);
+        btnRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(intent);
+        });
 
         final Button btnLogin = (Button) findViewById(R.id.button_login);
         btnLogin.setOnClickListener(v -> {
@@ -41,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("Name", obj.getString("Name"));
                             editor.putString("Username", obj.getString("Username"));
                             editor.putString("Password", obj.getString("Password"));
-                            editor.commit();
+                            editor.apply();
 
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                             startActivity(intent);
@@ -53,9 +60,15 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
+
                 @Override
                 public void onError(String error) {
-                    Toast.makeText(getApplicationContext(), error, Toast.LENGTH_SHORT).show();
+                    try {
+                        JSONObject obj = new JSONObject(error);
+                        Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                    } catch (JSONException e) {
+                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         });

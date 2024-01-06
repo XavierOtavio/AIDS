@@ -43,4 +43,18 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
+    public static void registerUser(String name, String username, String password, Context context, VolleyCallback callback) {
+        String url = apiUrl + "CreateUser?Name=" + name + "&Username=" + username + "&Password=" + password;
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    callback.onSuccess(response);
+                } , error -> {
+                callback.onError(error.getMessage());
+            }
+        );
+        queue.add(stringRequest);
+    }
+
 }
