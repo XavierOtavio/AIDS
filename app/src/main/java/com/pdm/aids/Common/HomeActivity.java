@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 
+import com.pdm.aids.Booking.BookingListActivity;
 import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
 
@@ -19,16 +20,33 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         SharedPreferences sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+        final Button btnBookingList = (Button) findViewById(R.id.button_myBookings);
+        final Button btnLogout = (Button) findViewById(R.id.button_logout);
 
-        Button btnLogout = (Button) findViewById(R.id.button_logout);
-        btnLogout.setOnClickListener(v -> {
-            SharedPreferences.Editor editor = sharedpreferences.edit();
-            editor.clear();
-            editor.commit();
-
-            Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+        btnBookingList.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, BookingListActivity.class);
             startActivity(intent);
-            finish();
         });
+
+        btnLogout.setOnClickListener(v -> {
+            logout();
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        logout();
+        super.onDestroy();
+    }
+
+    private void logout() {
+        SharedPreferences sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.clear();
+        editor.apply();
+
+        Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

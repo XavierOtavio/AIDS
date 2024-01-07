@@ -33,8 +33,8 @@ public class BookingListAdapter extends ArrayAdapter<ListData> {
             view = LayoutInflater.from(getContext()).inflate(R.layout.list_item_booking, parent, false);
         }
 
-        TextView roomId = view.findViewById(R.id.idRoomId);
-        ImageView qrImage = view.findViewById(R.id.idQrImage);
+        TextView roomId = view.findViewById(R.id.roomTitle);
+        ImageView qrImage = view.findViewById(R.id.roomImage);
         TextView id = view.findViewById(R.id.idId);
 
         if (listData != null) {

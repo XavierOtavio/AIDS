@@ -8,8 +8,6 @@
     tools:context=".Login.LoginActivity">
 
 
-
-
     <ImageView
         android:id="@+id/imageView4"
         android:layout_width="match_parent"
@@ -21,45 +19,35 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="30dp"
-        android:gravity="center"
-        android:showDividers="middle"
         android:divider="@drawable/divider_gap_transparent"
-        android:orientation="vertical">
+        android:gravity="center"
+        android:orientation="vertical"
+        android:showDividers="middle"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/button_myBookings"
             android:layout_width="300dp"
             android:layout_height="60dp"
-            android:text="Reservar"
-            android:textSize="20sp"
-            android:backgroundTint="#F39C12" />
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="300dp"
-            android:layout_height="60dp"
-            android:text="Reportar"
-            android:textSize="20sp"
-            android:backgroundTint="#F39C12"/>
+            android:backgroundTint="#F39C12"
+            android:text="As minhas reservas"
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/button_logout"
             android:layout_width="300dp"
             android:layout_height="60dp"
+            android:backgroundTint="#F39C12"
             android:text="Logout"
-            android:textSize="20sp"
-            android:backgroundTint="#F39C12"/>
+            android:textSize="20sp" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="30dp"
         android:src="@drawable/logo_aids"
         app:layout_constraintBottom_toBottomOf="parent"
         app:tint="@color/white" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
