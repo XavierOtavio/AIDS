@@ -37,13 +37,13 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         btnLogin.setOnClickListener(v -> {
-            EditText numMecc = (EditText) findViewById(R.id.edit_text_nmechanographic);
+            EditText numMec = (EditText) findViewById(R.id.edit_text_nmechanographic);
             EditText password = (EditText) findViewById(R.id.edit_text_password);
 
             if (!validateNMec((TextInputLayout) findViewById(R.id.textInputLayout_NMec)) | !validatePassword((TextInputLayout) findViewById(R.id.textInputLayout_Password))) {
                 return;
             }
-            OutsystemsAPI.checkLogin(numMecc.getText().toString(), password.getText().toString(), LoginActivity.this, new OutsystemsAPI.VolleyCallback() {
+            OutsystemsAPI.checkLogin(numMec.getText().toString(), password.getText().toString(), LoginActivity.this, new OutsystemsAPI.VolleyCallback() {
                 @Override
                 public void onSuccess(String result) {
                     SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -55,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("Password", obj.getString("Password"));
                             editor.apply();
 
-                            getDataFromAPI(obj.getString("Id"));
+                            OutsystemsAPI.getDataFromAPI(obj.getString("Id"), LoginActivity.this);
 
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                             startActivity(intent);
@@ -105,42 +105,5 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void getDataFromAPI(String userId){
-        //TODO: Need to implement this. The client must be able to get the user data from the API and stored it in the local database.
-        /*
-        OutsystemsAPI.getUserData(userId, LoginActivity.this, new OutsystemsAPI.VolleyCallback() {
-            @Override
-            public void onSuccess(String result) {
-                SharedPreferences.Editor editor = sharedpreferences.edit();
-                try {
-                    JSONObject obj = new JSONObject(result);
-                    if (obj.getString("HTTPCode").equals("200")) {
-                        editor.putString("Name", obj.getString("Name"));
-                        editor.putString("Username", obj.getString("Username"));
-                        editor.putString("Password", obj.getString("Password"));
-                        editor.apply();
 
-                        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onError(String error) {
-                try {
-                    JSONObject obj = new JSONObject(error);
-                    Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
-                } catch (JSONException e) {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        */
-    }
 }

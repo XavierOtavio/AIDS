@@ -36,10 +36,10 @@ public class BookingListActivity extends AppCompatActivity {
         textTitle_toolbar.setText("Reservas");
 
         ImageView add = findViewById(R.id.toolbar_add);
-        add.setOnClickListener(view -> {
+        /*add.setOnClickListener(view -> {
             Intent intent = new Intent(getApplicationContext(), CreateTicketActivity.class);
             startActivity(intent);
-        });
+        });*/
 
         try (DBBookingLocal dataBaseHelper = new DBBookingLocal(this)) {
             bookings = dataBaseHelper.getAllBookings();
