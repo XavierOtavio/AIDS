@@ -9,15 +9,13 @@ import java.util.Locale;
 
 public class ListData {
     String roomName;
+    String expectedDate;
     byte[] roomImage;
-    ExpectedDate expectedDate;
-    DBRoomLocal room;
-
-    public ListData(int roomId, Date startDate, Date endDate) {
-        this.roomName = room.getRoomById(roomId).getName();
-        RoomImage roomImageObject = room.getRoomImagesByRoomId(roomId).get(0);
-        this.roomImage = roomImageObject.getImageBytes();
-        this.expectedDate = new ExpectedDate(startDate, endDate);
+    public ListData(String roomName, Date startDate, Date endDate) {
+        this.roomName = roomName;
+        //TODO: get room image from database
+        this.roomImage = null;
+        this.expectedDate = new ExpectedDate(startDate, endDate).toString();
     }
 
     public class ExpectedDate {

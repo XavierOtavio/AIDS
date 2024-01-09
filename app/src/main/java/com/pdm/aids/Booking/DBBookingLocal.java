@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -86,6 +87,39 @@ public class DBBookingLocal extends SQLiteOpenHelper {
         List<Booking> bookingsList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
+
+        String selectQuery = "SELECT * FROM " + BOOKING_TABLE;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+                int roomId = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_ID));
+                int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
+
+                try {
+                    Booking booking = new Booking(roomId, userId);
+                    booking.setId(id);
+                    bookingsList.add(booking);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return bookingsList;
+    }
+
+
+  /*  @SuppressLint("Range")
+    public List<Booking> getAllBookings() {
+        List<Booking> bookingsList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
         String selectQuery = "SELECT * FROM " + BOOKING_TABLE;
         Cursor cursor = db.rawQuery(selectQuery, null);
 
@@ -125,4 +159,6 @@ public class DBBookingLocal extends SQLiteOpenHelper {
         db.close();
         return bookingsList;
     }
+*/
+
 }

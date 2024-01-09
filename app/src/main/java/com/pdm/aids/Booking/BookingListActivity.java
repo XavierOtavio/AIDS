@@ -9,6 +9,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.pdm.aids.R;
+import com.pdm.aids.Room.DBRoomLocal;
+import com.pdm.aids.Room.Room;
 import com.pdm.aids.Ticket.CreateTicketActivity;
 import com.pdm.aids.databinding.ActivityTicketListBinding;
 
@@ -22,6 +24,8 @@ public class BookingListActivity extends AppCompatActivity {
     ArrayList<com.pdm.aids.Booking.ListData> dataArrayList = new ArrayList<>();
 
     List<Booking> bookings = new ArrayList<>();
+    List<Room> rooms = new ArrayList<>();
+    Room currentRoom;
     com.pdm.aids.Booking.ListData listData;
 
 
@@ -40,22 +44,29 @@ public class BookingListActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), CreateTicketActivity.class);
             startActivity(intent);
         });*/
+        try (DBRoomLocal dataBaseHelper = new DBRoomLocal(this)) {
+            rooms = dataBaseHelper.getAllRooms();
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Error reading rooms", Toast.LENGTH_SHORT).show();
+        }
 
         try (DBBookingLocal dataBaseHelper = new DBBookingLocal(this)) {
             bookings = dataBaseHelper.getAllBookings();
-
             for (int i = 0; i < bookings.size(); i++) {
-                listData = new com.pdm.aids.Booking.ListData(bookings.get(i).getRoomId(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
+                for (int j = 0; j < rooms.size(); j++) {
+                    if (rooms.get(j).getId() == bookings.get(j).getRoomId()) {
+                        currentRoom = rooms.get(j);
+                    }
+                }
+                listData = new com.pdm.aids.Booking.ListData(currentRoom.getName(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
                 dataArrayList.add(listData);
             }
-
 
             listAdapter = new BookingListAdapter(this, dataArrayList, this);
             binding.listView.setAdapter(listAdapter);
             binding.listView.setClickable(true);
         } catch (Exception e) {
-            Toast toast = Toast.makeText(getApplicationContext(), "Error reading tickets", Toast.LENGTH_SHORT);
-            toast.show();
+            Toast.makeText(getApplicationContext(), "Error reading tickets", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -65,21 +76,22 @@ public class BookingListActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    //TODO: review this method
     private void updateList() {
-        try (DBBookingLocal dataBaseHelper = new DBBookingLocal(this)) {
-            bookings = dataBaseHelper.getAllBookings();
-            dataArrayList.clear();
-            for (int i = 0; i < bookings.size(); i++) {
-                listData = new ListData(bookings.get(i).getRoomId(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
-                dataArrayList.add(listData);
-            }
-
-            listAdapter = new BookingListAdapter(this, dataArrayList, this);
-            binding.listView.setAdapter(listAdapter);
-            binding.listView.setClickable(true);
-        } catch (Exception e) {
-            Toast toast = Toast.makeText(getApplicationContext(), "Error reading tickets", Toast.LENGTH_SHORT);
-            toast.show();
-        }
+//        try (DBBookingLocal dataBaseHelper = new DBBookingLocal(this)) {
+//            bookings = dataBaseHelper.getAllBookings();
+//            dataArrayList.clear();
+//            for (int i = 0; i < bookings.size(); i++) {
+//                listData = new ListData(bookings.get(i).getRoomId(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
+//                dataArrayList.add(listData);
+//            }
+//
+//            listAdapter = new BookingListAdapter(this, dataArrayList, this);
+//            binding.listView.setAdapter(listAdapter);
+//            binding.listView.setClickable(true);
+//        } catch (Exception e) {
+//            Toast toast = Toast.makeText(getApplicationContext(), "Error reading tickets", Toast.LENGTH_SHORT);
+//            toast.show();
+//        }
     }
 }

@@ -39,16 +39,15 @@ public class BookingListAdapter extends ArrayAdapter<ListData> {
 
         if (listData != null) {
             roomName.setText(String.valueOf(listData.roomName));
-            byte[] imageByteArray = listData.roomImage;
+            expectedDate.setText(String.valueOf(listData.expectedDate));
+            //byte[] imageByteArray = listData.roomImage;
 
-            Bitmap bmp = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
-            if (bmp != null) {
-                roomImage.setImageBitmap(bmp);
-            } else {
+            //Bitmap bmp = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
+            //if (bmp != null) {
+            //    roomImage.setImageBitmap(bmp);
+            //} else {
                 // Handle case where conversion failed or byte[] is empty
-            }
-
-            expectedDate.setText((CharSequence) listData.expectedDate.toString());
+            //}
         }
         return view;
     }

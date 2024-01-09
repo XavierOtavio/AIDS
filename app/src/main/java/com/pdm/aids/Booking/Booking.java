@@ -37,6 +37,13 @@ public class Booking {
         this.hash = hash;
     }
 
+
+
+    public Booking(int roomId, int userId) {
+        this.roomId = roomId;
+        this.userId = userId;
+    }
+
     public int getId() {
         return id;
     }
