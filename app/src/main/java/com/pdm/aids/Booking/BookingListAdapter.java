@@ -33,22 +33,22 @@ public class BookingListAdapter extends ArrayAdapter<ListData> {
             view = LayoutInflater.from(getContext()).inflate(R.layout.list_item_booking, parent, false);
         }
 
-        TextView roomId = view.findViewById(R.id.roomTitle);
-        ImageView qrImage = view.findViewById(R.id.roomImage);
-        TextView id = view.findViewById(R.id.idId);
+        TextView roomName = view.findViewById(R.id.roomTitle);
+        ImageView roomImage = view.findViewById(R.id.roomImage);
+        TextView expectedDate = view.findViewById(R.id.expected_datetime);
 
         if (listData != null) {
-            roomId.setText(String.valueOf(listData.roomId));
-            byte[] qrCodeByteArray = listData.qrImage;
+            roomName.setText(String.valueOf(listData.roomName));
+            byte[] imageByteArray = listData.roomImage;
 
-            Bitmap bmp = BitmapFactory.decodeByteArray(qrCodeByteArray, 0, qrCodeByteArray.length);
+            Bitmap bmp = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
             if (bmp != null) {
-                qrImage.setImageBitmap(bmp);
+                roomImage.setImageBitmap(bmp);
             } else {
                 // Handle case where conversion failed or byte[] is empty
             }
 
-            id.setText(listData.id);
+            expectedDate.setText((CharSequence) listData.expectedDate.toString());
         }
         return view;
     }

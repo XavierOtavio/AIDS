@@ -45,7 +45,7 @@ public class BookingListActivity extends AppCompatActivity {
             bookings = dataBaseHelper.getAllBookings();
 
             for (int i = 0; i < bookings.size(); i++) {
-                listData = new com.pdm.aids.Booking.ListData(bookings.get(i).getId(), bookings.get(i).getRoomId(), bookings.get(i).getQrImage(bookings.get(i).getHash()));
+                listData = new com.pdm.aids.Booking.ListData(bookings.get(i).getRoomId(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
                 dataArrayList.add(listData);
             }
 
@@ -70,7 +70,7 @@ public class BookingListActivity extends AppCompatActivity {
             bookings = dataBaseHelper.getAllBookings();
             dataArrayList.clear();
             for (int i = 0; i < bookings.size(); i++) {
-                listData = new ListData(bookings.get(i).getId(), bookings.get(i).getRoomId(), bookings.get(i).getQrImage(bookings.get(i).getHash()));
+                listData = new ListData(bookings.get(i).getRoomId(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
                 dataArrayList.add(listData);
             }
 

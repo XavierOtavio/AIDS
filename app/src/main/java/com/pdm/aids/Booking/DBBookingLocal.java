@@ -37,7 +37,7 @@ public class DBBookingLocal extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String createTableQuery = "CREATE TABLE " + BOOKING_TABLE + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ID + " INTEGER, " +
                 COLUMN_ROOM_ID + " INTEGER, " +
                 COLUMN_USER_ID + " INTEGER, " +
                 COLUMN_BOOKING_STATUS_ID + " INTEGER, " +
@@ -62,6 +62,7 @@ public class DBBookingLocal extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
+        values.put(COLUMN_ID, booking.getId());
         values.put(COLUMN_ROOM_ID, booking.getRoomId());
         values.put(COLUMN_USER_ID, booking.getUserId());
         values.put(COLUMN_BOOKING_STATUS_ID, booking.getBookingStatusId());
