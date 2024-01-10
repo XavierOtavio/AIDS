@@ -4,10 +4,10 @@
         <shape
             android:shape="rectangle">
             <corners
-                android:bottomLeftRadius="30dp"
-                android:bottomRightRadius="30dp"
-                android:topLeftRadius="30dp"
-                android:topRightRadius="30dp" />
+                android:bottomLeftRadius="16dp"
+                android:bottomRightRadius="16dp"
+                android:topLeftRadius="16dp"
+                android:topRightRadius="16dp" />
             <gradient
                 android:startColor="#0F2027"
                 android:centerColor="#203A43"
