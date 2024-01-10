@@ -19,7 +19,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 
 public class OutsystemsAPI extends AppCompatActivity {
@@ -85,26 +87,29 @@ public class OutsystemsAPI extends AppCompatActivity {
                             JSONArray bookingList = new JSONArray(obj.getString("BookingList"));
 
                             for (int i = 0; i < bookingList.length(); i++) {
-                                JSONObject booking = bookingList.getJSONObject(i);
-                                ContentValues cv = new ContentValues();
-                                cv.put(dbBookingLocal.COLUMN_ID, booking.getInt("Id"));
-                                cv.put(dbBookingLocal.COLUMN_ROOM_ID, booking.getInt("RoomId"));
-                                cv.put(dbBookingLocal.COLUMN_USER_ID, booking.getInt("ReservedBy"));
-                                cv.put(dbBookingLocal.COLUMN_BOOKING_STATUS_ID, 0); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                                cv.put(dbBookingLocal.COLUMN_EXPECTED_START_DATE, booking.getString("ExpectedStartDate"));
-                                cv.put(dbBookingLocal.COLUMN_EXPECTED_END_DATE, booking.getString("ExpectedEndDate"));
-                                cv.put(dbBookingLocal.COLUMN_ACTUAL_START_DATE, ""); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                                cv.put(dbBookingLocal.COLUMN_ACTUAL_END_DATE, ""); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                                cv.put(dbBookingLocal.COLUMN_DATE_TIME, ""); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                                cv.put(dbBookingLocal.COLUMN_HASH, ""); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                                cv.put(dbBookingLocal.COLUMN_QR_CODE, ""); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                                db.insert(dbBookingLocal.BOOKING_TABLE, null, cv);
+                                JSONObject bookingObj = bookingList.getJSONObject(i);
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                                Booking booking = new Booking(
+                                        bookingObj.getInt("RoomId"),
+                                        bookingObj.getInt("ReservedBy"),
+                                        bookingObj.getInt("BookingStatusId"),
+                                        dateFormat.parse(bookingObj.getString("ExpectedStartDate")),
+                                        dateFormat.parse(bookingObj.getString("ExpectedEndDate")),
+                                        dateFormat.parse(bookingObj.getString("ActualStartDate")),
+                                        dateFormat.parse(bookingObj.getString("ActualEndDate")),
+                                        dateFormat.parse(bookingObj.getString("ModifiedOn")),
+                                        bookingObj.getString("Hash")
+                                );
+
+                                DBBookingLocal.addBooking(booking, context);
                             }
                         } else {
                             Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
                     }
                 }, error -> {
             try {

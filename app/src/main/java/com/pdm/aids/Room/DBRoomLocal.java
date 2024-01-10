@@ -17,7 +17,6 @@ public class DBRoomLocal extends SQLiteOpenHelper {
     public static final String COLUMN_ID = "ID";
     public static final String COLUMN_NAME = "NAME";
     public static final String COLUMN_DESCRIPTION = "DESCRIPTION";
-
     public static final String ROOM_IMAGE_TABLE = "ROOM_IMAGE_TABLE";
     public static final String COLUMN_IMAGE_ID = "IMAGE_ID";
     public static final String COLUMN_FILE_NAME = "FILE_NAME";
@@ -25,7 +24,7 @@ public class DBRoomLocal extends SQLiteOpenHelper {
     public static final String COLUMN_ROOM_ID = "ROOM_ID";
 
     public DBRoomLocal(@Nullable Context context) {
-        super(context, "room.db", null, 1);
+        super(context, "AIDS.db", null, 1);
     }
 
     @Override
@@ -65,6 +64,7 @@ public class DBRoomLocal extends SQLiteOpenHelper {
         db.insert(ROOM_TABLE, null, values);
         db.close();
     }
+
     @SuppressLint("Range")
     public List<Room> getAllRooms() {
         List<Room> roomList = new ArrayList<>();
@@ -86,6 +86,7 @@ public class DBRoomLocal extends SQLiteOpenHelper {
         db.close();
         return roomList;
     }
+
     @SuppressLint("Range")
     public Room getRoomById(int roomId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -123,6 +124,7 @@ public class DBRoomLocal extends SQLiteOpenHelper {
         db.insert(ROOM_IMAGE_TABLE, null, values);
         db.close();
     }
+
     @SuppressLint("Range")
     public List<RoomImage> getAllRoomImages() {
         List<RoomImage> roomImageList = new ArrayList<>();
@@ -145,6 +147,7 @@ public class DBRoomLocal extends SQLiteOpenHelper {
         db.close();
         return roomImageList;
     }
+
     @SuppressLint("Range")
     public List<RoomImage> getRoomImagesByRoomId(int roomId) {
         List<RoomImage> roomImageList = new ArrayList<>();

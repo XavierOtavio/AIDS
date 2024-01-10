@@ -20,12 +20,11 @@ public class Booking {
     private Date expectedEndDate;
     private Date actualStartDate;
     private Date actualEndDate;
-    private Date dateTime;
+    private Date last_modified;
     private String hash;
-    private byte[] qrImage;
 
     public Booking(int roomId, int userId, int bookingStatusId, Date expectedStartDate,
-                   Date expectedEndDate, Date actualStartDate, Date actualEndDate, Date dateTime, String hash) {
+                   Date expectedEndDate, Date actualStartDate, Date actualEndDate, Date last_modified, String hash) {
         this.roomId = roomId;
         this.userId = userId;
         this.bookingStatusId = bookingStatusId;
@@ -33,11 +32,9 @@ public class Booking {
         this.expectedEndDate = expectedEndDate;
         this.actualStartDate = actualStartDate;
         this.actualEndDate = actualEndDate;
-        this.dateTime = dateTime;
+        this.last_modified = last_modified;
         this.hash = hash;
     }
-
-
 
     public Booking(int roomId, int userId, Date expectedStartDate, Date expectedEndDate) {
         this.roomId = roomId;
@@ -62,8 +59,8 @@ public class Booking {
         return actualStartDate;
     }
 
-    public Date getDateTime() {
-        return dateTime;
+    public Date getLast_modified() {
+        return last_modified;
     }
 
     public Date getExpectedEndDate() {
@@ -118,8 +115,8 @@ public class Booking {
         this.bookingStatusId = bookingStatusId;
     }
 
-    public void setDateTime(Date dateTime) {
-        this.dateTime = dateTime;
+    public void setLast_modified(Date last_modified) {
+        this.last_modified = last_modified;
     }
 
     public void setExpectedEndDate(Date expectedEndDate) {
@@ -144,9 +141,5 @@ public class Booking {
 
     public void setUserId(int userId) {
         this.userId = userId;
-    }
-
-    public void setQrImage(byte[] qrImage) {
-        this.qrImage = qrImage;
     }
 }
