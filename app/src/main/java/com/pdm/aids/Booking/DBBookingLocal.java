@@ -93,12 +93,20 @@ public class DBBookingLocal extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
-                int roomId = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_ID));
-                int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
+
 
                 try {
-                    Booking booking = new Booking(roomId, userId);
+                    int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+                    int roomId = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_ID));
+                    int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault());
+                    Date expectedStartDate, expectedEndDate;
+
+                    expectedStartDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_START_DATE)));
+                    expectedEndDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_END_DATE)));
+
+                    Booking booking = new Booking(roomId, userId, expectedStartDate, expectedEndDate);
                     booking.setId(id);
                     bookingsList.add(booking);
 

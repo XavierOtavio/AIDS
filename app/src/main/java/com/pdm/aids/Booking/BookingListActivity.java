@@ -56,6 +56,7 @@ public class BookingListActivity extends AppCompatActivity {
                 for (int j = 0; j < rooms.size(); j++) {
                     if (rooms.get(j).getId() == bookings.get(j).getRoomId()) {
                         currentRoom = rooms.get(j);
+                        System.out.println(currentRoom.getName());
                     }
                 }
                 listData = new com.pdm.aids.Booking.ListData(currentRoom.getName(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
@@ -66,7 +67,7 @@ public class BookingListActivity extends AppCompatActivity {
             binding.listView.setAdapter(listAdapter);
             binding.listView.setClickable(true);
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Error reading tickets", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Error reading bookings", Toast.LENGTH_SHORT).show();
         }
     }
 

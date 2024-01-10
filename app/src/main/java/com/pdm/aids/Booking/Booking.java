@@ -39,9 +39,11 @@ public class Booking {
 
 
 
-    public Booking(int roomId, int userId) {
+    public Booking(int roomId, int userId, Date expectedStartDate, Date expectedEndDate) {
         this.roomId = roomId;
         this.userId = userId;
+        this.expectedStartDate = expectedStartDate;
+        this.expectedEndDate = expectedEndDate;
     }
 
     public int getId() {
