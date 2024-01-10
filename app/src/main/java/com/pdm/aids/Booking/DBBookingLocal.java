@@ -28,11 +28,10 @@ public class DBBookingLocal extends SQLiteOpenHelper {
     public static final String COLUMN_ACTUAL_END_DATE = "ACTUAL_END_DATE";
     public static final String COLUMN_DATE_TIME = "DATE_TIME";
     public static final String COLUMN_HASH = "HASH";
-    public static final String COLUMN_QR_CODE = "QR_CODE_IMAGE";
 
 
     public DBBookingLocal(@Nullable Context context) {
-        super(context, "booking.db", null, 1);
+        super(context, "AIDS.db", null, 1);
     }
 
     @Override
@@ -47,8 +46,7 @@ public class DBBookingLocal extends SQLiteOpenHelper {
                 COLUMN_ACTUAL_START_DATE + " TEXT, " +
                 COLUMN_ACTUAL_END_DATE + " TEXT, " +
                 COLUMN_DATE_TIME + " TEXT, " +
-                COLUMN_HASH + " TEXT, " +
-                COLUMN_QR_CODE + " BLOB" +
+                COLUMN_HASH + " TEXT " +
                 ")";
         db.execSQL(createTableQuery);
     }
@@ -59,8 +57,8 @@ public class DBBookingLocal extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addBooking(Booking booking) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public static void addBooking(Booking booking, Context context) {
+        SQLiteDatabase db = new DBBookingLocal(context).getWritableDatabase();
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_ID, booking.getId());
@@ -73,10 +71,9 @@ public class DBBookingLocal extends SQLiteOpenHelper {
         values.put(COLUMN_EXPECTED_END_DATE, dateFormat.format(booking.getExpectedEndDate()));
         values.put(COLUMN_ACTUAL_START_DATE, booking.getActualStartDate() != null ? dateFormat.format(booking.getActualStartDate()) : null);
         values.put(COLUMN_ACTUAL_END_DATE, booking.getActualEndDate() != null ? dateFormat.format(booking.getActualEndDate()) : null);
-        values.put(COLUMN_DATE_TIME, dateFormat.format(booking.getDateTime()));
+        values.put(COLUMN_DATE_TIME, dateFormat.format(booking.getLast_modified()));
 
         values.put(COLUMN_HASH, booking.getHash());
-        values.put(COLUMN_QR_CODE, booking.getQrImage(booking.getHash()));
 
         db.insert(BOOKING_TABLE, null, values);
         db.close();
@@ -96,17 +93,24 @@ public class DBBookingLocal extends SQLiteOpenHelper {
 
 
                 try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault());
+                    Date expectedStartDate, expectedEndDate;
+                    String actualStartDateString = cursor.getString(cursor.getColumnIndex(COLUMN_ACTUAL_START_DATE));
+                    String actualEndDateString = cursor.getString(cursor.getColumnIndex(COLUMN_ACTUAL_END_DATE));
+
                     int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
                     int roomId = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_ID));
                     int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
-
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault());
-                    Date expectedStartDate, expectedEndDate;
-
+                    int bookingStatusId = cursor.getInt(cursor.getColumnIndex(COLUMN_BOOKING_STATUS_ID));
                     expectedStartDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_START_DATE)));
                     expectedEndDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_END_DATE)));
+                    Date actualStartDate = actualStartDateString != null ? dateFormat.parse(actualStartDateString) : null;
+                    Date actualEndDate = actualEndDateString != null ? dateFormat.parse(actualEndDateString) : null;
+                    Date dateTime = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_DATE_TIME)));
+                    String hash = cursor.getString(cursor.getColumnIndex(COLUMN_HASH));
 
-                    Booking booking = new Booking(roomId, userId, expectedStartDate, expectedEndDate);
+                    Booking booking = new Booking(roomId, userId, bookingStatusId, expectedStartDate,
+                            expectedEndDate, actualStartDate, actualEndDate, dateTime, hash);
                     booking.setId(id);
                     bookingsList.add(booking);
 
