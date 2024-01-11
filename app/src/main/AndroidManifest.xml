@@ -20,6 +20,9 @@
         android:theme="@style/Theme.AIDS"
         tools:targetApi="31">
         <activity
+            android:name=".Booking.BookingShowQrActivity"
+            android:exported="false" />
+        <activity
             android:name=".Login.RegisterActivity"
             android:exported="false" />
         <activity
@@ -42,9 +45,7 @@
             android:exported="true" />
         <activity
             android:name=".Ticket.TicketListActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true"></activity>
     </application>
 
 </manifest>
