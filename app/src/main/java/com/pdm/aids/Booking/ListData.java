@@ -47,7 +47,7 @@ public class ListData {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             String startDateStr = dateFormat.format(startDate);
             String endDateStr = dateFormat.format(endDate);
-            return startDateStr + " - " + endDateStr;
+            return startDateStr + "\n" + endDateStr;
         }
     }
 

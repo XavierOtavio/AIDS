@@ -27,7 +27,7 @@ public class DBRoomLocal {
 
     public static String CreateTableRoom() {
         return "CREATE TABLE IF NOT EXISTS " + ROOM_TABLE + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ID + " INTEGER, " +
                 COLUMN_NAME + " TEXT, " +
                 COLUMN_DESCRIPTION + " TEXT" +
                 ");";
@@ -64,7 +64,7 @@ public class DBRoomLocal {
                 String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
                 String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
 
-                Room room = new Room(name, description);
+                Room room = new Room(id, name, description);
                 roomList.add(room);
             } while (cursor.moveToNext());
         }
@@ -89,7 +89,7 @@ public class DBRoomLocal {
             String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
             String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
 
-            room = new Room(name, description);
+            room = new Room(id, name, description);
         }
 
         if (cursor != null) {

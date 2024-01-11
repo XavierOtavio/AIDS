@@ -138,7 +138,7 @@ public class OutsystemsAPI extends AppCompatActivity {
 
                             for (int i = 0; i < roomList.length(); i++) {
                                 JSONObject roomObj = roomList.getJSONObject(i);
-                                Room room = new Room(roomObj.getString("Name"), roomObj.getString("Description"));
+                                Room room = new Room(roomObj.getInt("Id"), roomObj.getString("Name"), roomObj.getString("Description"));
                                 DBRoomLocal.addRoom(room, context, db);
                             }
                         } else {

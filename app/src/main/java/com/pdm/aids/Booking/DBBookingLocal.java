@@ -75,10 +75,8 @@ public class DBBookingLocal  {
 
         if (cursor.moveToFirst()) {
             do {
-
-
                 try {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault());
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
                     Date expectedStartDate, expectedEndDate;
                     String actualStartDateString = cursor.getString(cursor.getColumnIndex(COLUMN_ACTUAL_START_DATE));
                     String actualEndDateString = cursor.getString(cursor.getColumnIndex(COLUMN_ACTUAL_END_DATE));
@@ -87,16 +85,16 @@ public class DBBookingLocal  {
                     int roomId = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_ID));
                     int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
                     int bookingStatusId = cursor.getInt(cursor.getColumnIndex(COLUMN_BOOKING_STATUS_ID));
-                    //expectedStartDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_START_DATE)));
-                    expectedStartDate = Utils.convertUnixToDate(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_START_DATE)));
-                    //expectedEndDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_END_DATE)));
-                    expectedEndDate = Utils.convertUnixToDate(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_END_DATE)));
-                    //Date actualStartDate = actualStartDateString != null ? dateFormat.parse(actualStartDateString) : null;
-                    Date actualStartDate = actualStartDateString != null ? Utils.convertUnixToDate(actualStartDateString) : null;
-                    //Date actualEndDate = actualEndDateString != null ? dateFormat.parse(actualEndDateString) : null;
-                    Date actualEndDate = actualEndDateString != null ? Utils.convertUnixToDate(actualEndDateString) : null;
-                    //Date dateTime = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_DATE_TIME)));
-                    Date dateTime = Utils.convertUnixToDate(cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE)));
+                    expectedStartDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_START_DATE)));
+                    //expectedStartDate = Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_START_DATE)));
+                    expectedEndDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_END_DATE)));
+                    //expectedEndDate = Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_END_DATE)));
+                    Date actualStartDate = actualStartDateString != null ? dateFormat.parse(actualStartDateString) : null;
+                    //Date actualStartDate = actualStartDateString != null ? Utils.convertStringToDate(actualStartDateString) : null;
+                    Date actualEndDate = actualEndDateString != null ? dateFormat.parse(actualEndDateString) : null;
+                    //Date actualEndDate = actualEndDateString != null ? Utils.convertStringToDate(actualEndDateString) : null;
+                    Date dateTime = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE)));
+                    //Date dateTime = Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE)));
                     String hash = cursor.getString(cursor.getColumnIndex(COLUMN_HASH));
 
                     Booking booking = new Booking(roomId, userId, bookingStatusId, expectedStartDate,

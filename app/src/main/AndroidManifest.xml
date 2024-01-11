@@ -47,5 +47,4 @@
             android:name=".Ticket.TicketListActivity"
             android:exported="true"></activity>
     </application>
-
 </manifest>
