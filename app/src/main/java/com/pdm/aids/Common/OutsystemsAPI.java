@@ -14,6 +14,7 @@ import com.android.volley.toolbox.Volley;
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Room.DBRoomLocal;
+import com.pdm.aids.Room.Room;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,12 +22,14 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 
 public class OutsystemsAPI extends AppCompatActivity {
     public interface VolleyCallback {
         void onSuccess(String result);
+
         void onError(String error);
     }
 
@@ -39,9 +42,9 @@ public class OutsystemsAPI extends AppCompatActivity {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 response -> {
                     callback.onSuccess(response);
-                } , error -> {
-                callback.onError(error.getMessage());
-            }
+                }, error -> {
+            callback.onError(error.getMessage());
+        }
         );
         queue.add(stringRequest);
     }
@@ -53,24 +56,24 @@ public class OutsystemsAPI extends AppCompatActivity {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 response -> {
                     callback.onSuccess(response);
-                } , error -> {
-                callback.onError(error.getMessage());
-            }
+                }, error -> {
+            callback.onError(error.getMessage());
+        }
         );
         queue.add(stringRequest);
     }
 
+
     public static void getDataFromAPI(String userId, Context context) {
-        //TODO: Need to implement this. The client must be able to get the user data from the API and stored it in the local database.
-
-            //Get bookings by user
-            getBookingsByUser(userId, context);
-            //Get rooms
-            getRoomsINeed(userId, context);
-
+        DbManager dbManager = new DbManager(context);
+        SQLiteDatabase db = dbManager.getWritableDatabase();
+        //Get bookings by user
+        getBookingsByUser(userId, context, db, dbManager);
+        //Get rooms
+        getRoomsINeed(userId, context, db, dbManager);
     }
 
-    public static void getBookingsByUser(String userId, Context context) {
+    public static void getBookingsByUser(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
         String url = apiUrl + "GetAllBookingsByUser?UserId=" + userId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -80,36 +83,32 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
-                            DBBookingLocal dbBookingLocal = new DBBookingLocal(context);
-                            SQLiteDatabase db = dbBookingLocal.getWritableDatabase();
-                            db.execSQL("DELETE FROM " + dbBookingLocal.BOOKING_TABLE);
+                            db.execSQL("DELETE FROM " + dbManager.BOOKING_TABLE);
 
                             JSONArray bookingList = new JSONArray(obj.getString("BookingList"));
 
                             for (int i = 0; i < bookingList.length(); i++) {
                                 JSONObject bookingObj = bookingList.getJSONObject(i);
-                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                                //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
                                 Booking booking = new Booking(
                                         bookingObj.getInt("RoomId"),
                                         bookingObj.getInt("ReservedBy"),
                                         bookingObj.getInt("BookingStatusId"),
-                                        dateFormat.parse(bookingObj.getString("ExpectedStartDate")),
-                                        dateFormat.parse(bookingObj.getString("ExpectedEndDate")),
-                                        dateFormat.parse(bookingObj.getString("ActualStartDate")),
-                                        dateFormat.parse(bookingObj.getString("ActualEndDate")),
-                                        dateFormat.parse(bookingObj.getString("ModifiedOn")),
+                                        Utils.convertUnixToDate(bookingObj.getString("ExpectedStartDate")),
+                                        Utils.convertUnixToDate(bookingObj.getString("ExpectedEndDate")),
+                                        Utils.convertUnixToDate(bookingObj.getString("ActualStartDate")),
+                                        Utils.convertUnixToDate(bookingObj.getString("ActualEndDate")),
+                                        Utils.convertUnixToDate(bookingObj.getString("ModifiedOn")),
                                         bookingObj.getString("Hash")
                                 );
-
-                                DBBookingLocal.addBooking(booking, context);
+                                DBBookingLocal.addBooking(booking, db);
                             }
                         } else {
                             Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
                     }
                 }, error -> {
             try {
@@ -123,7 +122,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    public static void getRoomsINeed(String userId, Context context) {
+    public static void getRoomsINeed(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
         String url = apiUrl + "GetRoomsUserNeeds?UserId=" + userId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -133,19 +132,14 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
-                            DBRoomLocal dbRoomLocal = new DBRoomLocal(context);
-                            SQLiteDatabase db = dbRoomLocal.getWritableDatabase();
-                            db.execSQL("DELETE FROM " + dbRoomLocal.ROOM_TABLE);
+                            db.execSQL("DELETE FROM " + dbManager.ROOM_TABLE);
 
                             JSONArray roomList = new JSONArray(obj.getString("RoomList"));
 
                             for (int i = 0; i < roomList.length(); i++) {
-                                JSONObject room = roomList.getJSONObject(i);
-                                ContentValues cv = new ContentValues();
-                                cv.put(dbRoomLocal.COLUMN_ID, room.getInt("Id"));
-                                cv.put(dbRoomLocal.COLUMN_NAME, room.getString("Name"));
-                                cv.put(dbRoomLocal.COLUMN_DESCRIPTION, room.getString("Description"));
-                                db.insert(dbRoomLocal.ROOM_TABLE, null, cv);
+                                JSONObject roomObj = roomList.getJSONObject(i);
+                                Room room = new Room(roomObj.getString("Name"), roomObj.getString("Description"));
+                                DBRoomLocal.addRoom(room, context, db);
                             }
                         } else {
                             Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();

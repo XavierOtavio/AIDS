@@ -9,10 +9,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
+import com.pdm.aids.Booking.DBBookingLocal;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class DBRoomLocal extends SQLiteOpenHelper {
+public class DBRoomLocal {
     public static final String ROOM_TABLE = "ROOM_TABLE";
     public static final String COLUMN_ID = "ID";
     public static final String COLUMN_NAME = "NAME";
@@ -23,38 +25,25 @@ public class DBRoomLocal extends SQLiteOpenHelper {
     public static final String COLUMN_IMAGE = "IMAGE";
     public static final String COLUMN_ROOM_ID = "ROOM_ID";
 
-    public DBRoomLocal(@Nullable Context context) {
-        super(context, "AIDS.db", null, 1);
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        String createRoomTableQuery = "CREATE TABLE " + ROOM_TABLE + " (" +
+    public static String CreateTableRoom() {
+        return "CREATE TABLE IF NOT EXISTS " + ROOM_TABLE + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_NAME + " TEXT, " +
                 COLUMN_DESCRIPTION + " TEXT" +
-                ")";
-        db.execSQL(createRoomTableQuery);
+                ");";
+    }
 
-        String createRoomImageTableQuery = "CREATE TABLE " + ROOM_IMAGE_TABLE + " (" +
+    public static String CreateTableRoomImage() {
+        return "CREATE TABLE IF NOT EXISTS " + ROOM_IMAGE_TABLE + " (" +
                 COLUMN_IMAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_FILE_NAME + " TEXT, " +
                 COLUMN_IMAGE + " BLOB, " +
                 COLUMN_ROOM_ID + " INTEGER, " +
                 "FOREIGN KEY(" + COLUMN_ROOM_ID + ") REFERENCES " + ROOM_TABLE + "(" + COLUMN_ID + ")" +
-                ")";
-        db.execSQL(createRoomImageTableQuery);
+                ");";
     }
 
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + ROOM_IMAGE_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + ROOM_TABLE);
-        onCreate(db);
-    }
-
-    public void addRoom(Room room) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public static void addRoom(Room room, Context context, SQLiteDatabase db) {
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_ID, room.getId());
@@ -62,13 +51,11 @@ public class DBRoomLocal extends SQLiteOpenHelper {
         values.put(COLUMN_DESCRIPTION, room.getDescription());
 
         db.insert(ROOM_TABLE, null, values);
-        db.close();
     }
 
     @SuppressLint("Range")
-    public List<Room> getAllRooms() {
+    public List<Room> getAllRooms(SQLiteDatabase db) {
         List<Room> roomList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.rawQuery("SELECT * FROM " + ROOM_TABLE, null);
         if (cursor.moveToFirst()) {
@@ -77,7 +64,7 @@ public class DBRoomLocal extends SQLiteOpenHelper {
                 String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
                 String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
 
-                Room room = new Room(id, name, description);
+                Room room = new Room(name, description);
                 roomList.add(room);
             } while (cursor.moveToNext());
         }
@@ -88,8 +75,7 @@ public class DBRoomLocal extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public Room getRoomById(int roomId) {
-        SQLiteDatabase db = this.getReadableDatabase();
+    public Room getRoomById(int roomId, SQLiteDatabase db) {
 
         Cursor cursor = db.query(ROOM_TABLE,
                 new String[]{COLUMN_ID, COLUMN_NAME, COLUMN_DESCRIPTION},
@@ -103,7 +89,7 @@ public class DBRoomLocal extends SQLiteOpenHelper {
             String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
             String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
 
-            room = new Room(id, name, description);
+            room = new Room(name, description);
         }
 
         if (cursor != null) {
@@ -113,8 +99,7 @@ public class DBRoomLocal extends SQLiteOpenHelper {
         return room;
     }
 
-    public void addRoomImage(RoomImage roomImage) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void addRoomImage(RoomImage roomImage, SQLiteDatabase db) {
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_FILE_NAME, roomImage.getFileName());
@@ -126,9 +111,8 @@ public class DBRoomLocal extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public List<RoomImage> getAllRoomImages() {
+    public List<RoomImage> getAllRoomImages(SQLiteDatabase db) {
         List<RoomImage> roomImageList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.rawQuery("SELECT * FROM " + ROOM_IMAGE_TABLE, null);
         if (cursor.moveToFirst()) {
@@ -149,9 +133,8 @@ public class DBRoomLocal extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public List<RoomImage> getRoomImagesByRoomId(int roomId) {
+    public List<RoomImage> getRoomImagesByRoomId(int roomId, SQLiteDatabase db) {
         List<RoomImage> roomImageList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(ROOM_IMAGE_TABLE,
                 new String[]{COLUMN_IMAGE_ID, COLUMN_FILE_NAME, COLUMN_IMAGE, COLUMN_ROOM_ID},

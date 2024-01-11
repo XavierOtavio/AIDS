@@ -4,8 +4,7 @@ public class Room {
     int id;
     String name, description;
 
-    public Room(int id, String name, String description){
-        this.id = id;
+    public Room(String name, String description){
         this.name = name;
         this.description = description;
     }

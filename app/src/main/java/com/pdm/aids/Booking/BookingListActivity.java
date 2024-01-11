@@ -44,31 +44,33 @@ public class BookingListActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), CreateTicketActivity.class);
             startActivity(intent);
         });*/
-        try (DBRoomLocal dataBaseHelper = new DBRoomLocal(this)) {
-            rooms = dataBaseHelper.getAllRooms();
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Error reading rooms", Toast.LENGTH_SHORT).show();
-        }
-
-        try (DBBookingLocal dataBaseHelper = new DBBookingLocal(this)) {
-            bookings = dataBaseHelper.getAllBookings();
-            for (int i = 0; i < bookings.size(); i++) {
-                for (int j = 0; j < rooms.size(); j++) {
-                    if (rooms.get(j).getId() == bookings.get(j).getRoomId()) {
-                        currentRoom = rooms.get(j);
-                        System.out.println(currentRoom.getName());
-                    }
-                }
-                listData = new com.pdm.aids.Booking.ListData(currentRoom.getName(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
-                dataArrayList.add(listData);
-            }
-
-            listAdapter = new BookingListAdapter(this, dataArrayList, this);
-            binding.listView.setAdapter(listAdapter);
-            binding.listView.setClickable(true);
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Error reading bookings", Toast.LENGTH_SHORT).show();
-        }
+//        try (DBRoomLocal dataBaseHelper = new DBRoomLocal(this)) {
+//            rooms = dataBaseHelper.getAllRooms();
+//            Toast.makeText(getApplicationContext(), "Rooms: " + rooms.size(), Toast.LENGTH_SHORT).show();
+//        } catch (Exception e) {
+//            Toast.makeText(getApplicationContext(), "Error reading rooms", Toast.LENGTH_SHORT).show();
+//        }
+//
+//        try (DBBookingLocal dataBaseHelper = new DBBookingLocal(this)) {
+//            bookings = dataBaseHelper.getAllBookings();
+//            Toast.makeText(getApplicationContext(), "Bookings: " + bookings.size(), Toast.LENGTH_SHORT).show();
+//            for (int i = 0; i < bookings.size(); i++) {
+//                for (int j = 0; j < rooms.size(); j++) {
+//                    if (rooms.get(j).getId() == bookings.get(j).getRoomId()) {
+//                        currentRoom = rooms.get(j);
+//                        System.out.println(currentRoom.getName());
+//                    }
+//                }
+//                listData = new com.pdm.aids.Booking.ListData(currentRoom.getName(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
+//                dataArrayList.add(listData);
+//            }
+//
+//            listAdapter = new BookingListAdapter(this, dataArrayList, this);
+//            binding.listView.setAdapter(listAdapter);
+//            binding.listView.setClickable(true);
+//        } catch (Exception e) {
+//            Toast.makeText(getApplicationContext(), "Error reading bookings", Toast.LENGTH_SHORT).show();
+//        }
     }
 
     @Override

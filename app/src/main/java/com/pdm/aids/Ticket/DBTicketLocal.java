@@ -17,18 +17,17 @@ public class DBTicketLocal extends SQLiteOpenHelper {
     public static final String COLUMN_ID = "ID";
     public static final String COLUMN_TITLE = "TITLE";
     public static final String COLUMN_DESCRIPTION = "DESCRIPTION";
-    public static final String COLUMN_PICTURE = "PICTURE";
 
     public DBTicketLocal(@Nullable Context context) {
-        super(context, "ticket.db", null, 1);
+        super(context, "AIDS.db", null, 1);
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
         String createTableStatement = "CREATE TABLE " + TICKET_TABLE + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_TITLE + " TEXT, " +
-                COLUMN_DESCRIPTION + " TEXT, " +
-                COLUMN_PICTURE + " BLOB)";
+                COLUMN_DESCRIPTION + " TEXT " +
+        ")";
         db.execSQL(createTableStatement);
     }
     @Override
@@ -42,7 +41,6 @@ public class DBTicketLocal extends SQLiteOpenHelper {
 
         cv.put(COLUMN_TITLE, ticket.getTitle());
         cv.put(COLUMN_DESCRIPTION, ticket.getDescription());
-        cv.put(COLUMN_PICTURE, ticket.getPicture());
 
         long insert= db.insert(TICKET_TABLE, null, cv);
         return insert != -1;
@@ -54,7 +52,6 @@ public class DBTicketLocal extends SQLiteOpenHelper {
 
         cv.put(COLUMN_TITLE, ticket.getTitle());
         cv.put(COLUMN_DESCRIPTION, ticket.getDescription());
-        cv.put(COLUMN_PICTURE, ticket.getPicture());
 
         long update = db.update(TICKET_TABLE, cv, COLUMN_ID + " = ?",
                 new String[]{String.valueOf(ticket.getId())});
@@ -78,9 +75,8 @@ public class DBTicketLocal extends SQLiteOpenHelper {
                 @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
                 @SuppressLint("Range") String title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
                 @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
-                @SuppressLint("Range") byte[] picture = cursor.getBlob(cursor.getColumnIndex(COLUMN_PICTURE));
 
-                Ticket ticket = new Ticket(id, title, description, picture);
+                Ticket ticket = new Ticket(title, description);
                 ticketList.add(ticket);
             } while (cursor.moveToNext());
         }
@@ -98,9 +94,8 @@ public class DBTicketLocal extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             @SuppressLint("Range") String title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
             @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
-            @SuppressLint("Range") byte[] picture = cursor.getBlob(cursor.getColumnIndex(COLUMN_PICTURE));
 
-            ticket = new Ticket(id, title, description, picture);
+            ticket = new Ticket(title, description);
         }
 
         cursor.close();
