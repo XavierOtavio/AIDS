@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/page_background"
-    tools:context=".Booking.BookingShowQrActivity">
+    tools:context=".Booking.BookingDetails.BookingShowQrActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_main"

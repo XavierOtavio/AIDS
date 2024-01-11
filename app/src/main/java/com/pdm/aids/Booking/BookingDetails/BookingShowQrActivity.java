@@ -1,4 +1,4 @@
-package com.pdm.aids.Booking;
+package com.pdm.aids.Booking.BookingDetails;
 
 import androidx.appcompat.app.AppCompatActivity;
 

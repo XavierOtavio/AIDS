@@ -1,4 +1,4 @@
-package com.pdm.aids.Booking;
+package com.pdm.aids.Booking.BookingList;
 
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.RoomImage;
