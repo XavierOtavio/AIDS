@@ -1,17 +1,22 @@
 package com.pdm.aids.Booking.BookingList;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.pdm.aids.Booking.Booking;
+import com.pdm.aids.Booking.BookingDetails.BookingDetailActivity;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
+import com.pdm.aids.Ticket.TicketListActivity;
 import com.pdm.aids.databinding.ActivityTicketListBinding;
 
 import java.util.ArrayList;
@@ -34,9 +39,17 @@ public class BookingListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking_list);
         binding = ActivityTicketListBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot()); // Set the root view of the binding object
+        setContentView(binding.getRoot());
 
         TextView textTitle_toolbar = findViewById(R.id.toolbar_title);
+        ImageButton btn = findViewById(R.id.toolbar_add);
+
+        btn.setOnClickListener(view -> {
+            Intent intent = new Intent(BookingListActivity.this, BookingDetailActivity.class);
+
+            startActivity(intent);
+        });
+
         textTitle_toolbar.setText("Reservas");
 
         try (DbManager dataBaseHelper = new DbManager(this)) {
@@ -62,9 +75,6 @@ public class BookingListActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Error accessing database", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-
 
     @Override
     protected void onResume() {
