@@ -5,7 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/page_background"
     tools:context=".Booking.BookingDetails.BookingDetailActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -16,7 +15,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
         <TextView
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
@@ -26,102 +24,214 @@
             android:textColor="@android:color/black"
             android:textSize="20dp"
             android:textStyle="bold" />
-
     </androidx.appcompat.widget.Toolbar>
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+
+
+    <LinearLayout
+        android:id="@+id/linearLayoutTop"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="76dp"
-        android:layout_marginTop="176dp"
-        android:text="RoomID"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textColor="@color/white"
-        android:visibility="visible"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_main"
+        android:gravity="center"
+        android:orientation="vertical">
+
+      <ImageButton
+            android:id="@+id/cameraButton"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:background="@drawable/camera_button_circle"/>
+
+        <TextView
+            android:id="@+id/qrCodeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ler QR"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="10dp"
+            android:textSize="20dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/page_details_card_background"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutTop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Início"
+                android:textColor="@android:color/white"
+                android:textSize="20dp"
+                android:layout_weight="0.5"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/startDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12/12/2020 12:00"
+                android:textColor="@android:color/white"
+                android:layout_weight="0.5"
+                android:textAlignment="textEnd"
+                android:textSize="20dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fim"
+                android:textColor="@android:color/white"
+                android:textSize="20dp"
+                android:layout_weight="1"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/endDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12/12/2020 13:30"
+                android:textColor="@android:color/white"
+                android:layout_weight="1"
+                android:textAlignment="textEnd"
+                android:textSize="20dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/white"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Entrada no Espaço"
+                android:textColor="@android:color/white"
+                android:textSize="16dp"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/enterRoomDateTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="@android:color/white"
+                android:layout_weight="1"
+                android:textAlignment="textEnd"
+                android:textSize="16dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Saída Espaço"
+                android:textColor="@android:color/white"
+                android:textSize="16dp"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/leaveRoomDateTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="@android:color/white"
+                android:layout_weight="1"
+                android:textAlignment="textEnd"
+                android:textSize="16dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/white"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp" />
 
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="76dp"
-        android:layout_marginTop="228dp"
-        android:text="Start Date:"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="76dp"
-        android:layout_marginTop="276dp"
-        android:text="End Date:"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Espaço"
+                android:textColor="@android:color/white"
+                android:textSize="20dp"
+                android:layout_weight="1"
+                android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="264dp"
-        android:layout_marginTop="640dp"
-        android:backgroundTint="#F39C12"
-        android:text="Exit Room"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/roomName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pavilhão 3"
+                android:textColor="@android:color/white"
+                android:layout_weight="1"
+                android:textAlignment="textEnd"
+                android:textSize="20dp"
+                android:textStyle="bold"/>
+        </LinearLayout>
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="640dp"
-        android:backgroundTint="#F39C12"
-        android:text="Abrir Casos"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:id="@+id/roomImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/pvestgv"
+            android:background="#D9D9D9"
+            android:scaleType="centerCrop"/>
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="140dp"
-        android:layout_marginTop="276dp"
-        android:text="TextView"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="148dp"
-        android:layout_marginTop="228dp"
-        android:text="TextView"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="132dp"
-        android:layout_marginTop="176dp"
-        android:text="TextView"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
