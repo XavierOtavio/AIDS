@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,13 +43,14 @@ public class BookingListActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         TextView textTitle_toolbar = findViewById(R.id.toolbar_title);
-        ImageButton btn = findViewById(R.id.toolbar_add);
+        ListView listItem = findViewById(R.id.listView);
 
-        btn.setOnClickListener(view -> {
+        listItem.setOnItemClickListener((adapterView, view, i, l) -> {
             Intent intent = new Intent(BookingListActivity.this, BookingDetailActivity.class);
-
+            intent.putExtra("bookingHash", bookings.get(i).getHash());
             startActivity(intent);
         });
+
 
         textTitle_toolbar.setText("Reservas");
 

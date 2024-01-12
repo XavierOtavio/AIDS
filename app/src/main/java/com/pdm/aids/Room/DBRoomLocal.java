@@ -75,7 +75,7 @@ public class DBRoomLocal {
     }
 
     @SuppressLint("Range")
-    public Room getRoomById(int roomId, SQLiteDatabase db) {
+    public static Room getRoomById(int roomId, SQLiteDatabase db) {
 
         Cursor cursor = db.query(ROOM_TABLE,
                 new String[]{COLUMN_ID, COLUMN_NAME, COLUMN_DESCRIPTION},

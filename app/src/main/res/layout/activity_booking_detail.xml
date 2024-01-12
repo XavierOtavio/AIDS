@@ -145,7 +145,7 @@
                 android:layout_weight="1"/>
 
             <TextView
-                android:id="@+id/enterRoomDateTime"
+                android:id="@+id/enterRoomDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="-"
@@ -172,7 +172,7 @@
                 android:layout_weight="1"/>
 
             <TextView
-                android:id="@+id/leaveRoomDateTime"
+                android:id="@+id/exitRoomDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="-"

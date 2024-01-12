@@ -29,9 +29,8 @@ public class Utils {
 
     public static boolean isDateNull(Date dateToCheck) {
         try {
-            Date date = new Date(Long.parseLong("-2208988800") * 1000);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            return dateToCheck.equals(dateFormat.parse(dateFormat.format(date)));
+            Date referenceDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse("1900-01-01 00:00:00");
+            return dateToCheck.equals(referenceDate);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
