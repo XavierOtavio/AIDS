@@ -72,7 +72,7 @@ public class BookingDetailActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
     }
     private void initViews() {
-        binding.cameraButton.setOnClickListener(view -> {
+        binding.imageViewCaptured.setOnClickListener(view -> {
             checkPermissionAndShowActivity(this);
         });
     }

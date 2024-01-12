@@ -36,7 +36,7 @@
         android:orientation="vertical">
 
       <ImageButton
-            android:id="@+id/cameraButton"
+            android:id="@+id/image_view_captured"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:background="@drawable/camera_button_circle"/>

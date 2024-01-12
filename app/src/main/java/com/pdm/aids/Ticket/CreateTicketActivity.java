@@ -35,7 +35,7 @@ public class CreateTicketActivity extends AppCompatActivity {
 
         titleEditText = findViewById(R.id.edit_text_title);
         descriptionEditText = findViewById(R.id.edit_text_description);
-        takePictureButton = findViewById(R.id.button_take_picture);
+        takePictureButton = findViewById(R.id.button_save);
         capturedImageView = findViewById(R.id.image_view_captured);
 
         dbTicketLocal = new DBTicketLocal(this);
