@@ -53,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("Name", obj.getString("Name"));
                             editor.putString("Username", obj.getString("Username"));
                             editor.putString("Password", obj.getString("Password"));
+                            editor.putString("Id", obj.getString("Id"));
                             editor.apply();
 
                             OutsystemsAPI.getDataFromAPI(obj.getString("Id"), LoginActivity.this);

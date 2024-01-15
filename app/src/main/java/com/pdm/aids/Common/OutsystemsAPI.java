@@ -159,7 +159,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    public static void validateEntry(String hash, int userId, String roomId, Context context) {
+    public static void validateEntry(String hash, String userId, String roomId, Context context) {
         DbManager dbManager = new DbManager(context);
         SQLiteDatabase db = dbManager.getWritableDatabase();
 

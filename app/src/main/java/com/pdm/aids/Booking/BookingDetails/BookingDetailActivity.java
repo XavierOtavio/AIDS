@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -23,6 +24,7 @@ import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.Common.Utils;
+import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
@@ -127,7 +129,11 @@ public class BookingDetailActivity extends AppCompatActivity {
             Intent intent = getIntent();
             String hash = intent.getStringExtra("bookingHash");
 
-            OutsystemsAPI.validateEntry(hash, 2, result.getContents(), this);
+            SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+            String id = sharedPreferences.getString("Id", "");
+
+            OutsystemsAPI.validateEntry(hash, id, result.getContents(), this);
         }
     });
+
 }
