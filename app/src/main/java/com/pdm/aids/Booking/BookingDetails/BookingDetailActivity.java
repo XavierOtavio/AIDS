@@ -31,6 +31,8 @@ import com.pdm.aids.Room.Room;
 import com.pdm.aids.databinding.ActivityBookingDetailBinding;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class BookingDetailActivity extends AppCompatActivity {
     private ActivityBookingDetailBinding binding;
@@ -64,7 +66,7 @@ public class BookingDetailActivity extends AppCompatActivity {
             endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormat.format(booking.getExpectedEndDate()));
             enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
 
-            if (booking.getActualEndDate() != null) {
+            if (booking.getActualEndDate() != null && !Utils.isDateNull(booking.getActualEndDate())) {
                 exitRoomDate.setText(dateFormat.format(booking.getActualEndDate()));
             } else {
                 exitRoomDate.setText("-");
