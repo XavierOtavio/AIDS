@@ -65,12 +65,7 @@ public class BookingDetailActivity extends AppCompatActivity {
             startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormat.format(booking.getExpectedStartDate()));
             endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormat.format(booking.getExpectedEndDate()));
             enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
-
-            if (booking.getActualEndDate() != null && !Utils.isDateNull(booking.getActualEndDate())) {
-                exitRoomDate.setText(dateFormat.format(booking.getActualEndDate()));
-            } else {
-                exitRoomDate.setText("-");
-            }
+            exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "-" : dateFormat.format(booking.getActualEndDate()));
 
             roomName.setText(room != null ? room.getName() : "");
 
