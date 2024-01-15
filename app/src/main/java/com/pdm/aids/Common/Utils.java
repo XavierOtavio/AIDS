@@ -20,16 +20,11 @@ public class Utils {
     public static Date convertStringToDate(String dateString) {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-
-            if (dateString != null) {
-                return dateFormat.parse(dateString);
-            }
-            return null;
+            return dateFormat.parse(dateString);
         } catch (ParseException e) {
             throw new RuntimeException("Error parsing date string", e);
         }
     }
-
 
 
     public static boolean isDateNull(Date dateToCheck) {
