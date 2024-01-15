@@ -158,4 +158,49 @@ public class OutsystemsAPI extends AppCompatActivity {
         );
         queue.add(stringRequest);
     }
+
+    public static void validateEntry(String hash, int userId, String roomId, Context context) {
+        DbManager dbManager = new DbManager(context);
+        SQLiteDatabase db = dbManager.getWritableDatabase();
+
+        String url = apiUrl + "ValidateEntry?Hash=" + hash +"&UserId=" + userId + "&RoomId=" + roomId;
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url ,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            db.execSQL("DELETE FROM " + dbManager.BOOKING_TABLE + " WHERE Hash = '" + hash + "'");
+
+                            Booking booking = new Booking(
+                                    obj.getInt("RoomId"),
+                                    obj.getInt("ReservedBy"),
+                                    obj.getInt("BookingStatusId"),
+                                    Utils.convertUnixToDate(obj.getString("ExpectedStartDate")),
+                                    Utils.convertUnixToDate(obj.getString("ExpectedEndDate")),
+                                    Utils.convertUnixToDate(obj.getString("ActualStartDate")),
+                                    null,
+                                    Utils.convertUnixToDate(obj.getString("ModifiedOn")),
+                                    obj.getString("Hash")
+                            );
+                            DBBookingLocal.addBooking(booking, db);
+                    } else {
+                        Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }, error -> {
+        try {
+            JSONObject obj = new JSONObject(error.getMessage());
+            Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+        } catch (JSONException e) {
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+        );
+        queue.add(stringRequest);
+    }
 }

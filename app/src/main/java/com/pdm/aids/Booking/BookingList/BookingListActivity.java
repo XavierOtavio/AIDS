@@ -74,7 +74,7 @@ public class BookingListActivity extends AppCompatActivity {
             binding.listView.setAdapter(listAdapter);
             binding.listView.setClickable(true);
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Error accessing database", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 

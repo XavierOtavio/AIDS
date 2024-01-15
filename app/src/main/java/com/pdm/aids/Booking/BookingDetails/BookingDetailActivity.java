@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -20,6 +21,7 @@ import com.journeyapps.barcodescanner.ScanOptions;
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
+import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.Common.Utils;
 import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomLocal;
@@ -54,16 +56,23 @@ public class BookingDetailActivity extends AppCompatActivity {
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-            textTitle_toolbar.setText("Reserva: " + room.getName());
+            textTitle_toolbar.setText("Reserva: " + (room != null ? room.getName() : ""));
             qrCodeLabel.setText("Ler QR Code");
             startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormat.format(booking.getExpectedStartDate()));
             endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormat.format(booking.getExpectedEndDate()));
             enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
-            exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "-" : dateFormat.format(booking.getActualEndDate()));
-            roomName.setText(room.getName());
+
+            if (booking.getActualEndDate() != null) {
+                exitRoomDate.setText(dateFormat.format(booking.getActualEndDate()));
+            } else {
+                exitRoomDate.setText("-");
+            }
+
+            roomName.setText(room != null ? room.getName() : "");
 
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Error accessing database", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -115,8 +124,10 @@ public class BookingDetailActivity extends AppCompatActivity {
         if (result.getContents() == null) {
             Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
         } else {
-            //TODO: Sucessful QR Read
+            Intent intent = getIntent();
+            String hash = intent.getStringExtra("bookingHash");
+
+            OutsystemsAPI.validateEntry(hash, 2, result.getContents(), this);
         }
     });
-
 }
