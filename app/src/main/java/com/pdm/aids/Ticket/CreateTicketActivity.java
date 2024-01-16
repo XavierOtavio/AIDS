@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.R;
+import com.pdm.aids.Room.DBRoomLocal;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -28,19 +30,33 @@ public class CreateTicketActivity extends AppCompatActivity {
 
     private EditText titleEditText;
     private EditText descriptionEditText;
+    private TextView facility, expectedStart, expectedLeave;
     private Button takePictureButton;
     private byte[] pictureByteArray;
     private ImageView camera, takenPicture;
     private List<Booking> booking;
+    private DbManager dbManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_ticket);
 
+        dbManager = new DbManager(this);
+        booking = new DBBookingLocal().getBookingsByStatus(3, dbManager.getWritableDatabase());
+
+
         titleEditText = findViewById(R.id.edit_text_title);
         descriptionEditText = findViewById(R.id.edit_text_description);
         camera = findViewById(R.id.camera);
         takenPicture = findViewById(R.id.takenPicture);
+
+        facility = findViewById(R.id.facility);
+        expectedStart = findViewById(R.id.expectedStart);
+        expectedLeave = findViewById(R.id.expectedLeave);
+
+        facility.setText(new DBRoomLocal().getRoomById(booking.get(0).getRoomId(),dbManager.getWritableDatabase()).getName());
+        expectedStart.setText(booking.get(0).getExpectedStartDate().toString());
+        expectedLeave.setText(booking.get(0).getExpectedEndDate().toString());
 
         camera.setOnClickListener(v -> dispatchTakePictureIntent());
 
@@ -90,8 +106,7 @@ public class CreateTicketActivity extends AppCompatActivity {
         String title = titleEditText.getText().toString();
         String description = descriptionEditText.getText().toString();
 
-        try (DbManager dbManager = new DbManager(this)) {
-            booking = new DBBookingLocal().getBookingsByStatus(3, dbManager.getWritableDatabase());
+        try {
 
             if (isBookingValid(booking)) {
                 if (!title.isEmpty() && !description.isEmpty()) {
