@@ -75,12 +75,12 @@ public class BookingDetailActivity extends AppCompatActivity {
                 Intent intent = getIntent();
                 String hash = intent.getStringExtra("bookingHash");
 
-                binding.imageViewCaptured.setVisibility(View.INVISIBLE);
-                binding.imageView2.setVisibility(View.VISIBLE);
+                binding.imageViewCaptured.setVisibility(View.GONE);
+                binding.QRimage.setVisibility(View.VISIBLE);
 
                 Utils u = new Utils();
                 Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
-                binding.imageView2.setImageBitmap(qrBitmap);
+                binding.QRimage.setImageBitmap(qrBitmap);
             }
 
         } catch (Exception e) {
