@@ -32,7 +32,13 @@
             android:backgroundTint="#F39C12"
             android:text="As minhas reservas"
             android:textSize="20sp" />
-
+        <Button
+            android:id="@+id/button_myTickets"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:backgroundTint="#F39C12"
+            android:text="Os meus Tickets"
+            android:textSize="20sp" />
         <Button
             android:id="@+id/button_logout"
             android:layout_width="300dp"

@@ -36,10 +36,17 @@
         android:orientation="vertical">
 
         <ImageButton
-            android:id="@+id/image_view_captured"
+            android:id="@+id/camera"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:background="@drawable/camera_button_circle"/>
+
+        <ImageView
+            android:id="@+id/takenPicture"
+            android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
             android:id="@+id/qrCodeLabel"

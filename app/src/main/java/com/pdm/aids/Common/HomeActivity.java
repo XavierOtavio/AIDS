@@ -11,6 +11,7 @@ import android.widget.Button;
 import com.pdm.aids.Booking.BookingList.BookingListActivity;
 import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
+import com.pdm.aids.Ticket.TicketListActivity;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -21,10 +22,16 @@ public class HomeActivity extends AppCompatActivity {
 
         SharedPreferences sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
         final Button btnBookingList = (Button) findViewById(R.id.button_myBookings);
+        final Button btnTicketList = (Button) findViewById(R.id.button_myTickets);
         final Button btnLogout = (Button) findViewById(R.id.button_logout);
 
         btnBookingList.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, BookingListActivity.class);
+            startActivity(intent);
+        });
+
+        btnTicketList.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, TicketListActivity.class);
             startActivity(intent);
         });
 

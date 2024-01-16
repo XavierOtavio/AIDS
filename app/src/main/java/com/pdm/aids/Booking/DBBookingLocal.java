@@ -151,4 +151,46 @@ public class DBBookingLocal  {
         db.close();
         return booking;
     }
+
+    @SuppressLint("Range")
+    public List<Booking> getBookingsByStatus(int bookingStatusId, SQLiteDatabase db) {
+        List<Booking> bookingsList = new ArrayList<>();
+
+        String selectQuery = "SELECT * FROM " + BOOKING_TABLE + " WHERE " + COLUMN_BOOKING_STATUS_ID + " = " + bookingStatusId;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                    Date expectedStartDate, expectedEndDate;
+                    String actualStartDateString = cursor.getString(cursor.getColumnIndex(COLUMN_ACTUAL_START_DATE));
+                    String actualEndDateString = cursor.getString(cursor.getColumnIndex(COLUMN_ACTUAL_END_DATE));
+
+                    int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+                    int roomId = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_ID));
+                    int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
+                    expectedStartDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_START_DATE)));
+                    expectedEndDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_END_DATE)));
+                    Date actualStartDate = actualStartDateString != null ? dateFormat.parse(actualStartDateString) : null;
+                    Date actualEndDate = actualEndDateString != null ? dateFormat.parse(actualEndDateString) : null;
+                    Date dateTime = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE)));
+                    String hash = cursor.getString(cursor.getColumnIndex(COLUMN_HASH));
+
+                    Booking booking = new Booking(roomId, userId, bookingStatusId, expectedStartDate,
+                            expectedEndDate, actualStartDate, actualEndDate, dateTime, hash);
+                    booking.setId(id);
+                    bookingsList.add(booking);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return bookingsList;
+    }
+
 }

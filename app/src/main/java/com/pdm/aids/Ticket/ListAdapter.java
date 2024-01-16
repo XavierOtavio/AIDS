@@ -39,7 +39,6 @@ public class ListAdapter extends ArrayAdapter<ListData> {
         assert listData != null;
         title.setText(listData.title);
         description.setText(listData.description);
-        id.setText(listData.id);
 
         //TODO: Alterar isto para o estado do ticket
         status.setBackgroundTintList(ColorStateList.valueOf(getContext().getResources().getColor(R.color.pending)));

@@ -1,28 +1,28 @@
 package com.pdm.aids.Ticket;
 
+import java.util.ArrayList;
+
 public class Ticket {
 
-    private int id;
+    private String id;
+    private String bookingId;
+    private int ticketStatusId;
     private String title;
     private String description;
-    private byte[] picture;
-
-    public Ticket(int id, String title, String description, byte[] picture) {
+    private ArrayList<TicketImage> ticketImages;
+    public Ticket(String id, String bookingId, int ticketStatusId, String title, String description) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.picture = picture;
+        this.ticketStatusId = ticketStatusId;
+        this.bookingId = bookingId;
     }
-
-    public Ticket(String title, String description, byte[] picture) {
+    public Ticket(String bookingId, int ticketStatusId, String title, String description, ArrayList<TicketImage> ticketImages) {
         this.title = title;
         this.description = description;
-        this.picture = picture;
-    }
-
-    public Ticket(String title, String description) {
-        this.title = title;
-        this.description = description;
+        this.ticketStatusId = ticketStatusId;
+        this.bookingId = bookingId;
+        this.ticketImages = ticketImages;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class Ticket {
                 '}';
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
     public String getTitle() {
@@ -44,9 +44,6 @@ public class Ticket {
         return description;
     }
 
-    public byte[] getPicture() {
-        return picture;
-    }
 
     public void setTitle(String title) {
         this.title = title;
@@ -56,7 +53,23 @@ public class Ticket {
         this.description = description;
     }
 
-    public void setPicture(byte[] picture) {
-        this.picture = picture;
+    public String  getBookingId() {
+        return bookingId;
+    }
+
+    public int getTicketStatusId() {
+        return ticketStatusId;
+    }
+
+    public void setTicketStatusId(int ticketStatusId) {
+        this.ticketStatusId = ticketStatusId;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
     }
 }

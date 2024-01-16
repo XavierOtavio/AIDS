@@ -7,76 +7,87 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import androidx.annotation.Nullable;
-
 import java.util.ArrayList;
 
-public class DBTicketLocal extends SQLiteOpenHelper {
+public class DBTicketLocal {
 
+    // Ticket table
     public static final String TICKET_TABLE = "TICKET_TABLE";
-    public static final String COLUMN_ID = "ID";
+    public static final String COLUMN_TICKET_ID = "TICKET_ID";
+    public static final String COLUMN_BOOKING_ID = "BOOKING_ID";
+    public static final String COLUMN_TICKET_STATUS_ID = "TICKET_STATUS_ID";
     public static final String COLUMN_TITLE = "TITLE";
     public static final String COLUMN_DESCRIPTION = "DESCRIPTION";
 
-    public DBTicketLocal(@Nullable Context context) {
-        super(context, "AIDS.db", null, 1);
-    }
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        String createTableStatement = "CREATE TABLE " + TICKET_TABLE + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    // TicketImage table
+    public static final String TICKET_IMAGE_TABLE = "TICKET_IMAGE_TABLE";
+    public static final String COLUMN_IMAGE_ID = "IMAGE_ID";
+    public static final String COLUMN_TICKET_IMAGE_ID = "TICKET_ID";
+    public static final String COLUMN_FILENAME = "FILENAME";
+    public static final String COLUMN_IMAGE = "IMAGE";
+
+    public static String CreateTicketTable() {
+        return "CREATE TABLE " + TICKET_TABLE + " (" +
+                COLUMN_TICKET_ID + " TEXT, " +
+                COLUMN_BOOKING_ID + " INTEGER, " +
+                COLUMN_TICKET_STATUS_ID + " INTEGER, " +
                 COLUMN_TITLE + " TEXT, " +
-                COLUMN_DESCRIPTION + " TEXT " +
-        ")";
-        db.execSQL(createTableStatement);
-    }
-    @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
+                COLUMN_DESCRIPTION + " TEXT" +
+                ")";
     }
 
-    public boolean createTicket(Ticket ticket){
-        SQLiteDatabase db = this.getWritableDatabase();
+    public static String CreateTicketImageTable(){
+        return "CREATE TABLE " + TICKET_IMAGE_TABLE + " (" +
+                   COLUMN_IMAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                   COLUMN_TICKET_IMAGE_ID + " INTEGER, " +
+                   COLUMN_FILENAME + " TEXT, " +
+                   COLUMN_IMAGE + " BLOB, " +
+                   "FOREIGN KEY(" + COLUMN_TICKET_IMAGE_ID + ") REFERENCES " +
+                   TICKET_TABLE + "(" + COLUMN_TICKET_ID + ")" +
+                   ")";
+       }
+    public boolean createTicket(Ticket ticket, Context context, SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
 
+        cv.put(COLUMN_TICKET_ID, ticket.getId());
+        cv.put(COLUMN_BOOKING_ID, ticket.getBookingId());
+        cv.put(COLUMN_TICKET_STATUS_ID, ticket.getTicketStatusId());
         cv.put(COLUMN_TITLE, ticket.getTitle());
         cv.put(COLUMN_DESCRIPTION, ticket.getDescription());
 
-        long insert= db.insert(TICKET_TABLE, null, cv);
+        long insert = db.insert(TICKET_TABLE, null, cv);
         return insert != -1;
     }
 
-    public boolean updateTicket(Ticket ticket) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public boolean createTicketImage(TicketImage ticketImage, Context context, SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
 
-        cv.put(COLUMN_TITLE, ticket.getTitle());
-        cv.put(COLUMN_DESCRIPTION, ticket.getDescription());
+        cv.put(COLUMN_TICKET_IMAGE_ID, ticketImage.getTicketId());
+        cv.put(COLUMN_FILENAME, ticketImage.getFilename());
+        cv.put(COLUMN_IMAGE, ticketImage.getImage());
 
-        long update = db.update(TICKET_TABLE, cv, COLUMN_ID + " = ?",
-                new String[]{String.valueOf(ticket.getId())});
-        return update != -1;
+        long insert = db.insert(TICKET_IMAGE_TABLE, null, cv);
+        return insert != -1;
     }
 
-    public boolean deleteTicket(int id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        long delete = db.delete(TICKET_TABLE, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
-        return delete != -1;
-    }
-
-    public ArrayList<Ticket> getAllTickets(){
-        SQLiteDatabase db = getReadableDatabase();
+    @SuppressLint("Range")
+    public ArrayList<Ticket> getAllTicketsWithImages(SQLiteDatabase db) {
         ArrayList<Ticket> ticketList = new ArrayList<>();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TICKET_TABLE, null);
+        String query = "SELECT * FROM " + TICKET_TABLE;
+        Cursor cursor = db.rawQuery(query, null);
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
-                @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
-                @SuppressLint("Range") String title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
-                @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+                String ticketId = cursor.getString(cursor.getColumnIndex(COLUMN_TICKET_ID));
+                String bookingId = cursor.getString(cursor.getColumnIndex(COLUMN_BOOKING_ID));
+                int ticketStatusId = cursor.getInt(cursor.getColumnIndex(COLUMN_TICKET_STATUS_ID));
+                String title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
+                String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
 
-                Ticket ticket = new Ticket(title, description);
+                ArrayList<TicketImage> ticketImages = getTicketImagesForTicket(ticketId, db);
+
+                Ticket ticket = new Ticket(bookingId, ticketStatusId, title, description, ticketImages);
                 ticketList.add(ticket);
             } while (cursor.moveToNext());
         }
@@ -85,20 +96,53 @@ public class DBTicketLocal extends SQLiteOpenHelper {
         return ticketList;
     }
 
-    public Ticket findTicketById(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String queryString = "SELECT * FROM " + TICKET_TABLE + " WHERE " + COLUMN_ID + " = " + id;
-        Cursor cursor = db.rawQuery(queryString, null);
-        Ticket ticket = null;
+    @SuppressLint("Range")
+    private ArrayList<TicketImage> getTicketImagesForTicket(String ticketId, SQLiteDatabase db) {
+        ArrayList<TicketImage> ticketImages = new ArrayList<>();
+
+        String query = "SELECT * FROM " + TICKET_IMAGE_TABLE +
+                " WHERE " + COLUMN_TICKET_IMAGE_ID + " = '" + ticketId + "'";
+
+        Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.moveToFirst()) {
-            @SuppressLint("Range") String title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
-            @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+            do {
+                int imageId = cursor.getInt(cursor.getColumnIndex(COLUMN_IMAGE_ID));
+                String filename = cursor.getString(cursor.getColumnIndex(COLUMN_FILENAME));
+                byte[] image = cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE));
 
-            ticket = new Ticket(title, description);
+                TicketImage ticketImage = new TicketImage(ticketId, filename, image);
+                ticketImages.add(ticketImage);
+            } while (cursor.moveToNext());
         }
 
         cursor.close();
-        return ticket;
+        return ticketImages;
+    }
+
+    @SuppressLint("Range")
+    public ArrayList<Ticket> getAllTicketsByBookingId(String bookingId, SQLiteDatabase db) {
+        ArrayList<Ticket> ticketList = new ArrayList<>();
+
+        String query = "SELECT * FROM " + TICKET_TABLE +
+                " WHERE " + COLUMN_BOOKING_ID + " = '" + bookingId + "'";
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                String ticketId = cursor.getString(cursor.getColumnIndex(COLUMN_TICKET_ID));
+                int statusId = cursor.getInt(cursor.getColumnIndex(COLUMN_TICKET_STATUS_ID));
+                String title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
+                String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+
+                ArrayList<TicketImage> ticketImages = getTicketImagesForTicket(ticketId, db);
+
+                Ticket ticket = new Ticket(bookingId, statusId, title, description, ticketImages);
+                ticketList.add(ticket);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return ticketList;
     }
 }

@@ -8,10 +8,12 @@ import androidx.annotation.Nullable;
 
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Room.DBRoomLocal;
+import com.pdm.aids.Ticket.DBTicketLocal;
 
 public class DbManager extends SQLiteOpenHelper {
     public static final String ROOM_TABLE = "ROOM_TABLE";
     public static final String BOOKING_TABLE = "BOOKING_TABLE";
+    public static final String TICKET_TABLE = "TICKET_TABLE";
 
     public DbManager(@Nullable Context context) {
         super(context, "AIDS.db", null, 1);
@@ -22,6 +24,8 @@ public class DbManager extends SQLiteOpenHelper {
         db.execSQL(DBRoomLocal.CreateTableRoom());
         db.execSQL(DBRoomLocal.CreateTableRoomImage());
         db.execSQL(DBBookingLocal.CreateTable());
+        db.execSQL(DBTicketLocal.CreateTicketTable());
+        db.execSQL(DBTicketLocal.CreateTicketImageTable());
     }
 
     @Override

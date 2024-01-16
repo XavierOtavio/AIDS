@@ -41,8 +41,11 @@ public class Utils {
 
     public static boolean isDateNull(Date dateToCheck) {
         try {
-            Date referenceDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse("1900-01-01 00:00:00");
-            return dateToCheck.equals(referenceDate);
+            if (dateToCheck != null) {
+                Date referenceDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse("1900-01-01 00:00:00");
+                return dateToCheck.equals(referenceDate);
+            }
+            return false;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

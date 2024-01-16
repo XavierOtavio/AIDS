@@ -15,9 +15,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.pdm.aids.Booking.Booking;
+import com.pdm.aids.Booking.DBBookingLocal;
+import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.R;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
+import java.util.UUID;
 
 public class CreateTicketActivity extends AppCompatActivity {
 
@@ -25,9 +30,8 @@ public class CreateTicketActivity extends AppCompatActivity {
     private EditText descriptionEditText;
     private Button takePictureButton;
     private byte[] pictureByteArray;
-    private DBTicketLocal dbTicketLocal;
-    private ImageView capturedImageView;
-
+    private ImageView camera, takenPicture;
+    private List<Booking> booking;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,12 +39,10 @@ public class CreateTicketActivity extends AppCompatActivity {
 
         titleEditText = findViewById(R.id.edit_text_title);
         descriptionEditText = findViewById(R.id.edit_text_description);
-        takePictureButton = findViewById(R.id.button_save);
-        capturedImageView = findViewById(R.id.image_view_captured);
+        camera = findViewById(R.id.camera);
+        takenPicture = findViewById(R.id.takenPicture);
 
-        dbTicketLocal = new DBTicketLocal(this);
-
-        takePictureButton.setOnClickListener(v -> dispatchTakePictureIntent());
+        camera.setOnClickListener(v -> dispatchTakePictureIntent());
 
         Button saveButton = findViewById(R.id.button_save);
         saveButton.setOnClickListener(v -> saveTicket());
@@ -72,8 +74,9 @@ public class CreateTicketActivity extends AppCompatActivity {
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             pictureByteArray = getBytesFromBitmap(imageBitmap);
 
-            capturedImageView.setVisibility(View.VISIBLE);
-            capturedImageView.setImageBitmap(imageBitmap);
+            camera.setVisibility(View.GONE);
+            takenPicture.setVisibility(View.VISIBLE);
+            takenPicture.setImageBitmap(imageBitmap);
         }
     }
 
@@ -87,22 +90,47 @@ public class CreateTicketActivity extends AppCompatActivity {
         String title = titleEditText.getText().toString();
         String description = descriptionEditText.getText().toString();
 
-        if (!title.isEmpty() && !description.isEmpty()) {
-            if (pictureByteArray == null) {
-                pictureByteArray = new byte[0];
-            }
-            Ticket newTicket = new Ticket(title, description, pictureByteArray);
-            boolean isInserted = dbTicketLocal.createTicket(newTicket);
-            if (isInserted) {
-                showToast("Ticket saved successfully");
-                finish();
+        try (DbManager dbManager = new DbManager(this)) {
+            booking = new DBBookingLocal().getBookingsByStatus(3, dbManager.getWritableDatabase());
+
+            if (isBookingValid(booking)) {
+                if (!title.isEmpty() && !description.isEmpty()) {
+                    if (pictureByteArray == null) {
+                        pictureByteArray = new byte[0];
+                    }
+
+                    UUID uuid = UUID.randomUUID();
+                    String id = uuid.toString();
+                    System.out.println(id);
+
+                    Ticket newTicket = new Ticket(id, booking.get(0).getHash(), 1, title, description);
+                    TicketImage ticketImage = new TicketImage(newTicket.getId(), "filename", pictureByteArray);
+
+                    boolean ticketIsInserted = new DBTicketLocal().createTicket(newTicket, this, dbManager.getWritableDatabase());
+                    boolean imageIsInserted = new DBTicketLocal().createTicketImage(ticketImage, this, dbManager.getWritableDatabase());
+
+                    if (ticketIsInserted && imageIsInserted) {
+                        showToast("Ticket saved successfully");
+                        finish();
+                    } else {
+                        showToast("Failed to save ticket");
+                    }
+                } else {
+                    showToast("Please fill in all necessary details");
+                }
             } else {
-                showToast("Failed to save ticket");
+                showToast("There is no Active Booking");
             }
-        } else {
-            showToast("Please fill in all necessary details");
+        } catch (Exception e) {
+            e.printStackTrace();
+            showToast("Error while saving ticket");
         }
     }
+
+    private boolean isBookingValid(List<Booking> bookingList) {
+        return bookingList != null && !bookingList.isEmpty();
+    }
+
 
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
