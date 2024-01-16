@@ -84,7 +84,6 @@ public class OutsystemsAPI extends AppCompatActivity {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
                             db.execSQL("DELETE FROM " + dbManager.BOOKING_TABLE);
-
                             JSONArray bookingList = new JSONArray(obj.getString("BookingList"));
 
                             for (int i = 0; i < bookingList.length(); i++) {
@@ -159,15 +158,15 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    public static void validateEntry(String hash, String userId, String roomId, Context context) {
+    public static void validateEntry(String hash, String userId, String roomId, Context context, VolleyCallback callback) {
         DbManager dbManager = new DbManager(context);
         SQLiteDatabase db = dbManager.getWritableDatabase();
 
-        String url = apiUrl + "ValidateEntry?Hash=" + hash +"&UserId=" + userId + "&RoomId=" + roomId;
+        String url = apiUrl + "ValidateEntry?Hash=" + hash + "&UserId=" + userId + "&RoomId=" + roomId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url ,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 response -> {
                     try {
                         JSONObject obj = new JSONObject(response);
@@ -186,21 +185,26 @@ public class OutsystemsAPI extends AppCompatActivity {
                                     obj.getString("Hash")
                             );
                             DBBookingLocal.addBooking(booking, db);
-                    } else {
-                        Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+
+                            callback.onSuccess("Validation successful");
+                        } else {
+                            callback.onError(obj.getString("Message"));
+                        }
+                    } catch (JSONException e) {
+                        callback.onError(e.getMessage());
                     }
-                } catch (JSONException e) {
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }, error -> {
-        try {
-            JSONObject obj = new JSONObject(error.getMessage());
-            Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
-        } catch (JSONException e) {
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
+                },
+                error -> {
+                    try {
+                        JSONObject obj = new JSONObject(error.getMessage());
+                        callback.onError(obj.getString("Message"));
+                    } catch (JSONException e) {
+                        callback.onError(e.getMessage());
+                    }
+                }
         );
+
         queue.add(stringRequest);
     }
+
 }

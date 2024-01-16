@@ -10,8 +10,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,7 +59,6 @@ public class BookingDetailActivity extends AppCompatActivity {
             TextView enterRoomDate = findViewById(R.id.enterRoomDate);
             TextView exitRoomDate = findViewById(R.id.exitRoomDate);
             TextView roomName = findViewById(R.id.roomName);
-            ImageView roomImage = findViewById(R.id.roomImage);
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
@@ -68,6 +70,18 @@ public class BookingDetailActivity extends AppCompatActivity {
             exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "-" : dateFormat.format(booking.getActualEndDate()));
 
             roomName.setText(room != null ? room.getName() : "");
+
+            if (!Utils.isDateNull(booking.getActualStartDate())) {
+                Intent intent = getIntent();
+                String hash = intent.getStringExtra("bookingHash");
+
+                binding.imageViewCaptured.setVisibility(View.INVISIBLE);
+                binding.imageView2.setVisibility(View.VISIBLE);
+
+                Utils u = new Utils();
+                Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
+                binding.imageView2.setImageBitmap(qrBitmap);
+            }
 
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -119,7 +133,7 @@ public class BookingDetailActivity extends AppCompatActivity {
         qrCodeLauncher.launch(options);
     }
 
-    private ActivityResultLauncher<ScanOptions> qrCodeLauncher = registerForActivityResult(new ScanContract(), result ->{
+    private ActivityResultLauncher<ScanOptions> qrCodeLauncher = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() == null) {
             Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
         } else {
@@ -129,8 +143,22 @@ public class BookingDetailActivity extends AppCompatActivity {
             SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
             String id = sharedPreferences.getString("Id", "");
 
-            OutsystemsAPI.validateEntry(hash, id, result.getContents(), this);
+            OutsystemsAPI.validateEntry(hash, id, result.getContents(), this, new OutsystemsAPI.VolleyCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    Toast.makeText(BookingDetailActivity.this, result, Toast.LENGTH_SHORT).show();
+                    recreate();
+                }
+
+                @Override
+                public void onError(String error) {
+                    Toast.makeText(BookingDetailActivity.this, "Validation failed: " + error, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     });
+
+
+
 
 }

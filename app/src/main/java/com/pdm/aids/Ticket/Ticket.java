@@ -34,7 +34,6 @@ public class Ticket {
                 '}';
     }
 
-    // Getters and Setters for existing fields
     public int getId() {
         return id;
     }

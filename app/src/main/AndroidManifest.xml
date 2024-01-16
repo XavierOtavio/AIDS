@@ -45,13 +45,15 @@
             android:exported="true" />
         <activity
             android:name=".Ticket.TicketListActivity"
-            android:exported="true"></activity>
-        <activity android:name=".Booking.BookingDetails.BookingDetailActivity"
-            android:exported="true"/>
+            android:exported="true" />
+        <activity
+            android:name=".Booking.BookingDetails.BookingDetailActivity"
+            android:exported="true" />
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"
             tools:replace="android:screenOrientation" />
     </application>
+
 </manifest>

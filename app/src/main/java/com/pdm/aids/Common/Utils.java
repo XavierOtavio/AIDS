@@ -1,5 +1,17 @@
 package com.pdm.aids.Common;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.pdm.aids.Login.LoginActivity;
+
+import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,6 +44,26 @@ public class Utils {
             Date referenceDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse("1900-01-01 00:00:00");
             return dateToCheck.equals(referenceDate);
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public byte[] getQrImage(String hash){
+        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+        try {
+            BitMatrix bitMatrix = multiFormatWriter.encode(hash,
+                    BarcodeFormat.QR_CODE,
+                    300,
+                    300);
+
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+            return byteArrayOutputStream.toByteArray();
+
+        } catch (WriterException e) {
             throw new RuntimeException(e);
         }
     }

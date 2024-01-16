@@ -14,6 +14,8 @@ import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.BookingDetails.BookingDetailActivity;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
+import com.pdm.aids.Common.OutsystemsAPI;
+import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
@@ -55,15 +57,19 @@ public class BookingListActivity extends AppCompatActivity {
         textTitle_toolbar.setText("Reservas");
 
         try (DbManager dataBaseHelper = new DbManager(this)) {
-            rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
 
+            String id = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE)
+                    .getString("Id", "");
+
+            OutsystemsAPI.getDataFromAPI(id, this);
+
+            rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
             bookings = new DBBookingLocal().getAllBookings(dataBaseHelper.getWritableDatabase());
 
             for (int i = 0; i < bookings.size(); i++) {
                 for (int j = 0; j < rooms.size(); j++) {
                     if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
                         currentRoom = rooms.get(j);
-                        System.out.println(currentRoom.getName());
                     }
                 }
                 listData = new ListData(currentRoom.getName(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
