@@ -13,6 +13,10 @@ public class RoomImage {
         this.roomId = roomId;
     }
 
+    public RoomImage() {
+
+    }
+
     public int getImageId() {
         return imageId;
     }

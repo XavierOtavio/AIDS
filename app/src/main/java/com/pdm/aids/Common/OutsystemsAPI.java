@@ -13,8 +13,10 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.DBBookingLocal;
+import com.pdm.aids.Room.DBRoomImageLocal;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
+import com.pdm.aids.Room.RoomImage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -71,6 +73,8 @@ public class OutsystemsAPI extends AppCompatActivity {
         getBookingsByUser(userId, context, db, dbManager);
         //Get rooms
         getRoomsINeed(userId, context, db, dbManager);
+        //Get room images
+        getRoomImages(userId, context, db, dbManager);
     }
 
     public static void getBookingsByUser(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
@@ -120,6 +124,48 @@ public class OutsystemsAPI extends AppCompatActivity {
         );
         queue.add(stringRequest);
     }
+
+    public static void getRoomImages(String roomId, Context context, SQLiteDatabase db, DbManager dbManager) {
+        String url = apiUrl + "GetRoomImagesUserNeeds?UserId=" + roomId;
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            db.execSQL("DELETE FROM " + dbManager.ROOM_IMAGE_TABLE);
+                            JSONArray imageList = new JSONArray(obj.getString("RoomImageList"));
+                            for (int i = 0; i < imageList.length(); i++) {
+                                JSONObject imageObj = imageList.getJSONObject(i);
+                                //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+                                RoomImage roomImage = new RoomImage();
+                                roomImage.setFileName(imageObj.getString("Filename"));
+                                roomImage.setImageBytes(imageObj.getString("Image").getBytes());
+                                roomImage.setRoomId(Integer.parseInt(imageObj.getString("RoomId")));
+
+                                DBRoomImageLocal.addRoomImage(roomImage, db);
+                            }
+                        } else {
+                            Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }, error -> {
+            try {
+                JSONObject obj = new JSONObject(error.getMessage());
+                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+        );
+        queue.add(stringRequest);
+    }
+
 
     public static void getRoomsINeed(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
         String url = apiUrl + "GetRoomsUserNeeds?UserId=" + userId;

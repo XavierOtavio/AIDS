@@ -24,7 +24,7 @@ public class DBRoomImageLocal {
                 ");";
     }
 
-    public void addRoomImage(RoomImage roomImage, SQLiteDatabase db) {
+    public static void addRoomImage(RoomImage roomImage, SQLiteDatabase db) {
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_FILE_NAME, roomImage.getFileName());
@@ -34,6 +34,8 @@ public class DBRoomImageLocal {
         db.insert(ROOM_IMAGE_TABLE, null, values);
         db.close();
     }
+
+
 
     @SuppressLint("Range")
     public List<RoomImage> getAllRoomImages(SQLiteDatabase db) {
@@ -58,7 +60,7 @@ public class DBRoomImageLocal {
     }
 
     @SuppressLint("Range")
-    public List<RoomImage> getRoomImagesByRoomId(int roomId, SQLiteDatabase db) {
+    public List<RoomImage> getRoomByImagesRoomId(int roomId, SQLiteDatabase db) {
         List<RoomImage> roomImageList = new ArrayList<>();
 
         Cursor cursor = db.query(ROOM_IMAGE_TABLE,
