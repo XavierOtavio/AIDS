@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 import com.pdm.aids.Booking.DBBookingLocal;
+import com.pdm.aids.Room.DBRoomImageLocal;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Ticket.DBTicketLocal;
 
@@ -22,7 +23,7 @@ public class DbManager extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(DBRoomLocal.CreateTableRoom());
-        db.execSQL(DBRoomLocal.CreateTableRoomImage());
+        db.execSQL(DBRoomImageLocal.CreateTableRoomImage());
         db.execSQL(DBBookingLocal.CreateTable());
         db.execSQL(DBTicketLocal.CreateTicketTable());
         db.execSQL(DBTicketLocal.CreateTicketImageTable());

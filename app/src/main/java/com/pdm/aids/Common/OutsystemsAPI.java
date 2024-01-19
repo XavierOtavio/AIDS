@@ -74,7 +74,7 @@ public class OutsystemsAPI extends AppCompatActivity {
     }
 
     public static void getBookingsByUser(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
-        String url = apiUrl + "GetAllBookingsByUser?UserId=" + userId;
+        String url = apiUrl + "GetMyBookingsByUser?UserId=" + userId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
 
