@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.BookingDetails.BookingDetailActivity;
@@ -53,6 +54,8 @@ public class BookingListActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        Toolbar toolbar = findViewById(R.id.toolbar_main);
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         textTitle_toolbar.setText("Reservas");
 
