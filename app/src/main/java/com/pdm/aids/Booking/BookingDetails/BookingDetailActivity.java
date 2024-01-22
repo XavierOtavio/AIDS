@@ -25,6 +25,7 @@ import com.journeyapps.barcodescanner.ScanOptions;
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
+import com.pdm.aids.Common.NetworkChecker;
 import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.Common.Utils;
 import com.pdm.aids.Login.LoginActivity;
@@ -36,17 +37,32 @@ import com.pdm.aids.databinding.ActivityBookingDetailBinding;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.Future;
 
 public class BookingDetailActivity extends AppCompatActivity {
     private ActivityBookingDetailBinding binding;
 
-
+    private NetworkChecker networkChecker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initBinding();
         initViews();
+
+        networkChecker = new NetworkChecker(this);
+        networkChecker.setNetworkCallbackListener(new NetworkChecker.NetworkCallbackListener() {
+            @Override
+            public void onNetworkAvailable() {
+                BookingDetailActivity.this.onNetworkAvailable();
+            }
+
+            @Override
+            public void onNetworkUnavailable() {
+                BookingDetailActivity.this.onNetworkUnavailable();
+            }
+        });
+
 
         try (DbManager dbManager = new DbManager(this)) {
             Booking booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
@@ -77,6 +93,7 @@ public class BookingDetailActivity extends AppCompatActivity {
 
                 binding.imageViewCaptured.setVisibility(View.GONE);
                 binding.QRimage.setVisibility(View.VISIBLE);
+                qrCodeLabel.setText("Apresentar QR à saída");
 
                 Utils u = new Utils();
                 Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
@@ -87,6 +104,32 @@ public class BookingDetailActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
             System.out.println(e.getMessage());
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Registra o NetworkCallback
+        networkChecker.registerNetworkCallback();
+        System.out.println("Start network checker");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Desregistra o NetworkCallback
+        networkChecker.unregisterNetworkCallback();
+        System.out.println("Stop network checker");
+    }
+
+    public void onNetworkAvailable() {
+        Toast.makeText(this, "Conectado à internet", Toast.LENGTH_SHORT).show();
+        System.out.println("Conectado à internet");
+    }
+
+    public void onNetworkUnavailable() {
+        Toast.makeText(this, "Sem conexão à internet", Toast.LENGTH_SHORT).show();
+        System.out.println("Sem conexão à internet");
     }
 
     private void initBinding() {
@@ -157,8 +200,6 @@ public class BookingDetailActivity extends AppCompatActivity {
             });
         }
     });
-
-
 
 
 }

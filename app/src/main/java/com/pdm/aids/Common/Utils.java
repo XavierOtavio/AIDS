@@ -3,6 +3,12 @@ package com.pdm.aids.Common;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+
+import androidx.annotation.NonNull;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -70,4 +76,30 @@ public class Utils {
             throw new RuntimeException(e);
         }
     }
+
+    public static Boolean checkInternetConnection(Context context) {
+
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        // Verifica se o ConnectivityManager não é nulo (garante que o serviço está disponível)
+        if (connectivityManager != null) {
+            Network network = connectivityManager.getActiveNetwork();
+
+            // Verifica se a rede ativa não é nula
+            if (network != null) {
+                // Obtém as capacidades da rede ativa (por exemplo, WiFi, mobile, Ethernet)
+                NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
+
+                // Verifica se as capacidades da rede incluem WiFi, celular ou Ethernet
+                return capabilities != null &&
+                        (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
+            }
+        }
+        return false;
+
+    }
+
 }
