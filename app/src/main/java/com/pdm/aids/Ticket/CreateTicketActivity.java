@@ -4,18 +4,22 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.tabs.TabLayout;
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
@@ -23,6 +27,7 @@ import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomLocal;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +41,7 @@ public class CreateTicketActivity extends AppCompatActivity {
     private ImageView camera, takenPicture;
     private List<Booking> booking;
     private DbManager dbManager;
+    private List<byte[]> pictures;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +49,7 @@ public class CreateTicketActivity extends AppCompatActivity {
 
         dbManager = new DbManager(this);
         booking = new DBBookingLocal().getBookingsByStatus(3, dbManager.getWritableDatabase());
+        pictures = new ArrayList<>();
 
 
         titleEditText = findViewById(R.id.edit_text_title);
@@ -89,10 +96,10 @@ public class CreateTicketActivity extends AppCompatActivity {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             pictureByteArray = getBytesFromBitmap(imageBitmap);
+            pictures.add(pictureByteArray);
 
-            camera.setVisibility(View.GONE);
+            camera.setVisibility(View.VISIBLE);
             takenPicture.setVisibility(View.VISIBLE);
-            takenPicture.setImageBitmap(imageBitmap);
         }
     }
 
@@ -110,7 +117,7 @@ public class CreateTicketActivity extends AppCompatActivity {
 
             if (isBookingValid(booking)) {
                 if (!title.isEmpty() && !description.isEmpty()) {
-                    if (pictureByteArray == null) {
+                    if (pictures == null) {
                         pictureByteArray = new byte[0];
                     }
 
@@ -119,12 +126,14 @@ public class CreateTicketActivity extends AppCompatActivity {
                     System.out.println(id);
 
                     Ticket newTicket = new Ticket(id, booking.get(0).getHash(), 1, title, description);
-                    TicketImage ticketImage = new TicketImage(newTicket.getId(), "filename", pictureByteArray);
-
+                    for (byte[] picture: pictures
+                         ) {
+                        TicketImage ticketImage = new TicketImage(newTicket.getId(), "filename", picture);
+                        boolean imageIsInserted = new DBTicketLocal().createTicketImage(ticketImage, this, dbManager.getWritableDatabase());
+                    }
                     boolean ticketIsInserted = new DBTicketLocal().createTicket(newTicket, this, dbManager.getWritableDatabase());
-                    boolean imageIsInserted = new DBTicketLocal().createTicketImage(ticketImage, this, dbManager.getWritableDatabase());
 
-                    if (ticketIsInserted && imageIsInserted) {
+                    if (ticketIsInserted) {
                         showToast("Ticket saved successfully");
                         finish();
                     } else {
