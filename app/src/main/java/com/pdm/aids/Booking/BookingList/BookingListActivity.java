@@ -3,7 +3,6 @@ package com.pdm.aids.Booking.BookingList;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,7 +19,7 @@ import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
-import com.pdm.aids.Ticket.TicketListActivity;
+import com.pdm.aids.databinding.ActivityBookingListBinding;
 import com.pdm.aids.databinding.ActivityTicketListBinding;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ import java.util.List;
 
 public class BookingListActivity extends AppCompatActivity {
 
-    ActivityTicketListBinding binding;
+    ActivityBookingListBinding binding;
     BookingListAdapter listAdapter;
     ArrayList<ListData> dataArrayList = new ArrayList<>();
 
@@ -42,11 +41,16 @@ public class BookingListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking_list);
-        binding = ActivityTicketListBinding.inflate(getLayoutInflater());
+        binding = ActivityBookingListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        TextView textTitle_toolbar = findViewById(R.id.toolbar_title);
+        TextView textTitle_toolbar = findViewById(R.id.toolbar_booking_title);
+        Toolbar toolbar = findViewById(R.id.toolbar_booking_list);
         ListView listItem = findViewById(R.id.listView);
+
+        textTitle_toolbar.setText("Reservas");
+        toolbar.setNavigationOnClickListener(v -> finish());
+
 
         listItem.setOnItemClickListener((adapterView, view, i, l) -> {
             Intent intent = new Intent(BookingListActivity.this, BookingDetailActivity.class);
@@ -54,10 +58,6 @@ public class BookingListActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        Toolbar toolbar = findViewById(R.id.toolbar_main);
-        toolbar.setNavigationOnClickListener(v -> finish());
-
-        textTitle_toolbar.setText("Reservas");
 
         try (DbManager dataBaseHelper = new DbManager(this)) {
 
@@ -94,7 +94,7 @@ public class BookingListActivity extends AppCompatActivity {
     }
 
     //TODO: review this method
-    private void updateList() {
+    private View.OnClickListener updateList() {
 //        try (DBBookingLocal dataBaseHelper = new DBBookingLocal(this)) {
 //            bookings = dataBaseHelper.getAllBookings();
 //            dataArrayList.clear();
@@ -110,5 +110,6 @@ public class BookingListActivity extends AppCompatActivity {
 //            Toast toast = Toast.makeText(getApplicationContext(), "Error reading tickets", Toast.LENGTH_SHORT);
 //            toast.show();
 //        }
+        return null;
     }
 }

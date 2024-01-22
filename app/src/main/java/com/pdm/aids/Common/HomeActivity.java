@@ -40,20 +40,14 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onDestroy() {
-        logout();
-        super.onDestroy();
-    }
-
     private void logout() {
         SharedPreferences sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.clear();
         editor.apply();
 
+        finish();
         Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
         startActivity(intent);
-        finish();
     }
 }

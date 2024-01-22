@@ -34,10 +34,10 @@ public class TicketListActivity extends AppCompatActivity {
         binding = ActivityTicketListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        TextView textTitle_toolbar = findViewById(R.id.toolbar_title);
+        TextView textTitle_toolbar = findViewById(R.id.toolbar_ticket_title);
         textTitle_toolbar.setText("Suporte");
 
-        ImageView add = findViewById(R.id.toolbar_add);
+        ImageView add = findViewById(R.id.toolbar_new_ticket);
         add.setOnClickListener(view -> {
             Intent intent = new Intent(getApplicationContext(), CreateTicketActivity.class);
             startActivity(intent);

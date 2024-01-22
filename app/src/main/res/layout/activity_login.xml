@@ -76,6 +76,14 @@
                 android:backgroundTint="#F39C12"
                 android:text="Login" />
 
+            <Button
+                android:id="@+id/button_login_0"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#F39C12"
+                android:text="Entrar como Xavier" />
+
 
             <LinearLayout
                 android:layout_width="match_parent"

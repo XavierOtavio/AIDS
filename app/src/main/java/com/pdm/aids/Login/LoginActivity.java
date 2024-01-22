@@ -29,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
 
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         final Button btnLogin = (Button) findViewById(R.id.button_login);
+        final Button btnXavier = (Button) findViewById(R.id.button_login_0);
         final Button btnRegister = (Button) findViewById(R.id.button_register);
 
         btnRegister.setOnClickListener(v -> {
@@ -36,7 +37,48 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnLogin.setOnClickListener(v -> {
+        btnXavier.setOnClickListener(v -> {
+            OutsystemsAPI.checkLogin("0", "admin", LoginActivity.this, new OutsystemsAPI.VolleyCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                    try {
+                        JSONObject obj = new JSONObject(result);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            editor.putString("Name", obj.getString("Name"));
+                            editor.putString("Username", obj.getString("Username"));
+                            editor.putString("Password", obj.getString("Password"));
+                            editor.putString("Id", obj.getString("Id"));
+                            editor.apply();
+
+                            OutsystemsAPI.getDataFromAPI(obj.getString("Id"), LoginActivity.this);
+
+                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onError(String error) {
+                    try {
+                        JSONObject obj = new JSONObject(error);
+                        Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                    } catch (JSONException e) {
+                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        });
+
+        btnLogin.setOnClickListener(v ->
+
+        {
             EditText numMec = (EditText) findViewById(R.id.edit_text_nmechanographic);
             EditText password = (EditText) findViewById(R.id.edit_text_password);
 
