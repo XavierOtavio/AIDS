@@ -1,6 +1,7 @@
 package com.pdm.aids.Booking.BookingList;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
@@ -17,8 +18,10 @@ import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
+import com.pdm.aids.Room.DBRoomImageLocal;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
+import com.pdm.aids.Room.RoomImage;
 import com.pdm.aids.databinding.ActivityBookingListBinding;
 import com.pdm.aids.databinding.ActivityTicketListBinding;
 
@@ -33,7 +36,9 @@ public class BookingListActivity extends AppCompatActivity {
 
     List<Booking> bookings = new ArrayList<>();
     List<Room> rooms = new ArrayList<>();
+    List<RoomImage> roomsImage = new ArrayList<>();
     Room currentRoom;
+    Bitmap currentRoomImage;
     ListData listData;
 
 
@@ -60,7 +65,6 @@ public class BookingListActivity extends AppCompatActivity {
 
 
         try (DbManager dataBaseHelper = new DbManager(this)) {
-
             String id = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE)
                     .getString("Id", "");
 
@@ -73,9 +77,13 @@ public class BookingListActivity extends AppCompatActivity {
                 for (int j = 0; j < rooms.size(); j++) {
                     if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
                         currentRoom = rooms.get(j);
+                        currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
                     }
                 }
-                listData = new ListData(currentRoom.getName(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
+                listData = new ListData(currentRoom.getName(),
+                        bookings.get(i).getExpectedStartDate(),
+                        bookings.get(i).getExpectedEndDate(),
+                        currentRoomImage);
                 dataArrayList.add(listData);
             }
 

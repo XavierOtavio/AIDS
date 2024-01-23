@@ -3,6 +3,9 @@ package com.pdm.aids.Common;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +25,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -139,11 +147,31 @@ public class OutsystemsAPI extends AppCompatActivity {
                             JSONArray imageList = new JSONArray(obj.getString("RoomImageList"));
                             for (int i = 0; i < imageList.length(); i++) {
                                 JSONObject imageObj = imageList.getJSONObject(i);
-                                //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+                                String folderPath = context.getFilesDir() + "/RoomImages";
+                                File folder = new File(folderPath);
+                                if (!folder.exists()) {
+                                    if (!folder.mkdirs()) {
+                                        new Exception("Failed to create folder");
+                                    }
+                                }
+                                String filePath = folderPath + "/" + imageObj.getString("Filename");
+                                File imageFile = new File(filePath);
+                                if (!imageFile.exists()) {
+                                    String base64Image = imageObj.getString("Image");
+                                    byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+                                    Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+                                    FileOutputStream stream = new FileOutputStream(filePath);
+                                    Bitmap.CompressFormat extension = Bitmap.CompressFormat.valueOf(imageObj.getString("Filename").split("\\.")[1].toUpperCase(Locale.getDefault()).replace("JPG", "JPEG"));
+                                    bmp.compress(extension, 100, stream);
+                                    stream.close();
+                                    bmp.recycle();
+                                }
 
                                 RoomImage roomImage = new RoomImage();
                                 roomImage.setFileName(imageObj.getString("Filename"));
-                                roomImage.setImageBytes(imageObj.getString("Image").getBytes());
+                                roomImage.setImagePath(filePath);
                                 roomImage.setRoomId(Integer.parseInt(imageObj.getString("RoomId")));
 
                                 DBRoomImageLocal.addRoomImage(roomImage, db);
@@ -153,6 +181,10 @@ public class OutsystemsAPI extends AppCompatActivity {
                         }
                     } catch (JSONException e) {
                         Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
                 }, error -> {
             try {

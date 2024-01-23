@@ -1,4 +1,4 @@
-package com.pdm.aids.Ticket;
+package com.pdm.aids.Ticket.TicketList;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +12,9 @@ import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.R;
+import com.pdm.aids.Ticket.DBTicketLocal;
+import com.pdm.aids.Ticket.Ticket;
+import com.pdm.aids.Ticket.TicketDetails.CreateTicketActivity;
 import com.pdm.aids.databinding.ActivityTicketListBinding;
 
 import java.util.ArrayList;

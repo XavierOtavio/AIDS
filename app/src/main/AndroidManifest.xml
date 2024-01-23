@@ -38,13 +38,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Ticket.CreateTicketActivity"
+            android:name=".Ticket.TicketDetails.CreateTicketActivity"
             android:exported="true" />
         <activity
             android:name=".Booking.BookingList.BookingListActivity"
             android:exported="true" />
         <activity
-            android:name=".Ticket.TicketListActivity"
+            android:name=".Ticket.TicketList.TicketListActivity"
             android:exported="true" />
         <activity
             android:name=".Booking.BookingDetails.BookingDetailActivity"

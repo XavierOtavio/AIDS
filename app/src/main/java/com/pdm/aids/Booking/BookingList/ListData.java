@@ -1,5 +1,7 @@
 package com.pdm.aids.Booking.BookingList;
 
+import android.graphics.Bitmap;
+
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.RoomImage;
 
@@ -10,11 +12,10 @@ import java.util.Locale;
 public class ListData {
     String roomName;
     String expectedDate;
-    byte[] roomImage;
-    public ListData(String roomName, Date startDate, Date endDate) {
+    Bitmap roomImage;
+    public ListData(String roomName, Date startDate, Date endDate, Bitmap roomImage) {
         this.roomName = roomName;
-        //TODO: get room image from database
-        this.roomImage = null;
+        this.roomImage = roomImage;
         this.expectedDate = new ExpectedDate(startDate, endDate).toString();
     }
 

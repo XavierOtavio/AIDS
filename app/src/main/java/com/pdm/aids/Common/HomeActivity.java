@@ -11,7 +11,7 @@ import android.widget.Button;
 import com.pdm.aids.Booking.BookingList.BookingListActivity;
 import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
-import com.pdm.aids.Ticket.TicketListActivity;
+import com.pdm.aids.Ticket.TicketList.TicketListActivity;
 
 public class HomeActivity extends AppCompatActivity {
 

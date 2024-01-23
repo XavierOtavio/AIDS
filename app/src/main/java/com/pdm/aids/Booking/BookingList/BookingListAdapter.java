@@ -1,12 +1,15 @@
 package com.pdm.aids.Booking.BookingList;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,21 +34,19 @@ public class BookingListAdapter extends ArrayAdapter<ListData> {
             view = LayoutInflater.from(getContext()).inflate(R.layout.list_item_booking, parent, false);
         }
 
-        TextView roomName = view.findViewById(R.id.roomTitle);
-        ImageView roomImage = view.findViewById(R.id.roomImage);
-        TextView expectedDate = view.findViewById(R.id.expected_datetime);
+        TextView roomName = view.findViewById(R.id.roomTitle_item);
+        ImageView roomImage = view.findViewById(R.id.roomImage_item);
+        TextView expectedDate = view.findViewById(R.id.expected_datetime_item);
 
         if (listData != null) {
             roomName.setText(String.valueOf(listData.roomName));
             expectedDate.setText(String.valueOf(listData.expectedDate));
-            //byte[] imageByteArray = listData.roomImage;
-
-            //Bitmap bmp = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.length);
-            //if (bmp != null) {
-            //    roomImage.setImageBitmap(bmp);
-            //} else {
-                // Handle case where conversion failed or byte[] is empty
-            //}
+            Bitmap bmp = listData.roomImage;
+            if (bmp != null) {
+                roomImage.setImageBitmap(bmp);
+            } else {
+                Toast.makeText(getContext(), "Erro ao carregar imagem", Toast.LENGTH_SHORT).show();
+            }
         }
         return view;
     }

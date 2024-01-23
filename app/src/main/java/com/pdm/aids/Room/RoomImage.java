@@ -3,13 +3,13 @@ package com.pdm.aids.Room;
 public class RoomImage {
     private int imageId;
     private String fileName;
-    private byte[] imageBytes;
+    private String imagePath;
     private int roomId;
 
-    public RoomImage(int imageId, String fileName, byte[] imageBytes, int roomId) {
+    public RoomImage(int imageId, String fileName, String imagePath, int roomId) {
         this.imageId = imageId;
         this.fileName = fileName;
-        this.imageBytes = imageBytes;
+        this.imagePath = imagePath;
         this.roomId = roomId;
     }
 
@@ -33,12 +33,12 @@ public class RoomImage {
         this.fileName = fileName;
     }
 
-    public byte[] getImageBytes() {
-        return imageBytes;
+    public String getImagePath() {
+        return imagePath;
     }
 
-    public void setImageBytes(byte[] imageBytes) {
-        this.imageBytes = imageBytes;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public int getRoomId() {

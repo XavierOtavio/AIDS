@@ -1,4 +1,4 @@
-package com.pdm.aids.Ticket;
+package com.pdm.aids.Ticket.TicketList;
 
 public class ListData {
     String title, description;

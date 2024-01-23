@@ -1,30 +1,29 @@
-package com.pdm.aids.Ticket;
+package com.pdm.aids.Ticket.TicketDetails;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.material.tabs.TabLayout;
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomLocal;
+import com.pdm.aids.Ticket.DBTicketLocal;
+import com.pdm.aids.Ticket.Ticket;
+import com.pdm.aids.Ticket.TicketImage;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
