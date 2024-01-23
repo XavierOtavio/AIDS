@@ -41,6 +41,7 @@
             android:layout_height="150dp"
             android:background="@drawable/camera_button_circle"/>
 
+
         <ImageView
             android:id="@+id/QRimage"
             android:layout_width="150dp"

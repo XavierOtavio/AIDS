@@ -31,51 +31,80 @@
         android:id="@+id/linearLayoutTop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_main"
+        android:layout_marginTop="4dp"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_main"
+        tools:layout_editor_absoluteX="0dp">
 
         <ImageButton
             android:id="@+id/camera"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:background="@drawable/camera_button_circle"/>
+            android:background="@drawable/camera_button_circle" />
 
-        <ImageView
-            android:id="@+id/takenPicture"
-            android:visibility="invisible"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:id="@+id/btnLeftArrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/viewPager"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:src="@drawable/ic_left_arrow" />
+
+            <androidx.viewpager.widget.ViewPager
+                android:id="@+id/viewPager"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp" />
+
+            <ImageButton
+                android:id="@+id/btnRightArrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/viewPager"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_right_arrow" />
+
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/qrCodeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ler QR"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="16dp"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="16dp"
+            android:text="Capturar imagem"
+            android:textColor="@android:color/black"
             android:textSize="20dp" />
 
     </LinearLayout>
-
     <LinearLayout
         android:id="@+id/linearLayoutContent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/page_details_card_background"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayoutTop"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:orientation="vertical">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutTop"
+        app:layout_constraintVertical_bias="1.0"
+        tools:layout_editor_absoluteX="-16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="25dp"
+            android:layout_marginTop="30dp"
             android:layout_marginRight="25dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <TextView
@@ -103,10 +132,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="25dp"
+            android:layout_marginTop="16dp"
             android:layout_marginRight="25dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <TextView
@@ -132,19 +161,19 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
-            android:orientation="horizontal"/>
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal" />
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="25dp"
+            android:layout_marginTop="30dp"
             android:layout_marginRight="25dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
 
@@ -164,10 +193,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="25dp"
+            android:layout_marginTop="30dp"
             android:layout_marginRight="25dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <EditText
@@ -185,10 +214,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="25dp"
+            android:layout_marginTop="16dp"
             android:layout_marginRight="25dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <Button
@@ -211,6 +240,5 @@
 
         </LinearLayout>
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

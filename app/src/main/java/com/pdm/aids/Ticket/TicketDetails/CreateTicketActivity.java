@@ -9,12 +9,14 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.viewpager.widget.ViewPager;
 
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.DBBookingLocal;
@@ -35,6 +37,7 @@ public class CreateTicketActivity extends AppCompatActivity {
     private EditText titleEditText;
     private EditText descriptionEditText;
     private TextView facility, expectedStart, expectedLeave;
+    private CarouselAdapter adapter;
     private Button takePictureButton;
     private byte[] pictureByteArray;
     private ImageView camera, takenPicture;
@@ -50,11 +53,33 @@ public class CreateTicketActivity extends AppCompatActivity {
         booking = new DBBookingLocal().getBookingsByStatus(3, dbManager.getWritableDatabase());
         pictures = new ArrayList<>();
 
+        ViewPager viewPager = findViewById(R.id.viewPager);
+
+        adapter = new CarouselAdapter(this, pictures);
+        viewPager.setAdapter(adapter);
+
+        // Left Arrow Button
+        ImageButton btnLeftArrow = findViewById(R.id.btnLeftArrow);
+        btnLeftArrow.setOnClickListener(v -> {
+            int currentItem = viewPager.getCurrentItem();
+            if (currentItem > 0) {
+                viewPager.setCurrentItem(currentItem - 1, true);
+            }
+        });
+
+        // Right Arrow Button
+        ImageButton btnRightArrow = findViewById(R.id.btnRightArrow);
+        btnRightArrow.setOnClickListener(v -> {
+            int currentItem = viewPager.getCurrentItem();
+            if (currentItem < adapter.getCount() - 1) {
+                viewPager.setCurrentItem(currentItem + 1, true);
+            }
+        });
+
 
         titleEditText = findViewById(R.id.edit_text_title);
         descriptionEditText = findViewById(R.id.edit_text_description);
         camera = findViewById(R.id.camera);
-        takenPicture = findViewById(R.id.takenPicture);
 
         facility = findViewById(R.id.facility);
         expectedStart = findViewById(R.id.expectedStart);
@@ -82,7 +107,6 @@ public class CreateTicketActivity extends AppCompatActivity {
             if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             } else{
-                // No camera available, handle accordingly (show a message, disable functionality, etc.)
                 Toast.makeText(this, "No camera available", Toast.LENGTH_SHORT).show();
             }
         }
@@ -91,14 +115,21 @@ public class CreateTicketActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            pictureByteArray = getBytesFromBitmap(imageBitmap);
-            pictures.add(pictureByteArray);
+        try {
+            if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+                Bundle extras = data.getExtras();
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                        pictureByteArray = getBytesFromBitmap(imageBitmap);
+                        pictures.add(pictureByteArray);
+                        adapter.notifyDataSetChanged();
+                        camera.setVisibility(View.VISIBLE);
 
-            camera.setVisibility(View.VISIBLE);
-            takenPicture.setVisibility(View.VISIBLE);
+                } else {
+                    showToast("Failed to capture image");
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showToast("Error: " + e.getMessage());
         }
     }
 
