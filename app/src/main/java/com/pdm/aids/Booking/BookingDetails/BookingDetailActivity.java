@@ -41,7 +41,8 @@ import java.util.concurrent.Future;
 
 public class BookingDetailActivity extends AppCompatActivity {
     private ActivityBookingDetailBinding binding;
-
+    private Booking booking;
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     private NetworkChecker networkChecker;
 
     @Override
@@ -65,7 +66,7 @@ public class BookingDetailActivity extends AppCompatActivity {
 
 
         try (DbManager dbManager = new DbManager(this)) {
-            Booking booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
+            booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
             Room room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
 
             TextView textTitle_toolbar = findViewById(R.id.toolbar_title);
@@ -76,7 +77,6 @@ public class BookingDetailActivity extends AppCompatActivity {
             TextView exitRoomDate = findViewById(R.id.exitRoomDate);
             TextView roomName = findViewById(R.id.roomName);
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
             textTitle_toolbar.setText("Reserva: " + (room != null ? room.getName() : ""));
             qrCodeLabel.setText("Ler QR Code");
@@ -87,7 +87,7 @@ public class BookingDetailActivity extends AppCompatActivity {
 
             roomName.setText(room != null ? room.getName() : "");
 
-            if (!Utils.isDateNull(booking.getActualStartDate())) {
+            if (!enterRoomDate.getText().equals("-")) {
                 Intent intent = getIntent();
                 String hash = intent.getStringExtra("bookingHash");
 
@@ -115,6 +115,28 @@ public class BookingDetailActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        TextView qrCodeLabel = findViewById(R.id.qrCodeLabel);
+        TextView enterRoomDate = findViewById(R.id.enterRoomDate);
+
+        enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
+
+        if (!enterRoomDate.getText().equals("-")) {
+            Intent intent = getIntent();
+            String hash = intent.getStringExtra("bookingHash");
+
+            binding.imageViewCaptured.setVisibility(View.GONE);
+            binding.QRimage.setVisibility(View.VISIBLE);
+            qrCodeLabel.setText("Apresentar QR à saída");
+
+            Utils u = new Utils();
+            Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
+            binding.QRimage.setImageBitmap(qrBitmap);
+        }
+        super.onResume();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         // Desregistra o NetworkCallback
@@ -136,14 +158,16 @@ public class BookingDetailActivity extends AppCompatActivity {
         binding = ActivityBookingDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
     }
+
     private void initViews() {
         binding.imageViewCaptured.setOnClickListener(view -> {
             checkPermissionAndShowActivity(this);
         });
+        binding.toolbarMain.setNavigationOnClickListener(v -> finish());
     }
 
     private void checkPermissionAndShowActivity(Context context) {
-        if(ContextCompat.checkSelfPermission(
+        if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED) {
@@ -157,10 +181,9 @@ public class BookingDetailActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if(isGranted){
+                if (isGranted) {
                     showCamera();
-                }
-                else {
+                } else {
 
                 }
             });

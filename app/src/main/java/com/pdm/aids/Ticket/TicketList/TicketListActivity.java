@@ -36,9 +36,11 @@ public class TicketListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_ticket_list);
         binding = ActivityTicketListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        binding.toolbarTicketList.setNavigationOnClickListener(v -> finish());
 
         TextView textTitle_toolbar = findViewById(R.id.toolbar_ticket_title);
         textTitle_toolbar.setText("Suporte");
+
 
         ImageView add = findViewById(R.id.toolbar_new_ticket);
         add.setOnClickListener(view -> {
