@@ -37,12 +37,6 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar_main"
         tools:layout_editor_absoluteX="0dp">
 
-        <ImageButton
-            android:id="@+id/camera"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:background="@drawable/camera_button_circle" />
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -76,15 +70,37 @@
 
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/qrCodeLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <RelativeLayout
+            android:id="@+id/cameraLayout"
+            android:layout_width="360dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="16dp"
-            android:text="Capturar imagem"
-            android:textColor="@android:color/black"
-            android:textSize="20dp" />
+            android:background="@android:color/darker_gray">
+
+            <ImageButton
+                android:id="@+id/camera"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/camera_button_circle"
+                />
+
+            <TextView
+                android:id="@+id/qrCodeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="Capturar imagem"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+
+        </RelativeLayout>
+
+
+
 
     </LinearLayout>
     <LinearLayout

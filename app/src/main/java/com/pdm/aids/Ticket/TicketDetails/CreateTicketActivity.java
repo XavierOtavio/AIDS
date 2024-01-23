@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +59,9 @@ public class CreateTicketActivity extends AppCompatActivity {
         adapter = new CarouselAdapter(this, pictures);
         viewPager.setAdapter(adapter);
 
+        RelativeLayout cameraLayout = findViewById(R.id.cameraLayout);
+        cameraLayout.setOnClickListener(v -> dispatchTakePictureIntent());
+
         // Left Arrow Button
         ImageButton btnLeftArrow = findViewById(R.id.btnLeftArrow);
         btnLeftArrow.setOnClickListener(v -> {
@@ -79,7 +83,6 @@ public class CreateTicketActivity extends AppCompatActivity {
 
         titleEditText = findViewById(R.id.edit_text_title);
         descriptionEditText = findViewById(R.id.edit_text_description);
-        camera = findViewById(R.id.camera);
 
         facility = findViewById(R.id.facility);
         expectedStart = findViewById(R.id.expectedStart);
@@ -88,8 +91,6 @@ public class CreateTicketActivity extends AppCompatActivity {
         facility.setText(new DBRoomLocal().getRoomById(booking.get(0).getRoomId(),dbManager.getWritableDatabase()).getName());
         expectedStart.setText(booking.get(0).getExpectedStartDate().toString());
         expectedLeave.setText(booking.get(0).getExpectedEndDate().toString());
-
-        camera.setOnClickListener(v -> dispatchTakePictureIntent());
 
         Button saveButton = findViewById(R.id.button_save);
         saveButton.setOnClickListener(v -> saveTicket());
