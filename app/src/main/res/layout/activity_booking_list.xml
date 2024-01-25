@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:divider="@drawable/divider_gap_transparent"
     android:dividerHeight="8dp"
-    android:paddingHorizontal="8dp"
+    android:paddingHorizontal="0dp"
     android:showDividers="middle"
     tools:context=".Booking.BookingList.BookingListActivity">
 
@@ -28,13 +28,36 @@
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
 
+    <LinearLayout
+        android:id="@+id/internetConnectionWarning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar_booking_list"
+        android:background="#F39C12"
+        android:gravity="center"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        android:orientation="horizontal"
+        android:padding="2dp">
+
+        <TextView
+            android:id="@+id/internetConnectionWarningText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sem ligação à internet"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar_booking_list"
+        android:layout_below="@+id/internetConnectionWarning"
         android:divider="@android:color/transparent"
         android:dividerHeight="10dp"
+        android:paddingHorizontal="8dp"
         android:listSelector="@android:color/transparent"
         tools:listitem="@layout/list_item_booking" />
 </RelativeLayout>

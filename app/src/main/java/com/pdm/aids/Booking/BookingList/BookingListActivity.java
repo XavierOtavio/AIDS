@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +16,7 @@ import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.BookingDetails.BookingDetailActivity;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
+import com.pdm.aids.Common.NetworkChecker;
 import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
@@ -40,7 +42,7 @@ public class BookingListActivity extends AppCompatActivity {
     Room currentRoom;
     Bitmap currentRoomImage;
     ListData listData;
-
+    private NetworkChecker networkChecker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,31 @@ public class BookingListActivity extends AppCompatActivity {
 
         textTitle_toolbar.setText("Reservas");
         toolbar.setNavigationOnClickListener(v -> finish());
+
+        networkChecker = new NetworkChecker(this);
+        LinearLayout internetConnectionWarning = findViewById(R.id.internetConnectionWarning);
+
+        if (networkChecker.isInternetConnected()) {
+            internetConnectionWarning.setVisibility(LinearLayout.GONE);
+        } else {
+            internetConnectionWarning.setVisibility(LinearLayout.VISIBLE);
+        }
+
+        networkChecker.setNetworkCallbackListener(new NetworkChecker.NetworkCallbackListener() {
+            @Override
+            public void onNetworkAvailable() {
+                runOnUiThread(() -> {
+                    internetConnectionWarning.setVisibility(LinearLayout.GONE);
+                });
+            }
+
+            @Override
+            public void onNetworkUnavailable() {
+                runOnUiThread(() -> {
+                    internetConnectionWarning.setVisibility(LinearLayout.VISIBLE);
+                });
+            }
+        });
 
 
         listItem.setOnItemClickListener((adapterView, view, i, l) -> {
@@ -99,6 +126,18 @@ public class BookingListActivity extends AppCompatActivity {
     protected void onResume() {
         updateList();
         super.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        networkChecker.registerNetworkCallback();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        networkChecker.unregisterNetworkCallback();
     }
 
     //TODO: review this method
