@@ -6,12 +6,16 @@ import android.content.SharedPreferences;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.pdm.aids.Common.HomeActivity;
+import com.pdm.aids.Common.NetworkChecker;
 import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.R;
 
@@ -21,6 +25,7 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity {
     public static final String MyPREFERENCES = "MyPrefs";
     SharedPreferences sharedpreferences;
+    private NetworkChecker networkChecker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +36,42 @@ public class LoginActivity extends AppCompatActivity {
         final Button btnLogin = (Button) findViewById(R.id.button_login);
         final Button btnXavier = (Button) findViewById(R.id.button_login_0);
         final Button btnRegister = (Button) findViewById(R.id.button_register);
+        final LinearLayout layoutWithoutInternet = (LinearLayout) findViewById(R.id.layoutWithoutInternet);
+        final LinearLayout layoutWithInternet = (LinearLayout) findViewById(R.id.layoutWithInternet);
+        final TextView txtTitle = (TextView) findViewById(R.id.textView_Title);
+
+        networkChecker = new NetworkChecker(this);
+
+        if (networkChecker.isInternetConnected()) {
+               layoutWithoutInternet.setVisibility(LinearLayout.GONE);
+               layoutWithInternet.setVisibility(LinearLayout.VISIBLE);
+                txtTitle.setVisibility(TextView.VISIBLE);
+
+        } else {
+            layoutWithoutInternet.setVisibility(LinearLayout.VISIBLE);
+            layoutWithInternet.setVisibility(LinearLayout.GONE);
+            txtTitle.setVisibility(TextView.GONE);
+        }
+
+        networkChecker.setNetworkCallbackListener(new NetworkChecker.NetworkCallbackListener() {
+            @Override
+            public void onNetworkAvailable() {
+                runOnUiThread(() -> {
+                    layoutWithoutInternet.setVisibility(LinearLayout.GONE);
+                    layoutWithInternet.setVisibility(LinearLayout.VISIBLE);
+                    txtTitle.setVisibility(TextView.VISIBLE);
+                });
+            }
+
+            @Override
+            public void onNetworkUnavailable() {
+                runOnUiThread(() -> {
+                    layoutWithoutInternet.setVisibility(LinearLayout.VISIBLE);
+                    layoutWithInternet.setVisibility(LinearLayout.GONE);
+                    txtTitle.setVisibility(TextView.GONE);
+                });
+            }
+        });
 
         btnRegister.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
@@ -122,6 +163,18 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        networkChecker.registerNetworkCallback();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        networkChecker.unregisterNetworkCallback();
     }
 
     private boolean validateNMec(TextInputLayout nMec) {

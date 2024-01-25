@@ -26,7 +26,7 @@
             android:textStyle="bold" />
 
         <LinearLayout
-            android:id="@+id/linearLayout"
+            android:id="@+id/layoutWithInternet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
@@ -111,6 +111,47 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/layoutWithoutInternet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/card_white"
+            android:orientation="vertical"
+            android:paddingTop="70dp"
+            android:paddingBottom="70dp"
+            app:layout_constraintTop_toBottomOf="@+id/roomidView">
+
+            <ImageView
+                android:id="@+id/imageView_without_internet"
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+                android:layout_marginBottom="30dp"
+                android:src="@drawable/no_wifi"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:tint="@color/black" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Woops estás offline"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="20dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="10dp"
+                android:text="Verifica a tua ligação à internet"
+                android:textColor="@color/black"
+                android:textSize="15dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
