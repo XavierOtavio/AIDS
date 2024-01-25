@@ -51,24 +51,7 @@ public class BookingDetailActivity extends AppCompatActivity {
         initBinding();
         initViews();
 
-        networkChecker = new NetworkChecker(this);
-        networkChecker.setNetworkCallbackListener(new NetworkChecker.NetworkCallbackListener() {
-            @Override
-            public void onNetworkAvailable() {
-                BookingDetailActivity.this.onNetworkAvailable();
-            }
-
-            @Override
-            public void onNetworkUnavailable() {
-                BookingDetailActivity.this.onNetworkUnavailable();
-            }
-        });
-
-
         try (DbManager dbManager = new DbManager(this)) {
-            booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
-            Room room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
-
             TextView textTitle_toolbar = findViewById(R.id.toolbar_title);
             TextView qrCodeLabel = findViewById(R.id.qrCodeLabel);
             TextView startDate = findViewById(R.id.startDate);
@@ -76,15 +59,19 @@ public class BookingDetailActivity extends AppCompatActivity {
             TextView enterRoomDate = findViewById(R.id.enterRoomDate);
             TextView exitRoomDate = findViewById(R.id.exitRoomDate);
             TextView roomName = findViewById(R.id.roomName);
+            ImageView noWifiImage = findViewById(R.id.noWifiImage);
+            ImageView imageViewCaptured = findViewById(R.id.image_view_captured);
 
+            networkChecker = new NetworkChecker(this);
+
+            booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
+            Room room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
 
             textTitle_toolbar.setText("Reserva: " + (room != null ? room.getName() : ""));
-            qrCodeLabel.setText("Ler QR Code");
             startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormat.format(booking.getExpectedStartDate()));
             endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormat.format(booking.getExpectedEndDate()));
             enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
             exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "-" : dateFormat.format(booking.getActualEndDate()));
-
             roomName.setText(room != null ? room.getName() : "");
 
             if (!enterRoomDate.getText().equals("-")) {
@@ -92,12 +79,44 @@ public class BookingDetailActivity extends AppCompatActivity {
                 String hash = intent.getStringExtra("bookingHash");
 
                 binding.imageViewCaptured.setVisibility(View.GONE);
+                binding.noWifiImage.setVisibility(View.GONE);
                 binding.QRimage.setVisibility(View.VISIBLE);
                 qrCodeLabel.setText("Apresentar QR à saída");
 
                 Utils u = new Utils();
                 Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
                 binding.QRimage.setImageBitmap(qrBitmap);
+            } else {
+
+                if (networkChecker.isInternetConnected()) {
+                    noWifiImage.setVisibility(View.GONE);
+                    imageViewCaptured.setVisibility(View.VISIBLE);
+                    qrCodeLabel.setText("Ler QR Code");
+                } else {
+                    noWifiImage.setVisibility(View.VISIBLE);
+                    imageViewCaptured.setVisibility(View.GONE);
+                    qrCodeLabel.setText("Não é possível ler o QR Code");
+                }
+
+                networkChecker.setNetworkCallbackListener(new NetworkChecker.NetworkCallbackListener() {
+                    @Override
+                    public void onNetworkAvailable() {
+                        runOnUiThread(() -> {
+                            noWifiImage.setVisibility(View.GONE);
+                            imageViewCaptured.setVisibility(View.VISIBLE);
+                            qrCodeLabel.setText("Ler QR Code");
+                        });
+                    }
+
+                    @Override
+                    public void onNetworkUnavailable() {
+                        runOnUiThread(() -> {
+                            noWifiImage.setVisibility(View.VISIBLE);
+                            imageViewCaptured.setVisibility(View.GONE);
+                            qrCodeLabel.setText("Não é possível ler o QR Code");
+                        });
+                    }
+                });
             }
 
         } catch (Exception e) {
@@ -111,7 +130,13 @@ public class BookingDetailActivity extends AppCompatActivity {
         super.onStart();
         // Registra o NetworkCallback
         networkChecker.registerNetworkCallback();
-        System.out.println("Start network checker");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Desregistra o NetworkCallback
+        networkChecker.unregisterNetworkCallback();
     }
 
     @Override
@@ -136,23 +161,6 @@ public class BookingDetailActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // Desregistra o NetworkCallback
-        networkChecker.unregisterNetworkCallback();
-        System.out.println("Stop network checker");
-    }
-
-    public void onNetworkAvailable() {
-        Toast.makeText(this, "Conectado à internet", Toast.LENGTH_SHORT).show();
-        System.out.println("Conectado à internet");
-    }
-
-    public void onNetworkUnavailable() {
-        Toast.makeText(this, "Sem conexão à internet", Toast.LENGTH_SHORT).show();
-        System.out.println("Sem conexão à internet");
-    }
 
     private void initBinding() {
         binding = ActivityBookingDetailBinding.inflate(getLayoutInflater());

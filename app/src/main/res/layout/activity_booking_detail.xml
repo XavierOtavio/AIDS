@@ -49,11 +49,19 @@
             android:visibility="gone"
             tools:srcCompat="@tools:sample/avatars" />
 
+        <ImageView
+            android:id="@+id/noWifiImage"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:visibility="gone"
+            android:src="@drawable/no_wifi"
+            app:tint="@color/black"/>
+
         <TextView
             android:id="@+id/qrCodeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ler QR"
+            android:text="Ler QR Code"
             android:textColor="@android:color/black"
             android:layout_marginBottom="16dp"
             android:layout_marginTop="10dp"
