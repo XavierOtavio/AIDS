@@ -9,4 +9,15 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="no_connection">Sem ligação à internet</string>
+    <string name="button_to_history_page">Button to history page</string>
+    <string name="Room">Espaço</string>
+    <string name="actual_end_date">Saída Espaço</string>
+    <string name="actual_start_date">Entrada no Espaço</string>
+    <string name="todo">TODO</string>
+    <string name="read_qr">Ler QR Code</string>
+    <string name="expected_start_date">Início</string>
+    <string name="expected_end_date">Fim</string>
+    <string name="read_qrcode_exit">Apresentar QR à saída</string>
+    <string name="qr_failed">Não é possível ler o QR Code</string>
 </resources>

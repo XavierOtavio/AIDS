@@ -7,10 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DBRoomImageLocal {
     public static final String ROOM_IMAGE_TABLE = "ROOM_IMAGE_TABLE";
@@ -36,35 +33,11 @@ public class DBRoomImageLocal {
         values.put(COLUMN_ROOM_ID, roomImage.getRoomId());
 
         db.insert(ROOM_IMAGE_TABLE, null, values);
-        db.close();
     }
 
 
-
     @SuppressLint("Range")
-    public List<RoomImage> getAllRoomImages(SQLiteDatabase db) {
-        List<RoomImage> roomImageList = new ArrayList<>();
-
-        Cursor cursor = db.rawQuery("SELECT * FROM " + ROOM_IMAGE_TABLE, null);
-        if (cursor.moveToFirst()) {
-            do {
-                int imageId = cursor.getInt(cursor.getColumnIndex(COLUMN_IMAGE_ID));
-                String fileName = cursor.getString(cursor.getColumnIndex(COLUMN_FILE_NAME));
-                String imagePath = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH));
-                int roomId = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_ID));
-
-                RoomImage roomImage = new RoomImage(imageId, fileName, imagePath, roomId);
-                roomImageList.add(roomImage);
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-        db.close();
-        return roomImageList;
-    }
-
-    @SuppressLint("Range")
-    public Bitmap getRoomImageByRoomId(int roomId, SQLiteDatabase db) {
+    public static Bitmap getRoomImageByRoomId(int roomId, SQLiteDatabase db) {
         Bitmap imageBytes = null;
         String query = "SELECT * FROM " + ROOM_IMAGE_TABLE + " WHERE " + COLUMN_ROOM_ID + " = " + roomId;
         Cursor cursor = db.rawQuery(query, null);

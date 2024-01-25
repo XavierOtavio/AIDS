@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -11,18 +10,18 @@
         android:id="@+id/toolbar_main"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24">
+
         <TextView
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="Title"
             android:textColor="@android:color/black"
-            android:textSize="20dp"
+            android:textSize="20sp"
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
 
@@ -31,15 +30,16 @@
         android:id="@+id/linearLayoutTop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_main"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_main">
 
-      <ImageButton
+        <ImageButton
             android:id="@+id/image_view_captured"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:background="@drawable/camera_button_circle"/>
+            android:background="@drawable/camera_button_circle"
+            android:contentDescription="@string/todo" />
 
 
         <ImageView
@@ -47,25 +47,27 @@
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:visibility="gone"
-            tools:srcCompat="@tools:sample/avatars" />
+            tools:srcCompat="@tools:sample/avatars"
+            android:contentDescription="@string/todo" />
 
         <ImageView
             android:id="@+id/noWifiImage"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:visibility="gone"
             android:src="@drawable/no_wifi"
-            app:tint="@color/black"/>
+            android:visibility="gone"
+            app:tint="@color/black"
+            android:contentDescription="@string/todo" />
 
         <TextView
             android:id="@+id/qrCodeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ler QR Code"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="16dp"
             android:layout_marginTop="10dp"
-            android:textSize="20dp" />
+            android:layout_marginBottom="16dp"
+            android:text="@string/read_qr"
+            android:textColor="@android:color/black"
+            android:textSize="20sp" />
 
     </LinearLayout>
 
@@ -74,178 +76,173 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/page_details_card_background"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayoutTop"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:orientation="vertical">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutTop">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="25dp"
+            android:layout_marginTop="30dp"
             android:layout_marginRight="25dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Início"
-                android:textColor="@android:color/white"
-                android:textSize="20dp"
                 android:layout_weight="0.5"
+                android:text="@string/expected_start_date"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/startDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="12/12/2020 12:00"
-                android:textColor="@android:color/white"
                 android:layout_weight="0.5"
                 android:textAlignment="textEnd"
-                android:textSize="20dp" />
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fim"
-                android:textColor="@android:color/white"
-                android:textSize="20dp"
                 android:layout_weight="1"
+                android:text="@string/expected_end_date"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/endDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="12/12/2020 13:30"
-                android:textColor="@android:color/white"
                 android:layout_weight="1"
                 android:textAlignment="textEnd"
-                android:textSize="20dp" />
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/white"
             android:layout_marginLeft="25dp"
-            android:layout_marginRight="25dp" />
+            android:layout_marginRight="25dp"
+            android:background="@color/white" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="25dp"
+            android:layout_marginTop="16dp"
             android:layout_marginRight="25dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Entrada no Espaço"
+                android:layout_weight="1"
+                android:text="@string/actual_start_date"
                 android:textColor="@android:color/white"
-                android:textSize="16dp"
-                android:layout_weight="1"/>
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/enterRoomDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="-"
-                android:textColor="@android:color/white"
                 android:layout_weight="1"
                 android:textAlignment="textEnd"
-                android:textSize="16dp" />
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Saída Espaço"
+                android:layout_weight="1"
+                android:text="@string/actual_end_date"
                 android:textColor="@android:color/white"
-                android:textSize="16dp"
-                android:layout_weight="1"/>
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/exitRoomDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="-"
-                android:textColor="@android:color/white"
                 android:layout_weight="1"
                 android:textAlignment="textEnd"
-                android:textSize="16dp" />
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/white"
             android:layout_marginLeft="25dp"
-            android:layout_marginRight="25dp" />
+            android:layout_marginRight="25dp"
+            android:background="@color/white" />
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="25dp"
+            android:layout_marginTop="30dp"
             android:layout_marginRight="25dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Espaço"
-                android:textColor="@android:color/white"
-                android:textSize="20dp"
                 android:layout_weight="1"
+                android:text="@string/Room"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/roomName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pavilhão 3"
-                android:textColor="@android:color/white"
                 android:layout_weight="1"
                 android:textAlignment="textEnd"
-                android:textSize="20dp"
-                android:textStyle="bold"/>
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/roomImage"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
             android:layout_marginBottom="16dp"
-            android:src="@drawable/pvestgv"
-            android:background="#D9D9D9"
-            android:scaleType="centerCrop"/>
+            android:background="@color/zxing_transparent"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/todo" />
 
     </LinearLayout>
 

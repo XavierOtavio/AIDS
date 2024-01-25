@@ -1,5 +1,7 @@
 package com.pdm.aids.Booking.BookingDetails;
 
+import static java.text.DateFormat.getDateTimeInstance;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,12 +15,10 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
@@ -30,19 +30,18 @@ import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.Common.Utils;
 import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
+import com.pdm.aids.Room.DBRoomImageLocal;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
 import com.pdm.aids.databinding.ActivityBookingDetailBinding;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.Future;
 
 public class BookingDetailActivity extends AppCompatActivity {
     private ActivityBookingDetailBinding binding;
     private Booking booking;
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", new Locale("pt", "PT"));
     private NetworkChecker networkChecker;
 
     @Override
@@ -61,18 +60,22 @@ public class BookingDetailActivity extends AppCompatActivity {
             TextView roomName = findViewById(R.id.roomName);
             ImageView noWifiImage = findViewById(R.id.noWifiImage);
             ImageView imageViewCaptured = findViewById(R.id.image_view_captured);
+            ImageView roomImage = findViewById(R.id.roomImage);
 
             networkChecker = new NetworkChecker(this);
 
             booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
             Room room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
 
-            textTitle_toolbar.setText("Reserva: " + (room != null ? room.getName() : ""));
+            textTitle_toolbar.setText(String.format("Reserva: %s", room != null ? room.getName() : ""));
             startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormat.format(booking.getExpectedStartDate()));
             endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormat.format(booking.getExpectedEndDate()));
             enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
             exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "-" : dateFormat.format(booking.getActualEndDate()));
-            roomName.setText(room != null ? room.getName() : "");
+            if (room != null) {
+                roomImage.setImageBitmap(DBRoomImageLocal.getRoomImageByRoomId(room.getId(), dbManager.getReadableDatabase()));
+                roomName.setText(room.getName());
+            }
 
             if (!enterRoomDate.getText().equals("-")) {
                 Intent intent = getIntent();
@@ -81,7 +84,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                 binding.imageViewCaptured.setVisibility(View.GONE);
                 binding.noWifiImage.setVisibility(View.GONE);
                 binding.QRimage.setVisibility(View.VISIBLE);
-                qrCodeLabel.setText("Apresentar QR à saída");
+                qrCodeLabel.setText(R.string.read_qrcode_exit);
 
                 Utils u = new Utils();
                 Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
@@ -91,11 +94,11 @@ public class BookingDetailActivity extends AppCompatActivity {
                 if (networkChecker.isInternetConnected()) {
                     noWifiImage.setVisibility(View.GONE);
                     imageViewCaptured.setVisibility(View.VISIBLE);
-                    qrCodeLabel.setText("Ler QR Code");
+                    qrCodeLabel.setText(R.string.read_qr);
                 } else {
                     noWifiImage.setVisibility(View.VISIBLE);
                     imageViewCaptured.setVisibility(View.GONE);
-                    qrCodeLabel.setText("Não é possível ler o QR Code");
+                    qrCodeLabel.setText(R.string.qr_failed);
                 }
 
                 networkChecker.setNetworkCallbackListener(new NetworkChecker.NetworkCallbackListener() {
@@ -104,7 +107,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                         runOnUiThread(() -> {
                             noWifiImage.setVisibility(View.GONE);
                             imageViewCaptured.setVisibility(View.VISIBLE);
-                            qrCodeLabel.setText("Ler QR Code");
+                            qrCodeLabel.setText(R.string.read_qr);
                         });
                     }
 
@@ -113,7 +116,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                         runOnUiThread(() -> {
                             noWifiImage.setVisibility(View.VISIBLE);
                             imageViewCaptured.setVisibility(View.GONE);
-                            qrCodeLabel.setText("Não é possível ler o QR Code");
+                            qrCodeLabel.setText(R.string.qr_failed);
                         });
                     }
                 });
@@ -152,7 +155,7 @@ public class BookingDetailActivity extends AppCompatActivity {
 
             binding.imageViewCaptured.setVisibility(View.GONE);
             binding.QRimage.setVisibility(View.VISIBLE);
-            qrCodeLabel.setText("Apresentar QR à saída");
+            qrCodeLabel.setText(R.string.read_qrcode_exit);
 
             Utils u = new Utils();
             Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
@@ -168,9 +171,7 @@ public class BookingDetailActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        binding.imageViewCaptured.setOnClickListener(view -> {
-            checkPermissionAndShowActivity(this);
-        });
+        binding.imageViewCaptured.setOnClickListener(view -> checkPermissionAndShowActivity(this));
         binding.toolbarMain.setNavigationOnClickListener(v -> finish());
     }
 
@@ -192,7 +193,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                 if (isGranted) {
                     showCamera();
                 } else {
-
+                    Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show();
                 }
             });
 
