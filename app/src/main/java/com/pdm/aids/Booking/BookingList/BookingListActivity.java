@@ -25,10 +25,14 @@ import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
 import com.pdm.aids.Room.RoomImage;
 import com.pdm.aids.databinding.ActivityBookingListBinding;
-import com.pdm.aids.databinding.ActivityTicketListBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import android.os.Handler;
+import android.os.Looper;
 
 public class BookingListActivity extends AppCompatActivity {
 
@@ -43,23 +47,30 @@ public class BookingListActivity extends AppCompatActivity {
     Bitmap currentRoomImage;
     ListData listData;
     private NetworkChecker networkChecker;
+    private ExecutorService executorService;
+    private Handler uiHandler;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_booking_list);
+        //-----------------View Binding-----------------
         binding = ActivityBookingListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        TextView textTitle_toolbar = findViewById(R.id.toolbar_booking_title);
-        Toolbar toolbar = findViewById(R.id.toolbar_booking_list);
-        ListView listItem = findViewById(R.id.listView);
+        //-----------------Toolbar-----------------
+        binding.toolbarBookingList.setNavigationOnClickListener(v -> finish());
+        binding.toolbarBookingTitle.setText("Reservas");
 
-        textTitle_toolbar.setText("Reservas");
-        toolbar.setNavigationOnClickListener(v -> finish());
+        //-----------------Lazy Loading-----------------
+        executorService = Executors.newSingleThreadExecutor();
+        uiHandler = new Handler(Looper.getMainLooper());
+        binding.progressBar.setVisibility(View.VISIBLE);
+        loadDataInBackGround();
 
+        //-----------------Internet Connection-----------------
         networkChecker = new NetworkChecker(this);
-        LinearLayout internetConnectionWarning = findViewById(R.id.internetConnectionWarning);
+        LinearLayout internetConnectionWarning = binding.internetConnectionWarning;
 
         if (networkChecker.isInternetConnected()) {
             internetConnectionWarning.setVisibility(LinearLayout.GONE);
@@ -74,7 +85,6 @@ public class BookingListActivity extends AppCompatActivity {
                     internetConnectionWarning.setVisibility(LinearLayout.GONE);
                 });
             }
-
             @Override
             public void onNetworkUnavailable() {
                 runOnUiThread(() -> {
@@ -83,49 +93,65 @@ public class BookingListActivity extends AppCompatActivity {
             }
         });
 
-
-        listItem.setOnItemClickListener((adapterView, view, i, l) -> {
+        //-----------------Item Click Listener-----------------
+        binding.listView.setOnItemClickListener((adapterView, view, i, l) -> {
             Intent intent = new Intent(BookingListActivity.this, BookingDetailActivity.class);
             intent.putExtra("bookingHash", bookings.get(i).getHash());
             startActivity(intent);
         });
+    }
 
+    private void loadDataInBackGround() {
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try (DbManager dataBaseHelper = new DbManager(BookingListActivity.this)) {
+                    String id = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", "");
 
-        try (DbManager dataBaseHelper = new DbManager(this)) {
-            String id = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE)
-                    .getString("Id", "");
-
-            OutsystemsAPI.getDataFromAPI(id, this);
-
-            rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
-            bookings = new DBBookingLocal().getAllBookings(dataBaseHelper.getWritableDatabase());
-
-            for (int i = 0; i < bookings.size(); i++) {
-                for (int j = 0; j < rooms.size(); j++) {
-                    if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
-                        currentRoom = rooms.get(j);
-                        currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
+                    if(networkChecker.isInternetConnected()) {
+                        OutsystemsAPI.getDataFromAPI(id, BookingListActivity.this);
                     }
-                }
-                listData = new ListData(currentRoom.getName(),
-                        bookings.get(i).getExpectedStartDate(),
-                        bookings.get(i).getExpectedEndDate(),
-                        currentRoomImage);
-                dataArrayList.add(listData);
-            }
 
-            listAdapter = new BookingListAdapter(this, dataArrayList, this);
-            binding.listView.setAdapter(listAdapter);
-            binding.listView.setClickable(true);
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+                    rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
+                    bookings = new DBBookingLocal().getAllBookings(dataBaseHelper.getWritableDatabase());
+
+                    for (int i = 0; i < bookings.size(); i++) {
+                        for (int j = 0; j < rooms.size(); j++) {
+                            if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
+                                currentRoom = rooms.get(j);
+                                currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
+                            }
+                        }
+                        listData = new ListData(currentRoom.getName(),
+                                bookings.get(i).getExpectedStartDate(),
+                                bookings.get(i).getExpectedEndDate(),
+                                currentRoomImage);
+                        dataArrayList.add(listData);
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                uiHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateList();
+                        binding.progressBar.setVisibility(View.GONE);
+                    }
+                });
+            }
+        });
+    }
+
+    private void  updateList() {
+        listAdapter = new BookingListAdapter( BookingListActivity.this, dataArrayList, BookingListActivity.this);
+        binding.listView.setAdapter(listAdapter);
+        binding.listView.setClickable(true);
     }
 
     @Override
     protected void onResume() {
-        updateList();
         super.onResume();
+        updateList();
     }
 
     @Override
@@ -140,8 +166,17 @@ public class BookingListActivity extends AppCompatActivity {
         networkChecker.unregisterNetworkCallback();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.shutdown();
+        }
+    }
+
     //TODO: review this method
-    private View.OnClickListener updateList() {
+    //TODO: Is this needed anymore?
+//    private View.OnClickListener updateList() {
 //        try (DBBookingLocal dataBaseHelper = new DBBookingLocal(this)) {
 //            bookings = dataBaseHelper.getAllBookings();
 //            dataArrayList.clear();
@@ -157,6 +192,6 @@ public class BookingListActivity extends AppCompatActivity {
 //            Toast toast = Toast.makeText(getApplicationContext(), "Error reading tickets", Toast.LENGTH_SHORT);
 //            toast.show();
 //        }
-        return null;
-    }
+//        return null;
+//    }
 }
