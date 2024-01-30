@@ -20,4 +20,5 @@
     <string name="expected_end_date">Fim</string>
     <string name="read_qrcode_exit">Apresentar QR à saída</string>
     <string name="qr_failed">Não é possível ler o QR Code</string>
+    <string name="filters">Filters</string>
 </resources>

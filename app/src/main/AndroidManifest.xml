@@ -21,6 +21,9 @@
         android:theme="@style/Theme.AIDS"
         tools:targetApi="31">
         <activity
+            android:name=".Booking.BookingHistory.BookingHistoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".Booking.BookingDetails.BookingShowQrActivity"
             android:exported="false" />
         <activity

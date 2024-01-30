@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -14,6 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.BookingDetails.BookingDetailActivity;
+import com.pdm.aids.Booking.BookingHistory.BookingHistoryActivity;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.Common.NetworkChecker;
@@ -58,6 +60,10 @@ public class BookingListActivity extends AppCompatActivity {
         binding = ActivityBookingListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        TextView textTitle_toolbar = findViewById(R.id.toolbar_booking_title);
+        Toolbar toolbar = findViewById(R.id.toolbar_booking_list);
+        ListView listItem = findViewById(R.id.listView);
+        ImageView historyButton = findViewById(R.id.historyButton);
         //-----------------Toolbar-----------------
         binding.toolbarBookingList.setNavigationOnClickListener(v -> finish());
         binding.toolbarBookingTitle.setText("Reservas");
@@ -67,6 +73,8 @@ public class BookingListActivity extends AppCompatActivity {
         uiHandler = new Handler(Looper.getMainLooper());
         binding.progressBar.setVisibility(View.VISIBLE);
         loadDataInBackGround();
+
+        historyButton.setOnClickListener(v -> startActivity(new Intent(BookingListActivity.this, BookingHistoryActivity.class)));
 
         //-----------------Internet Connection-----------------
         networkChecker = new NetworkChecker(this);

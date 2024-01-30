@@ -1,4 +1,4 @@
-package com.pdm.aids.Booking.BookingList;
+package com.pdm.aids.Booking.BookingHistory;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -17,10 +17,10 @@ import com.pdm.aids.R;
 
 import java.util.ArrayList;
 
-public class BookingListAdapter extends ArrayAdapter<ListData> {
-    BookingListActivity binding;
+public class BookingHistoryAdapter extends ArrayAdapter<ListData> {
+    BookingHistoryActivity binding;
 
-    public BookingListAdapter(@NonNull Context context, ArrayList<ListData> dataArrayList, BookingListActivity binding) {
+    public BookingHistoryAdapter(@NonNull Context context, ArrayList<ListData> dataArrayList, BookingHistoryActivity binding) {
         super(context, R.layout.list_item_booking, dataArrayList);
         this.binding = binding;
     }
