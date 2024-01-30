@@ -30,6 +30,7 @@ import com.pdm.aids.Ticket.TicketImage;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,7 +52,9 @@ public class CreateTicketActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_ticket);
 
         dbManager = new DbManager(this);
-        booking = new DBBookingLocal().getBookingsByStatus(3, dbManager.getWritableDatabase());
+
+        List<Integer> statusIds = Arrays.asList(3);
+        booking = new DBBookingLocal().getBookingsByStatus(statusIds, dbManager.getWritableDatabase());
         pictures = new ArrayList<>();
 
         ViewPager viewPager = findViewById(R.id.viewPager);
@@ -62,7 +65,6 @@ public class CreateTicketActivity extends AppCompatActivity {
         RelativeLayout cameraLayout = findViewById(R.id.cameraLayout);
         cameraLayout.setOnClickListener(v -> dispatchTakePictureIntent());
 
-        // Left Arrow Button
         ImageButton btnLeftArrow = findViewById(R.id.btnLeftArrow);
         btnLeftArrow.setOnClickListener(v -> {
             int currentItem = viewPager.getCurrentItem();
@@ -71,7 +73,6 @@ public class CreateTicketActivity extends AppCompatActivity {
             }
         });
 
-        // Right Arrow Button
         ImageButton btnRightArrow = findViewById(R.id.btnRightArrow);
         btnRightArrow.setOnClickListener(v -> {
             int currentItem = viewPager.getCurrentItem();
@@ -123,7 +124,6 @@ public class CreateTicketActivity extends AppCompatActivity {
                         pictureByteArray = getBytesFromBitmap(imageBitmap);
                         pictures.add(pictureByteArray);
                         adapter.notifyDataSetChanged();
-                        camera.setVisibility(View.VISIBLE);
 
                 } else {
                     showToast("Failed to capture image");
@@ -154,7 +154,6 @@ public class CreateTicketActivity extends AppCompatActivity {
 
                     UUID uuid = UUID.randomUUID();
                     String id = uuid.toString();
-                    System.out.println(id);
 
                     Ticket newTicket = new Ticket(id, booking.get(0).getHash(), 1, title, description);
                     for (byte[] picture: pictures

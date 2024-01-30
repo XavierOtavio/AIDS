@@ -1,5 +1,8 @@
 package com.pdm.aids.Ticket;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.ArrayList;
 
 public class Ticket {
@@ -27,11 +30,8 @@ public class Ticket {
 
     @Override
     public String toString() {
-        return "Facility{" +
-                "id=" + id + ", " +
-                "title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(this);
     }
 
     public String getId() {

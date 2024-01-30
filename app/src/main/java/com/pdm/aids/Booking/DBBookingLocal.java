@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -153,10 +154,21 @@ public class DBBookingLocal  {
     }
 
     @SuppressLint("Range")
-    public List<Booking> getBookingsByStatus(int bookingStatusId, SQLiteDatabase db) {
+    public List<Booking> getBookingsByStatus(List<Integer> bookingStatusIds, SQLiteDatabase db) {
         List<Booking> bookingsList = new ArrayList<>();
 
-        String selectQuery = "SELECT * FROM " + BOOKING_TABLE + " WHERE " + COLUMN_BOOKING_STATUS_ID + " = " + bookingStatusId;
+        StringBuilder whereClause = new StringBuilder();
+        if (bookingStatusIds.size() == 1) {
+            whereClause.append(COLUMN_BOOKING_STATUS_ID).append(" = ").append(bookingStatusIds.get(0));
+        } else if (bookingStatusIds.size() > 1) {
+            whereClause.append(COLUMN_BOOKING_STATUS_ID).append(" IN (")
+                    .append(TextUtils.join(",", bookingStatusIds)).append(")");
+        }
+
+        String selectQuery = "SELECT * FROM " + BOOKING_TABLE;
+        if (whereClause.length() > 0) {
+            selectQuery += " WHERE " + whereClause.toString();
+        }
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
@@ -170,6 +182,7 @@ public class DBBookingLocal  {
                     int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
                     int roomId = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_ID));
                     int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
+                    int bookingStatusId = cursor.getInt(cursor.getColumnIndex(COLUMN_BOOKING_STATUS_ID));
                     expectedStartDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_START_DATE)));
                     expectedEndDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_END_DATE)));
                     Date actualStartDate = actualStartDateString != null ? dateFormat.parse(actualStartDateString) : null;

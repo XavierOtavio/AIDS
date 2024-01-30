@@ -29,6 +29,7 @@ import com.pdm.aids.Room.RoomImage;
 import com.pdm.aids.databinding.ActivityBookingListBinding;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import java.util.concurrent.ExecutorService;
@@ -121,7 +122,8 @@ public class BookingListActivity extends AppCompatActivity {
                     }
 
                     rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
-                    bookings = new DBBookingLocal().getAllBookings(dataBaseHelper.getWritableDatabase());
+                    List<Integer> statusIds = Arrays.asList(3, 4);
+                    bookings = new DBBookingLocal().getBookingsByStatus(statusIds, dataBaseHelper.getWritableDatabase());
 
                     for (int i = 0; i < bookings.size(); i++) {
                         for (int j = 0; j < rooms.size(); j++) {

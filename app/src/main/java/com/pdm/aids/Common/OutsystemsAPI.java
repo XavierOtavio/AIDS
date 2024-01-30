@@ -12,6 +12,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.pdm.aids.Booking.Booking;
@@ -20,6 +23,7 @@ import com.pdm.aids.Room.DBRoomImageLocal;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
 import com.pdm.aids.Room.RoomImage;
+import com.pdm.aids.Ticket.Ticket;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -283,6 +287,36 @@ public class OutsystemsAPI extends AppCompatActivity {
         );
 
         queue.add(stringRequest);
+    }
+
+    public static void submitTicket(Ticket ticket, Context context, VolleyCallback callback) {
+        String url = apiUrl + "SubmitTicket";
+
+        String ticketJson = ticket.toString();
+
+        try {
+            JSONObject ticketJsonObject = new JSONObject(ticketJson);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, ticketJsonObject,
+                    response -> {
+                        try {
+                            if (response.getString("HTTPCode").equals("200")) {
+                                callback.onSuccess(response.getString("Message"));
+                            } else {
+                                callback.onError(response.getString("Message"));
+                            }
+                        } catch (JSONException e) {
+                            callback.onError("Error parsing response");
+                        }
+                    },
+                    error -> callback.onError("Error submitting ticket: " + error.getMessage()));
+
+            RequestQueue queue = Volley.newRequestQueue(context);
+            queue.add(jsonObjectRequest);
+
+        } catch (JSONException e) {
+            callback.onError("Error converting Ticket to JSON");
+        }
     }
 
 }

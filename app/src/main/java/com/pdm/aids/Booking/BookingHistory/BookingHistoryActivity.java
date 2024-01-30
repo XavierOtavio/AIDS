@@ -28,6 +28,7 @@ import com.pdm.aids.Room.RoomImage;
 import com.pdm.aids.databinding.ActivityBookingHistoryBinding;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BookingHistoryActivity extends AppCompatActivity {
@@ -94,7 +95,9 @@ public class BookingHistoryActivity extends AppCompatActivity {
             OutsystemsAPI.getDataFromAPI(id, this);
 
             rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
-            bookings = new DBBookingLocal().getAllBookings(dataBaseHelper.getWritableDatabase());
+
+            List<Integer> statusIds = Arrays.asList(2);
+            bookings = new DBBookingLocal().getBookingsByStatus(statusIds, dataBaseHelper.getWritableDatabase());
 
             for (int i = 0; i < bookings.size(); i++) {
                 for (int j = 0; j < rooms.size(); j++) {

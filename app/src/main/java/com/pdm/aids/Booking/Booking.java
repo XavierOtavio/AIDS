@@ -1,14 +1,6 @@
 package com.pdm.aids.Booking;
 
-import android.graphics.Bitmap;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
-
-import java.io.ByteArrayOutputStream;
+import com.google.gson.Gson;
 import java.util.Date;
 
 public class Booking {
@@ -81,26 +73,6 @@ public class Booking {
 
     public String getHash() {
         return hash;
-    }
-
-    public byte[] getQrImage(String hash){
-        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-        try {
-            BitMatrix bitMatrix = multiFormatWriter.encode(hash,
-                    BarcodeFormat.QR_CODE,
-                    300,
-                    300);
-
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-            return byteArrayOutputStream.toByteArray();
-
-        } catch (WriterException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setActualEndDate(Date actualEndDate) {
