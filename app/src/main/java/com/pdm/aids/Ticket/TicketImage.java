@@ -10,7 +10,6 @@ public class TicketImage {
         this.ticketId = ticketId;
         this.filename = filename;
         this.image = image;
-
     }
 
     public String  getId() {

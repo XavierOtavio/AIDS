@@ -20,8 +20,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.pdm.aids.Booking.Booking;
+import com.pdm.aids.Booking.BookingDetails.BookingDetailActivity;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
+import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Ticket.DBTicketLocal;
@@ -154,16 +156,31 @@ public class CreateTicketActivity extends AppCompatActivity {
 
                     UUID uuid = UUID.randomUUID();
                     String id = uuid.toString();
+                    ArrayList<TicketImage> allImages = new ArrayList<>();
 
                     Ticket newTicket = new Ticket(id, booking.get(0).getHash(), 1, title, description);
                     for (byte[] picture: pictures
                          ) {
                         TicketImage ticketImage = new TicketImage(newTicket.getId(), "filename", picture);
                         boolean imageIsInserted = new DBTicketLocal().createTicketImage(ticketImage, this, dbManager.getWritableDatabase());
+                        allImages.add(ticketImage);
                     }
+
+                    newTicket.setTicketImages(allImages);
                     boolean ticketIsInserted = new DBTicketLocal().createTicket(newTicket, this, dbManager.getWritableDatabase());
 
                     if (ticketIsInserted) {
+                        OutsystemsAPI.submitTicket(newTicket, this, new OutsystemsAPI.VolleyCallback() {
+                            @Override
+                            public void onSuccess(String result) {
+                                Toast.makeText(CreateTicketActivity.this, result, Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                                Toast.makeText(CreateTicketActivity.this, error, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                         showToast("Ticket saved successfully");
                         finish();
                     } else {

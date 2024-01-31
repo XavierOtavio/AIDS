@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -115,7 +116,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                                         Utils.convertUnixToDate(bookingObj.getString("ActualStartDate")),
                                         Utils.convertUnixToDate(bookingObj.getString("ActualEndDate")),
                                         Utils.convertUnixToDate(bookingObj.getString("ModifiedOn")),
-                                        bookingObj.getString("Hash")
+                                        bookingObj.getString("UUID")
                                 );
                                 DBBookingLocal.addBooking(booking, db);
                             }
@@ -264,7 +265,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                                     Utils.convertUnixToDate(obj.getString("ActualStartDate")),
                                     null,
                                     Utils.convertUnixToDate(obj.getString("ModifiedOn")),
-                                    obj.getString("Hash")
+                                    obj.getString("UUID")
                             );
                             DBBookingLocal.addBooking(booking, db);
 
@@ -292,10 +293,11 @@ public class OutsystemsAPI extends AppCompatActivity {
     public static void submitTicket(Ticket ticket, Context context, VolleyCallback callback) {
         String url = apiUrl + "SubmitTicket";
 
-        String ticketJson = ticket.toString();
-
         try {
-            JSONObject ticketJsonObject = new JSONObject(ticketJson);
+            JSONObject ticketJsonObject = new JSONObject();
+            ticketJsonObject.put("tickets", new JSONObject(ticket.toJsonWithoutImages()));
+            ticketJsonObject.put("ticketImages", new JSONArray(ticket.toJsonImagesOnly()));
+            System.out.println(ticketJsonObject);
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, ticketJsonObject,
                     response -> {
@@ -315,8 +317,7 @@ public class OutsystemsAPI extends AppCompatActivity {
             queue.add(jsonObjectRequest);
 
         } catch (JSONException e) {
-            callback.onError("Error converting Ticket to JSON");
-        }
+            callback.onError("Error converting Ticket to JSON " + e.getMessage());
+            e.printStackTrace();        }
     }
-
 }

@@ -4,38 +4,48 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Ticket {
 
-    private String id;
-    private String bookingId;
+    private String ticketUuid;
+    private String bookingUuid;
     private int ticketStatusId;
     private String title;
     private String description;
     private ArrayList<TicketImage> ticketImages;
     public Ticket(String id, String bookingId, int ticketStatusId, String title, String description) {
-        this.id = id;
+        this.ticketUuid = id;
         this.title = title;
         this.description = description;
         this.ticketStatusId = ticketStatusId;
-        this.bookingId = bookingId;
+        this.bookingUuid = bookingId;
     }
-    public Ticket(String bookingId, int ticketStatusId, String title, String description, ArrayList<TicketImage> ticketImages) {
+    public Ticket(String id, String bookingId, int ticketStatusId, String title, String description, ArrayList<TicketImage> ticketImages) {
+        this.ticketUuid = id;
         this.title = title;
         this.description = description;
         this.ticketStatusId = ticketStatusId;
-        this.bookingId = bookingId;
+        this.bookingUuid = bookingId;
         this.ticketImages = ticketImages;
     }
 
-    @Override
-    public String toString() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(this);
+    public String toJsonWithoutImages() {
+        Gson gson = new Gson();
+
+        Ticket ticketWithoutImages = new Ticket(ticketUuid, bookingUuid, ticketStatusId, title, description);
+        return gson.toJson(ticketWithoutImages);
+    }
+
+    public String toJsonImagesOnly() {
+        Gson gson = new Gson();
+
+        String imagesJson = gson.toJson(ticketImages);
+        return imagesJson;
     }
 
     public String getId() {
-        return id;
+        return ticketUuid;
     }
     public String getTitle() {
         return title;
@@ -54,7 +64,7 @@ public class Ticket {
     }
 
     public String  getBookingId() {
-        return bookingId;
+        return bookingUuid;
     }
 
     public int getTicketStatusId() {
@@ -66,10 +76,14 @@ public class Ticket {
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.ticketUuid = id;
     }
 
     public void setBookingId(String bookingId) {
-        this.bookingId = bookingId;
+        this.bookingUuid = bookingId;
+    }
+
+    public void setTicketImages(ArrayList<TicketImage> ticketImages) {
+        this.ticketImages = ticketImages;
     }
 }

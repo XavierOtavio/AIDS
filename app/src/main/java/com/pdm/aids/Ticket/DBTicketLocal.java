@@ -87,7 +87,7 @@ public class DBTicketLocal {
 
                 ArrayList<TicketImage> ticketImages = getTicketImagesForTicket(ticketId, db);
 
-                Ticket ticket = new Ticket(bookingId, ticketStatusId, title, description, ticketImages);
+                Ticket ticket = new Ticket(ticketId,bookingId, ticketStatusId, title, description, ticketImages);
                 ticketList.add(ticket);
             } while (cursor.moveToNext());
         }
@@ -137,7 +137,7 @@ public class DBTicketLocal {
 
                 ArrayList<TicketImage> ticketImages = getTicketImagesForTicket(ticketId, db);
 
-                Ticket ticket = new Ticket(bookingId, statusId, title, description, ticketImages);
+                Ticket ticket = new Ticket(ticketId, bookingId, statusId, title, description, ticketImages);
                 ticketList.add(ticket);
             } while (cursor.moveToNext());
         }

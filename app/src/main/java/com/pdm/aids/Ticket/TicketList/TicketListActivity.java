@@ -18,6 +18,7 @@ import com.pdm.aids.Ticket.TicketDetails.CreateTicketActivity;
 import com.pdm.aids.databinding.ActivityTicketListBinding;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -49,12 +50,16 @@ public class TicketListActivity extends AppCompatActivity {
         });
 
         try (DbManager dataBaseHelper = new DbManager(this)){
+            List<Integer> statusIds = Arrays.asList(3);
 
-            booking = new DBBookingLocal().getAllBookings(dataBaseHelper.getWritableDatabase());
+            booking = new DBBookingLocal().getBookingsByStatus(statusIds,dataBaseHelper.getWritableDatabase());
             tickets = new DBTicketLocal().getAllTicketsByBookingId(booking.get(0).getHash(), dataBaseHelper.getWritableDatabase());
 
             for (int i = 0; i < tickets.size(); i++) {
+
                 listData = new ListData(tickets.get(i).getTitle(), tickets.get(i).getDescription());
+                System.out.println(tickets.get(i).toJsonWithoutImages());
+                System.out.println(tickets.get(i).toJsonImagesOnly());
                 dataArrayList.add(listData);
             }
 
