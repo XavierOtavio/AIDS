@@ -33,6 +33,7 @@ import com.pdm.aids.Ticket.TicketImage;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,6 +49,7 @@ public class CreateTicketActivity extends AppCompatActivity {
     private List<Booking> booking;
     private DbManager dbManager;
     private List<byte[]> pictures;
+    private List <String> picturesToSend;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +60,7 @@ public class CreateTicketActivity extends AppCompatActivity {
         List<Integer> statusIds = Arrays.asList(3);
         booking = new DBBookingLocal().getBookingsByStatus(statusIds, dbManager.getWritableDatabase());
         pictures = new ArrayList<>();
+        picturesToSend = new ArrayList<>();
 
         ViewPager viewPager = findViewById(R.id.viewPager);
 
@@ -124,6 +127,7 @@ public class CreateTicketActivity extends AppCompatActivity {
                 Bundle extras = data.getExtras();
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
                         pictureByteArray = getBytesFromBitmap(imageBitmap);
+                        picturesToSend.add(Base64.getEncoder().encodeToString(pictureByteArray));
                         pictures.add(pictureByteArray);
                         adapter.notifyDataSetChanged();
 
@@ -150,7 +154,7 @@ public class CreateTicketActivity extends AppCompatActivity {
 
             if (isBookingValid(booking)) {
                 if (!title.isEmpty() && !description.isEmpty()) {
-                    if (pictures == null) {
+                    if (picturesToSend == null) {
                         pictureByteArray = new byte[0];
                     }
 
@@ -159,7 +163,7 @@ public class CreateTicketActivity extends AppCompatActivity {
                     ArrayList<TicketImage> allImages = new ArrayList<>();
 
                     Ticket newTicket = new Ticket(id, booking.get(0).getHash(), 1, title, description);
-                    for (byte[] picture: pictures
+                    for (String picture: picturesToSend
                          ) {
                         TicketImage ticketImage = new TicketImage(newTicket.getId(), "filename", picture);
                         boolean imageIsInserted = new DBTicketLocal().createTicketImage(ticketImage, this, dbManager.getWritableDatabase());

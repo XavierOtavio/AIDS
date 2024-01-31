@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
+import java.util.Base64;
 
 public class DBTicketLocal {
 
@@ -62,7 +63,7 @@ public class DBTicketLocal {
     public boolean createTicketImage(TicketImage ticketImage, Context context, SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
 
-        cv.put(COLUMN_TICKET_IMAGE_ID, ticketImage.getTicketId());
+        cv.put(COLUMN_TICKET_IMAGE_ID, ticketImage.getTicketUuid());
         cv.put(COLUMN_FILENAME, ticketImage.getFilename());
         cv.put(COLUMN_IMAGE, ticketImage.getImage());
 
@@ -110,8 +111,10 @@ public class DBTicketLocal {
                 int imageId = cursor.getInt(cursor.getColumnIndex(COLUMN_IMAGE_ID));
                 String filename = cursor.getString(cursor.getColumnIndex(COLUMN_FILENAME));
                 byte[] image = cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE));
+                String base64Image = Base64.getEncoder().encodeToString(image);
 
-                TicketImage ticketImage = new TicketImage(ticketId, filename, image);
+
+                TicketImage ticketImage = new TicketImage(ticketId, filename, base64Image);
                 ticketImages.add(ticketImage);
             } while (cursor.moveToNext());
         }

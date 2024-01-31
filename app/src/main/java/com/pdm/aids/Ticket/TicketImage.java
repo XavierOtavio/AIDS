@@ -2,12 +2,12 @@ package com.pdm.aids.Ticket;
 
 public class TicketImage {
     String id;
-    String ticketId;
+    String ticketUuid;
     String filename;
-    byte[] image;
+    String image;
 
-    public TicketImage(String ticketId, String filename, byte[] image){
-        this.ticketId = ticketId;
+    public TicketImage(String ticketId, String filename, String image){
+        this.ticketUuid = ticketId;
         this.filename = filename;
         this.image = image;
     }
@@ -16,12 +16,12 @@ public class TicketImage {
         return id;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public String getTicketId() {
-        return ticketId;
+    public String getTicketUuid() {
+        return ticketUuid;
     }
 
     public String getFilename() {
@@ -36,11 +36,11 @@ public class TicketImage {
         this.id = id;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
-    public void setTicketId(String ticketId) {
-        this.ticketId = ticketId;
+    public void setTicketUuid(String ticketId) {
+        this.ticketUuid = ticketId;
     }
 }
