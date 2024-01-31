@@ -152,27 +152,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                             JSONArray imageList = new JSONArray(obj.getString("RoomImageList"));
                             for (int i = 0; i < imageList.length(); i++) {
                                 JSONObject imageObj = imageList.getJSONObject(i);
-
-                                String folderPath = context.getFilesDir() + "/RoomImages";
-                                File folder = new File(folderPath);
-                                if (!folder.exists()) {
-                                    if (!folder.mkdirs()) {
-                                        new Exception("Failed to create folder");
-                                    }
-                                }
-                                String filePath = folderPath + "/" + imageObj.getString("Filename");
-                                File imageFile = new File(filePath);
-                                if (!imageFile.exists()) {
-                                    String base64Image = imageObj.getString("Image");
-                                    byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
-                                    Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-
-                                    FileOutputStream stream = new FileOutputStream(filePath);
-                                    Bitmap.CompressFormat extension = Bitmap.CompressFormat.valueOf(imageObj.getString("Filename").split("\\.")[1].toUpperCase(Locale.getDefault()).replace("JPG", "JPEG"));
-                                    bmp.compress(extension, 100, stream);
-                                    stream.close();
-                                    bmp.recycle();
-                                }
+                                String filePath = Utils.addImageToLocalStorage("RoomImages", imageObj, context);
 
                                 RoomImage roomImage = new RoomImage();
                                 roomImage.setFileName(imageObj.getString("Filename"));

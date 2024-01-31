@@ -4,11 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Ticket {
 
     private String ticketUuid;
+    private Date creationDate;
+    private Date lastModified;
     private String bookingUuid;
     private int ticketStatusId;
     private String title;

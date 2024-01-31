@@ -3,10 +3,12 @@ package com.pdm.aids.Common;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.util.Base64;
 
 import androidx.annotation.NonNull;
 
@@ -17,7 +19,14 @@ import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.pdm.aids.Login.LoginActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -102,4 +111,27 @@ public class Utils {
 
     }
 
+    public static String addImageToLocalStorage(String path, JSONObject img, Context context) throws JSONException, IOException {
+        String folderPath = context.getFilesDir() + "/" + path;
+        File folder = new File(folderPath);
+        if (!folder.exists()) {
+            if (!folder.mkdirs()) {
+                new Exception("Failed to create folder");
+            }
+        }
+        String filePath = folderPath + "/" + img.getString("Filename");
+        File imageFile = new File(filePath);
+        if (!imageFile.exists()) {
+            String base64Image = img.getString("Image");
+            byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+            Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+            FileOutputStream stream = new FileOutputStream(filePath);
+            Bitmap.CompressFormat extension = Bitmap.CompressFormat.valueOf(img.getString("Filename").split("\\.")[1].toUpperCase(Locale.getDefault()).replace("JPG", "JPEG"));
+            bmp.compress(extension, 100, stream);
+            stream.close();
+            bmp.recycle();
+        }
+        return filePath;
+    }
 }
