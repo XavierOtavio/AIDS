@@ -6,7 +6,10 @@ import android.content.SharedPreferences;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Layout;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -14,13 +17,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.pdm.aids.Booking.BookingList.BookingListActivity;
+import com.pdm.aids.Booking.BookingList.ListData;
+import com.pdm.aids.Booking.DBBookingLocal;
+import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.Common.HomeActivity;
 import com.pdm.aids.Common.NetworkChecker;
 import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.R;
+import com.pdm.aids.Room.DBRoomImageLocal;
+import com.pdm.aids.Room.DBRoomLocal;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LoginActivity extends AppCompatActivity {
     public static final String MyPREFERENCES = "MyPrefs";
@@ -31,9 +45,10 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private Button btnXavier;
     private Button btnRegister;
-    private LinearLayout layoutWithoutInternet;
-    private LinearLayout layoutWithInternet;
+    private LinearLayout layoutWithoutInternet, layoutWithInternet, loading;
     private TextView txtTitle;
+    private ExecutorService executorService;
+    private Handler uiHandler;
 
     public LoginActivity() {
     }
@@ -53,6 +68,8 @@ public class LoginActivity extends AppCompatActivity {
         layoutWithoutInternet = (LinearLayout) findViewById(R.id.layoutWithoutInternet);
         layoutWithInternet = (LinearLayout) findViewById(R.id.layoutWithInternet);
         txtTitle = (TextView) findViewById(R.id.textView_Title);
+        loading = (LinearLayout) findViewById(R.id.loading);
+        loading.setZ(1000);
 
         //------------------Internet Connection------------------
         networkChecker = new NetworkChecker(this);
@@ -86,6 +103,7 @@ public class LoginActivity extends AppCompatActivity {
                 });
             }
         });
+
 
         //-----------------Register Button-----------------
         btnRegister.setOnClickListener(v -> {
@@ -141,12 +159,15 @@ public class LoginActivity extends AppCompatActivity {
         //-----------------Login Button-----------------
         btnLogin.setOnClickListener(v ->
         {
-            disablePage();
+            disablePage();//Disable page to prevent multiple clicks
+
             if (!validateNMec((TextInputLayout) findViewById(R.id.textInputLayout_NMec)) | !validatePassword((TextInputLayout) findViewById(R.id.textInputLayout_Password))) {
-                enablePage();
+                enablePage();//if inputs are not valid, enable page
                 return;
             }
 
+            //-----------------Process Login-----------------
+            loading.setVisibility(LinearLayout.VISIBLE);//Show loading
             OutsystemsAPI.checkLogin(numMec.getText().toString(), password.getText().toString(), LoginActivity.this, new OutsystemsAPI.VolleyCallback() {
                 @Override
                 public void onSuccess(String result) {
@@ -160,12 +181,14 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("Id", obj.getString("Id"));
                             editor.apply();
 
-                            OutsystemsAPI.getDataFromAPI(obj.getString("Id"), LoginActivity.this);
+                            OutsystemsAPI.getDataFromAPI(obj.getString("Id"), LoginActivity.this);//Retrieve data from API
 
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                            startActivity(intent);
-                            finish();
+                            startActivity(intent);//Go to HomeActivity
+                            finish();//Close LoginActivity
+
                         } else {
+                            loading.setVisibility(LinearLayout.GONE);
                             enablePage();
                             Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
                         }
@@ -177,17 +200,18 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onError(String error) {
                     try {
+                        loading.setVisibility(LinearLayout.GONE);
+                        enablePage();
                         JSONObject obj = new JSONObject(error);
                         Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
                     } catch (JSONException e) {
                         Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                    enablePage();
                 }
-
             });
         });
     }
+
 
     @Override
     protected void onStart() {

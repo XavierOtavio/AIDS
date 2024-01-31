@@ -42,7 +42,6 @@ public class BookingListActivity extends AppCompatActivity {
     ActivityBookingListBinding binding;
     BookingListAdapter listAdapter;
     ArrayList<ListData> dataArrayList = new ArrayList<>();
-
     List<Booking> bookings = new ArrayList<>();
     List<Room> rooms = new ArrayList<>();
     List<RoomImage> roomsImage = new ArrayList<>();
