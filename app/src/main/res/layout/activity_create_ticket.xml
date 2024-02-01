@@ -213,6 +213,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="20dp"
                 android:textStyle="normal"
+                android:gravity="center"
                 android:background="@drawable/white_border"
                 />
 
@@ -233,7 +234,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:layout_weight="1"
-                android:hint="Type your description Here"
+                android:hint="Escreva aqui a Descrição"
                 android:textColorHint="#808080"
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
