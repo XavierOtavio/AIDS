@@ -5,13 +5,14 @@ public class TicketImage {
     String ticketUuid;
     String filename;
     String image;
+    String imagePath;
 
     public TicketImage(String ticketId, String filename, String image){
         this.ticketUuid = ticketId;
         this.filename = filename;
         this.image = image;
     }
-
+    public TicketImage() {}
     public String  getId() {
         return id;
     }
@@ -42,5 +43,9 @@ public class TicketImage {
 
     public void setTicketUuid(String ticketId) {
         this.ticketUuid = ticketId;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }

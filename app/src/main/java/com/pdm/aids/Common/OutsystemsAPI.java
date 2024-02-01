@@ -23,7 +23,9 @@ import com.pdm.aids.Room.DBRoomImageLocal;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
 import com.pdm.aids.Room.RoomImage;
+import com.pdm.aids.Ticket.DBTicketLocal;
 import com.pdm.aids.Ticket.Ticket;
+import com.pdm.aids.Ticket.TicketImage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -298,6 +300,52 @@ public class OutsystemsAPI extends AppCompatActivity {
 
         } catch (JSONException e) {
             callback.onError("Error converting Ticket to JSON " + e.getMessage());
-            e.printStackTrace();        }
+            e.printStackTrace();
+        }
+    }
+
+    public static void getTicketImages(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
+        String url = apiUrl + "GetTicketImagesUserNeeds?UserId=" + userId;
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            db.execSQL("DELETE FROM " + dbManager.TICKET_IMAGE_TABLE);
+                            JSONArray imageList = new JSONArray(obj.getString("TicketImageList"));
+                            for (int i = 0; i < imageList.length(); i++) {
+                                JSONObject imageObj = imageList.getJSONObject(i);
+                                String filePath = Utils.addImageToLocalStorage("TicketImages", imageObj, context);
+
+                                TicketImage ticketImage = new TicketImage();
+                                ticketImage.setFilename(imageObj.getString("Filename"));
+                                ticketImage.setImagePath(filePath);
+                                ticketImage.setTicketUuid((imageObj.getString("TicketUuid")));
+
+                                DBTicketLocal.createTicketImage(ticketImage, context, db);
+                            }
+                        } else {
+                            Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }, error -> {
+            try {
+                JSONObject obj = new JSONObject(error.getMessage());
+                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+        );
+        queue.add(stringRequest);
     }
 }

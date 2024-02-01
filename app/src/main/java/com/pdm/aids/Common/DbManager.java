@@ -15,7 +15,7 @@ public class DbManager extends SQLiteOpenHelper {
     public static final String ROOM_TABLE = "ROOM_TABLE";
     public static final String BOOKING_TABLE = "BOOKING_TABLE";
     public static final String TICKET_TABLE = "TICKET_TABLE";
-
+    public static final String TICKET_IMAGE_TABLE = "TICKET_IMAGE_TABLE";
     public static final String ROOM_IMAGE_TABLE = "ROOM_IMAGE_TABLE";
 
     public DbManager(@Nullable Context context) {

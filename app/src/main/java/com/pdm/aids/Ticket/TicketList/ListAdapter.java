@@ -34,7 +34,7 @@ public class ListAdapter extends ArrayAdapter<ListData> {
 
         TextView title = view.findViewById(R.id.idTitle);
         TextView description = view.findViewById(R.id.idDescription);
-        TextView id = view.findViewById(R.id.idId);
+        TextView date = view.findViewById(R.id.idDate);
         TextView status = view.findViewById(R.id.idStatus);
         assert listData != null;
         title.setText(listData.title);

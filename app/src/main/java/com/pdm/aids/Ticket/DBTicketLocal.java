@@ -17,6 +17,8 @@ public class DBTicketLocal {
     public static final String COLUMN_TICKET_ID = "TICKET_ID";
     public static final String COLUMN_BOOKING_ID = "BOOKING_ID";
     public static final String COLUMN_TICKET_STATUS_ID = "TICKET_STATUS_ID";
+    public static final String COLUMN_TICKET_STARTDATE = "TICKET_STARTDATE";
+    public static final String COLUMN_TICKET_MODIFIED = "TICKET_MODIFIED";
     public static final String COLUMN_TITLE = "TITLE";
     public static final String COLUMN_DESCRIPTION = "DESCRIPTION";
 
@@ -60,7 +62,7 @@ public class DBTicketLocal {
         return insert != -1;
     }
 
-    public boolean createTicketImage(TicketImage ticketImage, Context context, SQLiteDatabase db) {
+    public static boolean createTicketImage(TicketImage ticketImage, Context context, SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_TICKET_IMAGE_ID, ticketImage.getTicketUuid());

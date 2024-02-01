@@ -43,7 +43,15 @@ public class Utils {
             throw new RuntimeException(e);
         }
     }
-
+    public static Date convertLongToStringDate(long timestamp) {
+        try {
+            Date date = new Date(Long.parseLong(String.valueOf(timestamp)) * 1000);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            return dateFormat.parse(dateFormat.format(date));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
     public static Date convertStringToDate(String dateString) {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());

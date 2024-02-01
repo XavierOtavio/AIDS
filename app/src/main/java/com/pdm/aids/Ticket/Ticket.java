@@ -89,4 +89,20 @@ public class Ticket {
     public void setTicketImages(ArrayList<TicketImage> ticketImages) {
         this.ticketImages = ticketImages;
     }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public Date getLastModified() {
+        return lastModified;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public void setLastModified(Date lastModified) {
+        this.lastModified = lastModified;
+    }
 }

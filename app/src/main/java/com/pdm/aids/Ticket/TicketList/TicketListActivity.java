@@ -58,8 +58,6 @@ public class TicketListActivity extends AppCompatActivity {
             for (int i = 0; i < tickets.size(); i++) {
 
                 listData = new ListData(tickets.get(i).getTitle(), tickets.get(i).getDescription());
-                System.out.println(tickets.get(i).toJsonWithoutImages());
-                System.out.println(tickets.get(i).toJsonImagesOnly());
                 dataArrayList.add(listData);
             }
 
@@ -80,9 +78,7 @@ public class TicketListActivity extends AppCompatActivity {
     private void updateList() {
         try (DbManager dataBaseHelper = new DbManager(this)) {
             booking = new DBBookingLocal().getAllBookings(dataBaseHelper.getWritableDatabase());
-            System.out.println(booking.get(0).getHash());
             tickets = new DBTicketLocal().getAllTicketsByBookingId(booking.get(2).getHash(), dataBaseHelper.getWritableDatabase());
-            System.out.println(tickets.get(0).getTitle());
 
             dataArrayList.clear();
             for (int i = 0; i < tickets.size(); i++) {
