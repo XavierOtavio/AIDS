@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.sql.SQLOutput;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -139,6 +140,57 @@ public class OutsystemsAPI extends AppCompatActivity {
         );
         queue.add(stringRequest);
     }
+    public interface BookingCallback {
+        void onBookingsReceived(ArrayList<Booking> bookingArrayList);
+    }
+
+    public static void getBookingsHistory(String userId, Context context, BookingCallback callback) {
+        String url = apiUrl + "GetBookingHistory?UserId=" + userId;
+        ArrayList<Booking> bookingArrayList = new ArrayList<>();
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            JSONArray bookingList = new JSONArray(obj.getString("BookingList"));
+
+                            for (int i = 0; i < bookingList.length(); i++) {
+                                JSONObject bookingObj = bookingList.getJSONObject(i);
+                                Booking booking = new Booking(
+                                        bookingObj.getInt("RoomId"),
+                                        bookingObj.getInt("ReservedBy"),
+                                        bookingObj.getInt("BookingStatusId"),
+                                        Utils.convertUnixToDate(bookingObj.getString("ExpectedStartDate")),
+                                        Utils.convertUnixToDate(bookingObj.getString("ExpectedEndDate")),
+                                        Utils.convertUnixToDate(bookingObj.getString("ActualStartDate")),
+                                        Utils.convertUnixToDate(bookingObj.getString("ActualEndDate")),
+                                        Utils.convertUnixToDate(bookingObj.getString("ModifiedOn")),
+                                        bookingObj.getString("UUID"));
+                                bookingArrayList.add(booking);
+                            }
+
+                            callback.onBookingsReceived(bookingArrayList);
+                        } else {
+                            Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }, error -> {
+            try {
+                JSONObject obj = new JSONObject(error.getMessage());
+                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        queue.add(stringRequest);
+    }
+
 
     public static void getRoomImages(String roomId, Context context, SQLiteDatabase db, DbManager dbManager) {
         String url = apiUrl + "GetRoomImagesUserNeeds?UserId=" + roomId;

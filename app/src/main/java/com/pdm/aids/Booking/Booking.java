@@ -114,4 +114,20 @@ public class Booking {
     public void setUserId(int userId) {
         this.userId = userId;
     }
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "id=" + id +
+                ", roomId=" + roomId +
+                ", userId=" + userId +
+                ", bookingStatusId=" + bookingStatusId +
+                ", expectedStartDate=" + expectedStartDate +
+                ", expectedEndDate=" + expectedEndDate +
+                ", actualStartDate=" + actualStartDate +
+                ", actualEndDate=" + actualEndDate +
+                ", last_modified=" + last_modified +
+                ", hash='" + hash + '\'' +
+                '}';
+    }
 }
