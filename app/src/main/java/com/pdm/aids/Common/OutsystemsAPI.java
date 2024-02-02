@@ -47,7 +47,6 @@ import java.util.Locale;
 public class OutsystemsAPI extends AppCompatActivity {
     public interface VolleyCallback {
         void onSuccess(String result);
-
         void onError(String error);
     }
 

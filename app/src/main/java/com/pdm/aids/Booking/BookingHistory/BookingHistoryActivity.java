@@ -53,13 +53,9 @@ public class BookingHistoryActivity extends AppCompatActivity {
         id = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE)
                 .getString("Id", "");
 
-        OutsystemsAPI.getBookingsHistory(id, this, new OutsystemsAPI.BookingCallback() {
-            @Override
-            public void onBookingsReceived(ArrayList<Booking> bookingArrayList) {
-                bookings = bookingArrayList;
-
-                updateUIWithBookings();
-            }
+        OutsystemsAPI.getBookingsHistory(id, this, bookingArrayList -> {
+            bookings = bookingArrayList;
+            updateUIWithBookings();
         });
 
 
@@ -107,7 +103,6 @@ public class BookingHistoryActivity extends AppCompatActivity {
             OutsystemsAPI.getDataFromAPI(id, this);
 
             rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
-            System.out.println(bookings);
 
             for (int i = 0; i < bookings.size(); i++) {
                 for (int j = 0; j < rooms.size(); j++) {

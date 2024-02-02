@@ -110,44 +110,41 @@ public class BookingListActivity extends AppCompatActivity {
     }
 
     private void loadDataInBackGround() {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                try (DbManager dataBaseHelper = new DbManager(BookingListActivity.this)) {
-                    String id = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", "");
+        executorService.submit(() -> {
+            try (DbManager dataBaseHelper = new DbManager(BookingListActivity.this)) {
+                String id = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", "");
 
-                    if(networkChecker.isInternetConnected()) {
-                        OutsystemsAPI.getDataFromAPI(id, BookingListActivity.this);
-                    }
-
-                    rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
-                    List<Integer> statusIds = Arrays.asList(3, 4);
-                    bookings = new DBBookingLocal().getBookingsByStatus(statusIds, dataBaseHelper.getWritableDatabase());
-
-                    for (int i = 0; i < bookings.size(); i++) {
-                        for (int j = 0; j < rooms.size(); j++) {
-                            if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
-                                currentRoom = rooms.get(j);
-                                currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
-                            }
-                        }
-                        listData = new ListData(currentRoom.getName(),
-                                bookings.get(i).getExpectedStartDate(),
-                                bookings.get(i).getExpectedEndDate(),
-                                currentRoomImage);
-                        dataArrayList.add(listData);
-                    }
-                } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                if(networkChecker.isInternetConnected()) {
+                    OutsystemsAPI.getDataFromAPI(id, BookingListActivity.this);
                 }
-                uiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateList();
-                        binding.progressBar.setVisibility(View.GONE);
+
+                rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
+                List<Integer> statusIds = Arrays.asList(3, 4);
+                bookings = new DBBookingLocal().getBookingsByStatus(statusIds, dataBaseHelper.getWritableDatabase());
+
+                for (int i = 0; i < bookings.size(); i++) {
+                    for (int j = 0; j < rooms.size(); j++) {
+                        if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
+                            currentRoom = rooms.get(j);
+                            currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
+                        }
                     }
-                });
+                    listData = new ListData(currentRoom.getName(),
+                            bookings.get(i).getExpectedStartDate(),
+                            bookings.get(i).getExpectedEndDate(),
+                            currentRoomImage);
+                    dataArrayList.add(listData);
+                }
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateList();
+                    binding.progressBar.setVisibility(View.GONE);
+                }
+            });
         });
     }
 

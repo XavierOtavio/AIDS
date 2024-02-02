@@ -144,23 +144,23 @@ public class BookingDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        TextView qrCodeLabel = findViewById(R.id.qrCodeLabel);
-        TextView enterRoomDate = findViewById(R.id.enterRoomDate);
-
-        enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
-
-        if (!enterRoomDate.getText().equals("-")) {
-            Intent intent = getIntent();
-            String hash = intent.getStringExtra("bookingHash");
-
-            binding.imageViewCaptured.setVisibility(View.GONE);
-            binding.QRimage.setVisibility(View.VISIBLE);
-            qrCodeLabel.setText(R.string.read_qrcode_exit);
-
-            Utils u = new Utils();
-            Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
-            binding.QRimage.setImageBitmap(qrBitmap);
-        }
+//        TextView qrCodeLabel = findViewById(R.id.qrCodeLabel);
+//        TextView enterRoomDate = findViewById(R.id.enterRoomDate);
+//
+//        enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
+//
+//        if (!enterRoomDate.getText().equals("-")) {
+//            Intent intent = getIntent();
+//            String hash = intent.getStringExtra("bookingHash");
+//
+//            binding.imageViewCaptured.setVisibility(View.GONE);
+//            binding.QRimage.setVisibility(View.VISIBLE);
+//            qrCodeLabel.setText(R.string.read_qrcode_exit);
+//
+//            Utils u = new Utils();
+//            Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
+//            binding.QRimage.setImageBitmap(qrBitmap);
+//        }
         super.onResume();
     }
 
