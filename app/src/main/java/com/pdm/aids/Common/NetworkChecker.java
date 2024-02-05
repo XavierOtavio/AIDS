@@ -63,17 +63,11 @@ public class NetworkChecker {
         Network network = connectivityManager.getActiveNetwork();
         if (network != null) {
             NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
-            if (capabilities != null) {
-                boolean isConnectedToInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-                boolean isCellularDataEnabled = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
-                boolean isEthernetConnected = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET);
-
-                // Retorna true se houver conexão à internet
-                return isConnectedToInternet && (isCellularDataEnabled || isEthernetConnected);
-            }
+            return capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
         }
         return false;
     }
+
 
 
 }

@@ -108,16 +108,15 @@ public class BookingListActivity extends AppCompatActivity {
             startActivity(intent);
         });
     }
-
     private void loadDataInBackGround() {
         executorService.submit(new Runnable() {
             @Override
             public void run() {
                 try (DbManager dataBaseHelper = new DbManager(BookingListActivity.this)) {
-                    String id = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", "");
+
 
                     if(networkChecker.isInternetConnected()) {
-                        OutsystemsAPI.getDataFromAPI(id, BookingListActivity.this);
+                        OutsystemsAPI.getDataFromAPI(getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", ""), BookingListActivity.this);
                     }
 
                     rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
@@ -150,6 +149,7 @@ public class BookingListActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void  updateList() {
         listAdapter = new BookingListAdapter( BookingListActivity.this, dataArrayList, BookingListActivity.this);

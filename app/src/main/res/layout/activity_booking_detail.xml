@@ -25,6 +25,21 @@
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
 
+    <LinearLayout
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:indeterminateTint="#F39C12"/>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayoutTop"
@@ -38,9 +53,9 @@
             android:id="@+id/image_view_captured"
             android:layout_width="150dp"
             android:layout_height="150dp"
+            android:visibility="gone"
             android:background="@drawable/camera_button_circle"
             android:contentDescription="@string/todo" />
-
 
         <ImageView
             android:id="@+id/QRimage"

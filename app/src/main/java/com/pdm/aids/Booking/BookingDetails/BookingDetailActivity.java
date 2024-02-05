@@ -15,6 +15,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,6 +25,9 @@ import android.widget.Toast;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 import com.pdm.aids.Booking.Booking;
+import com.pdm.aids.Booking.BookingList.BookingListActivity;
+import com.pdm.aids.Booking.BookingList.BookingListAdapter;
+import com.pdm.aids.Booking.BookingList.ListData;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.Common.NetworkChecker;
@@ -36,132 +41,178 @@ import com.pdm.aids.Room.Room;
 import com.pdm.aids.databinding.ActivityBookingDetailBinding;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BookingDetailActivity extends AppCompatActivity {
     private ActivityBookingDetailBinding binding;
     private Booking booking;
+    private Room room;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", new Locale("pt", "PT"));
     private NetworkChecker networkChecker;
+    private ExecutorService executorService;
+    private Handler uiHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //-----------------View Binding-----------------
         initBinding();
         initViews();
+        //-----------------Lazy Loading-----------------
+        executorService = Executors.newSingleThreadExecutor();
+        uiHandler = new Handler(Looper.getMainLooper());
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.linearLayoutTop.setVisibility(View.GONE);
+        binding.linearLayoutContent.setVisibility(View.GONE);
+        setupNetworkChecker();
+        loadDataInBackGround();
+    }
 
-        try (DbManager dbManager = new DbManager(this)) {
-            TextView textTitle_toolbar = findViewById(R.id.toolbar_title);
-            TextView qrCodeLabel = findViewById(R.id.qrCodeLabel);
-            TextView startDate = findViewById(R.id.startDate);
-            TextView endDate = findViewById(R.id.endDate);
-            TextView enterRoomDate = findViewById(R.id.enterRoomDate);
-            TextView exitRoomDate = findViewById(R.id.exitRoomDate);
-            TextView roomName = findViewById(R.id.roomName);
-            ImageView noWifiImage = findViewById(R.id.noWifiImage);
-            ImageView imageViewCaptured = findViewById(R.id.image_view_captured);
-            ImageView roomImage = findViewById(R.id.roomImage);
-
-            networkChecker = new NetworkChecker(this);
-
-            booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
-            Room room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
-
-            textTitle_toolbar.setText(String.format("Reserva: %s", room != null ? room.getName() : ""));
-            startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormat.format(booking.getExpectedStartDate()));
-            endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormat.format(booking.getExpectedEndDate()));
-            enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
-            exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "-" : dateFormat.format(booking.getActualEndDate()));
-            if (room != null) {
-                roomImage.setImageBitmap(DBRoomImageLocal.getRoomImageByRoomId(room.getId(), dbManager.getReadableDatabase()));
-                roomName.setText(room.getName());
-            }
-
-            if (!enterRoomDate.getText().equals("-")) {
-                Intent intent = getIntent();
-                String hash = intent.getStringExtra("bookingHash");
-
-                binding.imageViewCaptured.setVisibility(View.GONE);
-                binding.noWifiImage.setVisibility(View.GONE);
-                binding.QRimage.setVisibility(View.VISIBLE);
-                qrCodeLabel.setText(R.string.read_qrcode_exit);
-
-                Utils u = new Utils();
-                Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
-                binding.QRimage.setImageBitmap(qrBitmap);
-            } else {
-
-                if (networkChecker.isInternetConnected()) {
-                    noWifiImage.setVisibility(View.GONE);
-                    imageViewCaptured.setVisibility(View.VISIBLE);
-                    qrCodeLabel.setText(R.string.read_qr);
-                } else {
-                    noWifiImage.setVisibility(View.VISIBLE);
-                    imageViewCaptured.setVisibility(View.GONE);
-                    qrCodeLabel.setText(R.string.qr_failed);
-                }
-
-                networkChecker.setNetworkCallbackListener(new NetworkChecker.NetworkCallbackListener() {
-                    @Override
-                    public void onNetworkAvailable() {
-                        runOnUiThread(() -> {
-                            noWifiImage.setVisibility(View.GONE);
-                            imageViewCaptured.setVisibility(View.VISIBLE);
-                            qrCodeLabel.setText(R.string.read_qr);
-                        });
-                    }
-
-                    @Override
-                    public void onNetworkUnavailable() {
-                        runOnUiThread(() -> {
-                            noWifiImage.setVisibility(View.VISIBLE);
-                            imageViewCaptured.setVisibility(View.GONE);
-                            qrCodeLabel.setText(R.string.qr_failed);
-                        });
+    private void setupNetworkChecker() {
+        networkChecker = new NetworkChecker(this);
+        networkChecker.registerNetworkCallback();
+        networkChecker.setNetworkCallbackListener(new NetworkChecker.NetworkCallbackListener() {
+            @Override
+            public void onNetworkAvailable() {
+                runOnUiThread(() -> {
+                    if (binding.enterRoomDate.getText().equals("-")) {
+                        updateUIState(true, 0);
+                    } else {
+                        updateUIState(true, 1);
                     }
                 });
             }
+            @Override
+            public void onNetworkUnavailable() {
+                    runOnUiThread(() -> {
+                        if (binding.enterRoomDate.getText().equals("-")) {
+                            updateUIState(false, 0);
+                        } else {
+                            updateUIState(false, 1);
+                        }
+                    });
+            }
+        });
+    }
 
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-            System.out.println(e.getMessage());
+    private void loadDataInBackGround() {
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                if (networkChecker.isInternetConnected()) {
+                    String userId = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", "");
+                    OutsystemsAPI.getDataFromAPI(userId, BookingDetailActivity.this);
+                }
+                try (DbManager dbManager = new DbManager(BookingDetailActivity.this)) {
+                    booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
+                    room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            populateUIFromDatabase();
+                            binding.progressBar.setVisibility(View.GONE);
+                            binding.linearLayoutTop.setVisibility(View.VISIBLE);
+                            binding.linearLayoutContent.setVisibility(View.VISIBLE);
+                        }
+                    });
+                } catch (Exception e) {
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(BookingDetailActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void updateUIState(boolean isNetworkAvailable, int state) {
+        // 0 - Camera to read QR code
+        // 1 - QR code to exit room
+        switch (state) {
+            case 0:
+                if (isNetworkAvailable) {
+                    binding.noWifiImage.setVisibility(View.GONE);
+                    binding.QRimage.setVisibility(View.GONE);
+                    binding.imageViewCaptured.setVisibility(View.VISIBLE);
+                    binding.qrCodeLabel.setText(R.string.read_qr);
+                } else {
+                    binding.noWifiImage.setVisibility(View.VISIBLE);
+                    binding.imageViewCaptured.setVisibility(View.GONE);
+                    binding.QRimage.setVisibility(View.GONE);
+                    binding.qrCodeLabel.setText(R.string.qr_failed);
+                }
+                break;
+            case 1:
+                binding.imageViewCaptured.setVisibility(View.GONE);
+                binding.noWifiImage.setVisibility(View.GONE);
+                binding.QRimage.setVisibility(View.VISIBLE);
+                binding.qrCodeLabel.setText(R.string.read_qrcode_exit);
+                break;
         }
     }
+
+    private void populateUIFromDatabase() {
+        binding.toolbarTitle.setText(String.format("Reserva: %s", room != null ? room.getName() : ""));
+        binding.startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormat.format(booking.getExpectedStartDate()));
+        binding.endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormat.format(booking.getExpectedEndDate()));
+        binding.enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
+        binding.exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "-" : dateFormat.format(booking.getActualEndDate()));
+
+        if (room != null) {
+            binding.roomImage.setImageBitmap(DBRoomImageLocal.getRoomImageByRoomId(room.getId(), new DbManager(this).getReadableDatabase()));
+            binding.roomName.setText(room.getName());
+        }
+
+        if (!binding.enterRoomDate.getText().equals("-")) {
+            Intent intent = getIntent();
+            String hash = intent.getStringExtra("bookingHash");
+            Utils u = new Utils();
+            Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
+            binding.QRimage.setImageBitmap(qrBitmap);
+            updateUIState(networkChecker.isInternetConnected(), 1);
+        } else {
+            updateUIState(networkChecker.isInternetConnected(), 0);
+        }
+    }
+
 
     @Override
     protected void onStart() {
         super.onStart();
         // Registra o NetworkCallback
-        networkChecker.registerNetworkCallback();
+//        networkChecker.registerNetworkCallback();
+        if (networkChecker != null) {
+            networkChecker.registerNetworkCallback();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         // Desregistra o NetworkCallback
-        networkChecker.unregisterNetworkCallback();
+//        networkChecker.unregisterNetworkCallback();
+        if (networkChecker != null) {
+            networkChecker.unregisterNetworkCallback();
+        }
     }
 
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//    }
+
     @Override
-    protected void onResume() {
-        TextView qrCodeLabel = findViewById(R.id.qrCodeLabel);
-        TextView enterRoomDate = findViewById(R.id.enterRoomDate);
-
-        enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
-
-        if (!enterRoomDate.getText().equals("-")) {
-            Intent intent = getIntent();
-            String hash = intent.getStringExtra("bookingHash");
-
-            binding.imageViewCaptured.setVisibility(View.GONE);
-            binding.QRimage.setVisibility(View.VISIBLE);
-            qrCodeLabel.setText(R.string.read_qrcode_exit);
-
-            Utils u = new Utils();
-            Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
-            binding.QRimage.setImageBitmap(qrBitmap);
+    protected void onDestroy() {
+        super.onDestroy();
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.shutdown();
         }
-        super.onResume();
     }
 
 
