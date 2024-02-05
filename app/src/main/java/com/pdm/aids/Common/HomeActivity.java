@@ -1,30 +1,24 @@
 package com.pdm.aids.Common;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ImageButton;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.pdm.aids.Booking.BookingList.BookingListActivity;
-import com.pdm.aids.Booking.BookingList.ListData;
-import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
-import com.pdm.aids.Room.DBRoomImageLocal;
-import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Ticket.TicketList.TicketListActivity;
 import com.pdm.aids.databinding.ActivityHomeBinding;
 public class HomeActivity extends AppCompatActivity {
 
-    private Button btnBookingList, btnTicketList, btnLogout;
+    private Button btnBookingList, btnTicketList, btnWeb;
+    private ImageButton btnLogout;
     private ActivityHomeBinding binding;
 
     @Override
@@ -38,7 +32,9 @@ public class HomeActivity extends AppCompatActivity {
         SharedPreferences sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
         btnBookingList = (Button) findViewById(R.id.button_myBookings);
         btnTicketList = (Button) findViewById(R.id.button_myTickets);
-        btnLogout = (Button) findViewById(R.id.button_logout);
+        btnWeb = (Button) findViewById(R.id.button_web);
+        btnLogout = findViewById(R.id.button_logout);
+        binding.username.setText(sharedpreferences.getString("Name", ""));
 
         //-----------------Listeners-----------------
         btnBookingList.setOnClickListener(v -> {
@@ -49,6 +45,11 @@ public class HomeActivity extends AppCompatActivity {
         btnTicketList.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, TicketListActivity.class);
             startActivity(intent);
+        });
+
+        btnWeb.setOnClickListener(v -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://personal-8o07igno.outsystemscloud.com/AIDS/Bookings"));
+            startActivity(browserIntent);
         });
 
         btnLogout.setOnClickListener(v -> {
