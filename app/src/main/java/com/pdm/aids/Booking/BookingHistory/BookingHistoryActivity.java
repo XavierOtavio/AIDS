@@ -40,6 +40,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
     Room currentRoom;
     Bitmap currentRoomImage;
     ListData listData;
+    private String id;
     private NetworkChecker networkChecker;
 
     @Override
@@ -49,6 +50,14 @@ public class BookingHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_booking_history);
         binding = ActivityBookingHistoryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        id = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE)
+                .getString("Id", "");
+
+        OutsystemsAPI.getBookingsHistory(id, this, bookingArrayList -> {
+            bookings = bookingArrayList;
+            updateUIWithBookings();
+        });
+
 
         TextView textTitle_toolbar = findViewById(R.id.toolbar_booking_history_title);
         Toolbar toolbar = findViewById(R.id.toolbar_booking_history_list);
@@ -87,17 +96,13 @@ public class BookingHistoryActivity extends AppCompatActivity {
             intent.putExtra("bookingHash", bookings.get(i).getHash());
             startActivity(intent);
         });
+    }
 
+    private void updateUIWithBookings() {
         try (DbManager dataBaseHelper = new DbManager(this)) {
-            String id = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE)
-                    .getString("Id", "");
-
             OutsystemsAPI.getDataFromAPI(id, this);
 
             rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
-
-            List<Integer> statusIds = Arrays.asList(2);
-            bookings = new DBBookingLocal().getBookingsByStatus(statusIds, dataBaseHelper.getWritableDatabase());
 
             for (int i = 0; i < bookings.size(); i++) {
                 for (int j = 0; j < rooms.size(); j++) {
@@ -119,8 +124,8 @@ public class BookingHistoryActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-
     }
+
 
     @Override
     protected void onStart() {
