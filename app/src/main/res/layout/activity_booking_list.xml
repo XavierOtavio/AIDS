@@ -8,6 +8,7 @@
     android:dividerHeight="8dp"
     android:paddingHorizontal="0dp"
     android:showDividers="middle"
+    android:background="@color/white"
     tools:context=".Booking.BookingList.BookingListActivity">
 
     <androidx.appcompat.widget.Toolbar
