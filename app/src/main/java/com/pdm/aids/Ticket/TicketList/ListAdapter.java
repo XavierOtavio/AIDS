@@ -41,9 +41,6 @@ public class ListAdapter extends ArrayAdapter<ListData> {
         description.setText(listData.getDescription());
         date.setText(listData.getFormattedStartDate());
 
-        System.out.println("Adapter - Set data for position " + position + ": Title: " + listData.getTitle() +
-                ", Description: " + listData.getDescription() + ", Date: " + listData.getFormattedStartDate());
-
         // TODO: Set the status based on the actual status of the ticket.
         // For example, you can create a method in ListData like getStatus() and use it here.
 

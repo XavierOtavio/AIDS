@@ -7,8 +7,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
+import java.util.Locale;
 
 public class DBTicketLocal {
 
@@ -36,6 +40,8 @@ public class DBTicketLocal {
                 COLUMN_BOOKING_ID + " TEXT, " +
                 COLUMN_TICKET_STATUS_ID + " INTEGER, " +
                 COLUMN_TITLE + " TEXT, " +
+                COLUMN_TICKET_STARTDATE + " TEXT, " +
+                COLUMN_TICKET_MODIFIED + " TEXT, " +
                 COLUMN_DESCRIPTION + " TEXT" +
                 ")";
     }
@@ -59,6 +65,10 @@ public class DBTicketLocal {
         cv.put(COLUMN_TITLE, ticket.getTitle());
         cv.put(COLUMN_DESCRIPTION, ticket.getDescription());
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        cv.put(COLUMN_TICKET_STARTDATE, dateFormat.format(ticket.getCreationDate()));
+        cv.put(COLUMN_TICKET_MODIFIED, dateFormat.format(ticket.getLastModified()));
+
         long insert = db.insert(TICKET_TABLE, null, cv);
         return insert != -1;
     }
@@ -75,7 +85,7 @@ public class DBTicketLocal {
     }
 
     @SuppressLint("Range")
-    public ArrayList<Ticket> getAllTicketsWithImages(SQLiteDatabase db) {
+    public ArrayList<Ticket> getAllTicketsWithImages(SQLiteDatabase db) throws ParseException {
         ArrayList<Ticket> ticketList = new ArrayList<>();
 
         String query = "SELECT * FROM " + TICKET_TABLE;
@@ -83,15 +93,20 @@ public class DBTicketLocal {
 
         if (cursor.moveToFirst()) {
             do {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+
                 String ticketId = cursor.getString(cursor.getColumnIndex(COLUMN_TICKET_ID));
                 String bookingId = cursor.getString(cursor.getColumnIndex(COLUMN_BOOKING_ID));
                 int ticketStatusId = cursor.getInt(cursor.getColumnIndex(COLUMN_TICKET_STATUS_ID));
                 String title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
                 String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+                Date startDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_TICKET_STARTDATE)));
+                Date modifiedDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_TICKET_MODIFIED)));
 
                 ArrayList<TicketImage> ticketImages = getTicketImagesForTicket(ticketId, db);
 
-                Ticket ticket = new Ticket(ticketId,bookingId, ticketStatusId, title, description, ticketImages);
+                Ticket ticket = new Ticket(ticketId,bookingId, ticketStatusId, title, description, startDate, modifiedDate, ticketImages);
                 ticketList.add(ticket);
             } while (cursor.moveToNext());
         }
@@ -115,6 +130,7 @@ public class DBTicketLocal {
                 String filename = cursor.getString(cursor.getColumnIndex(COLUMN_FILENAME));
                 byte[] image = cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE));
                 String base64Image = Base64.getEncoder().encodeToString(image);
+
 
 
                 TicketImage ticketImage = new TicketImage(ticketId, filename, base64Image);
@@ -148,7 +164,7 @@ public class DBTicketLocal {
 
 
     @SuppressLint("Range")
-    public ArrayList<Ticket> getAllTicketsByBookingId(String bookingId, SQLiteDatabase db) {
+    public ArrayList<Ticket> getAllTicketsByBookingId(String bookingId, SQLiteDatabase db) throws ParseException {
         ArrayList<Ticket> ticketList = new ArrayList<>();
 
         String query = "SELECT * FROM " + TICKET_TABLE +
@@ -157,18 +173,22 @@ public class DBTicketLocal {
 
         if (cursor.moveToFirst()) {
             do {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
                 String ticketId = cursor.getString(cursor.getColumnIndex(COLUMN_TICKET_ID));
                 int statusId = cursor.getInt(cursor.getColumnIndex(COLUMN_TICKET_STATUS_ID));
                 String title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
                 String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+                Date startDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_TICKET_STARTDATE)));
+                Date modifiedDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_TICKET_MODIFIED)));
+
 
                 ArrayList<TicketImage> ticketImages = getTicketImagesForTicket(ticketId, db);
 
-                Ticket ticket = new Ticket(ticketId, bookingId, statusId, title, description, ticketImages);
+                Ticket ticket = new Ticket(ticketId, bookingId, statusId, title, description, startDate, modifiedDate, ticketImages);
                 ticketList.add(ticket);
             } while (cursor.moveToNext());
         }
-
         cursor.close();
         return ticketList;
     }

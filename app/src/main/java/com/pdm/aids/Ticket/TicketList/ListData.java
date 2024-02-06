@@ -29,6 +29,10 @@ public class ListData {
         return uuid;
     }
 
+    public Date getStartDate() {
+        return startDate;
+    }
+
     public String getFormattedStartDate() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
         return dateFormat.format(startDate);

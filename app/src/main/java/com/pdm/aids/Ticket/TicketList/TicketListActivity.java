@@ -57,7 +57,7 @@ public class TicketListActivity extends AppCompatActivity {
                 tickets = new DBTicketLocal().getAllTicketsByBookingId(booking.get(0).getHash(), dataBaseHelper.getWritableDatabase());
 
                 if (!tickets.isEmpty()) {
-                    System.out.println("Ticket ID: " + tickets.get(0).getId());
+                    System.out.println("Ticket modified date: " + tickets.get(0).getLastModified());
 
                     for (Ticket ticket : tickets) {
                         listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getLastModified(), ticket.getId());
@@ -100,7 +100,8 @@ public class TicketListActivity extends AppCompatActivity {
 
     private void updateDataList() {
         try (DbManager dataBaseHelper = new DbManager(this)) {
-            booking = new DBBookingLocal().getAllBookings(dataBaseHelper.getWritableDatabase());
+            List<Integer> statusIds = Arrays.asList(3);
+            booking = new DBBookingLocal().getBookingsByStatus(statusIds, dataBaseHelper.getWritableDatabase());
             tickets = new DBTicketLocal().getAllTicketsByBookingId(booking.get(0).getHash(), dataBaseHelper.getWritableDatabase());
 
             dataArrayList.clear();

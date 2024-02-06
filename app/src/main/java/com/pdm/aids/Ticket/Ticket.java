@@ -37,12 +37,14 @@ public class Ticket {
         this.creationDate = creationDate;
         this.lastModified = lastModified;
     }
-    public Ticket(String id, String bookingId, int ticketStatusId, String title, String description, ArrayList<TicketImage> ticketImages) {
+    public Ticket(String id, String bookingId, int ticketStatusId, String title, String description, Date creationDate, Date lastModified, ArrayList<TicketImage> ticketImages) {
         this.ticketUuid = id;
         this.title = title;
         this.description = description;
         this.ticketStatusId = ticketStatusId;
         this.bookingUuid = bookingId;
+        this.creationDate = creationDate;
+        this.lastModified = lastModified;
         this.ticketImages = ticketImages;
     }
 
