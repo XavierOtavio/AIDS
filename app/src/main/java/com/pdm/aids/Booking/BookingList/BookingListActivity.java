@@ -60,58 +60,51 @@ public class BookingListActivity extends AppCompatActivity {
         binding = ActivityBookingListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        TextView textTitle_toolbar = findViewById(R.id.toolbar_booking_title);
-        Toolbar toolbar = findViewById(R.id.toolbar_booking_list);
-        ListView listItem = findViewById(R.id.listView);
-        ImageView historyButton = findViewById(R.id.historyButton);
         //-----------------Toolbar-----------------
         binding.toolbarBookingList.setNavigationOnClickListener(v -> finish());
         binding.toolbarBookingTitle.setText("Reservas");
 
-        //-----------------Lazy Loading-----------------
+        //-----------------Lazy Loading Variables-----------------
         executorService = Executors.newSingleThreadExecutor();
         uiHandler = new Handler(Looper.getMainLooper());
-
-        historyButton.setOnClickListener(v -> startActivity(new Intent(BookingListActivity.this, BookingHistoryActivity.class)));
+        binding.progressBar.setVisibility(View.VISIBLE);
+        loadDataInBackGround();
 
         //-----------------Internet Connection-----------------
         networkChecker = new NetworkChecker(this);
-        LinearLayout internetConnectionWarning = binding.internetConnectionWarning;
-
-        if (networkChecker.isInternetConnected()) {
-            internetConnectionWarning.setVisibility(LinearLayout.GONE);
-        } else {
-            internetConnectionWarning.setVisibility(LinearLayout.VISIBLE);
-        }
-
         networkChecker.setNetworkCallbackListener(new NetworkChecker.NetworkCallbackListener() {
             @Override
             public void onNetworkAvailable() {
                 runOnUiThread(() -> {
-                    internetConnectionWarning.setVisibility(LinearLayout.GONE);
+                    binding.internetConnectionWarning.setVisibility(LinearLayout.GONE);
                 });
             }
             @Override
             public void onNetworkUnavailable() {
                 runOnUiThread(() -> {
-                    internetConnectionWarning.setVisibility(LinearLayout.VISIBLE);
+                    binding.internetConnectionWarning.setVisibility(LinearLayout.VISIBLE);
                 });
             }
         });
 
-        //-----------------Item Click Listener-----------------
+        //-----------------Listeners-----------------
         binding.listView.setOnItemClickListener((adapterView, view, i, l) -> {
             Intent intent = new Intent(BookingListActivity.this, BookingDetailActivity.class);
             intent.putExtra("bookingHash", bookings.get(i).getHash());
             startActivity(intent);
         });
+
+        binding.historyButton.setOnClickListener(v -> startActivity(new Intent(BookingListActivity.this, BookingHistoryActivity.class)));
     }
+
     private void loadDataInBackGround() {
         executorService.submit(new Runnable() {
             @Override
             public void run() {
                 try (DbManager dataBaseHelper = new DbManager(BookingListActivity.this)) {
 
+                    listData = null;
+                    dataArrayList.clear();
 
                     if(networkChecker.isInternetConnected()) {
                         OutsystemsAPI.getDataFromAPI(getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", ""), BookingListActivity.this);
@@ -148,7 +141,6 @@ public class BookingListActivity extends AppCompatActivity {
         });
     }
 
-
     private void  updateList() {
         if (dataArrayList.size() == 0) {
             binding.emptyBookingList.setVisibility(View.VISIBLE);
@@ -163,8 +155,11 @@ public class BookingListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        binding.progressBar.setVisibility(View.VISIBLE);
-        loadDataInBackGround();
+        if (networkChecker.isInternetConnected()) {
+            binding.internetConnectionWarning.setVisibility(LinearLayout.GONE);
+        } else {
+            binding.internetConnectionWarning.setVisibility(LinearLayout.VISIBLE);
+        }
     }
 
     @Override
@@ -186,25 +181,4 @@ public class BookingListActivity extends AppCompatActivity {
             executorService.shutdown();
         }
     }
-
-    //TODO: review this method
-    //TODO: Is this needed anymore?
-//    private View.OnClickListener updateList() {
-//        try (DBBookingLocal dataBaseHelper = new DBBookingLocal(this)) {
-//            bookings = dataBaseHelper.getAllBookings();
-//            dataArrayList.clear();
-//            for (int i = 0; i < bookings.size(); i++) {
-//                listData = new ListData(bookings.get(i).getRoomId(), bookings.get(i).getExpectedStartDate(), bookings.get(i).getExpectedEndDate());
-//                dataArrayList.add(listData);
-//            }
-//
-//            listAdapter = new BookingListAdapter(this, dataArrayList, this);
-//            binding.listView.setAdapter(listAdapter);
-//            binding.listView.setClickable(true);
-//        } catch (Exception e) {
-//            Toast toast = Toast.makeText(getApplicationContext(), "Error reading tickets", Toast.LENGTH_SHORT);
-//            toast.show();
-//        }
-//        return null;
-//    }
 }
