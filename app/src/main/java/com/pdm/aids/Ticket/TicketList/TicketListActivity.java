@@ -94,7 +94,9 @@ public class TicketListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         updateDataList();
-        listAdapter.notifyDataSetChanged();
+        if (listData != null) {
+            listAdapter.notifyDataSetChanged();
+        }
         super.onResume();
     }
 
