@@ -18,7 +18,6 @@ import java.util.ArrayList;
 public class ListAdapter extends ArrayAdapter<ListData> {
 
     TicketListActivity binding;
-
     public ListAdapter(@NonNull Context context, ArrayList<ListData> dataArrayList, TicketListActivity binding) {
         super(context, R.layout.list_item, dataArrayList);
         this.binding = binding;
@@ -36,14 +35,22 @@ public class ListAdapter extends ArrayAdapter<ListData> {
         TextView description = view.findViewById(R.id.idDescription);
         TextView date = view.findViewById(R.id.idDate);
         TextView status = view.findViewById(R.id.idStatus);
-        assert listData != null;
-        title.setText(listData.title);
-        description.setText(listData.description);
 
-        //TODO: Alterar isto para o estado do ticket
+        assert listData != null;
+        title.setText(listData.getTitle());
+        description.setText(listData.getDescription());
+        date.setText(listData.getFormattedStartDate());
+
+        System.out.println("Adapter - Set data for position " + position + ": Title: " + listData.getTitle() +
+                ", Description: " + listData.getDescription() + ", Date: " + listData.getFormattedStartDate());
+
+        // TODO: Set the status based on the actual status of the ticket.
+        // For example, you can create a method in ListData like getStatus() and use it here.
+
         status.setBackgroundTintList(ColorStateList.valueOf(getContext().getResources().getColor(R.color.pending)));
         status.setText("Pendente");
 
         return view;
     }
 }
+

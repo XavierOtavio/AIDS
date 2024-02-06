@@ -34,65 +34,90 @@ public class TicketListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ticket_list);
         binding = ActivityTicketListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         binding.toolbarTicketList.setNavigationOnClickListener(v -> finish());
 
-        TextView textTitle_toolbar = findViewById(R.id.toolbar_ticket_title);
+        TextView textTitle_toolbar = binding.toolbarTicketTitle;
         textTitle_toolbar.setText("Suporte");
 
-
-        ImageView add = findViewById(R.id.toolbar_new_ticket);
+        ImageView add = binding.toolbarNewTicket;
         add.setOnClickListener(view -> {
             Intent intent = new Intent(getApplicationContext(), CreateTicketActivity.class);
             startActivity(intent);
         });
 
-        try (DbManager dataBaseHelper = new DbManager(this)){
+        try (DbManager dataBaseHelper = new DbManager(this)) {
             List<Integer> statusIds = Arrays.asList(3);
+            booking = new DBBookingLocal().getBookingsByStatus(statusIds, dataBaseHelper.getWritableDatabase());
 
-            booking = new DBBookingLocal().getBookingsByStatus(statusIds,dataBaseHelper.getWritableDatabase());
-            tickets = new DBTicketLocal().getAllTicketsByBookingId(booking.get(0).getHash(), dataBaseHelper.getWritableDatabase());
+            if (!booking.isEmpty()) {
+                System.out.println("Booking Hash: " + booking.get(0).getHash());
 
-            for (int i = 0; i < tickets.size(); i++) {
+                tickets = new DBTicketLocal().getAllTicketsByBookingId(booking.get(0).getHash(), dataBaseHelper.getWritableDatabase());
 
-                listData = new ListData(tickets.get(i).getTitle(), tickets.get(i).getDescription());
-                dataArrayList.add(listData);
+                if (!tickets.isEmpty()) {
+                    System.out.println("Ticket ID: " + tickets.get(0).getId());
+
+                    for (Ticket ticket : tickets) {
+                        listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getLastModified(), ticket.getId());
+                        dataArrayList.add(listData);
+                        System.out.println("Added ticket to dataArrayList: " + listData.getTitle());
+                    }
+
+                    listAdapter = new ListAdapter(TicketListActivity.this, dataArrayList, TicketListActivity.this);
+                    binding.listViewTicket.setAdapter(listAdapter);
+
+                    binding.listViewTicket.setOnItemClickListener((parent, view, position, id) -> {
+                        ListData clickedItem = dataArrayList.get(position);
+
+                        System.out.println("Clicked on item with title: " + clickedItem.getTitle());
+
+                        Intent intent = new Intent(getApplicationContext(), CreateTicketActivity.class);
+                        intent.putExtra("title", clickedItem.getTitle());
+                        intent.putExtra("description", clickedItem.getDescription());
+                        intent.putExtra("uuid", clickedItem.getUuid());
+
+                        startActivity(intent);
+                    });
+                } else {
+                    System.out.println("No tickets found for the given booking.");
+                }
+            } else {
+                System.out.println("No bookings found with the specified status.");
             }
-
-            listAdapter = new ListAdapter(this, dataArrayList, this);
-            binding.listView.setAdapter(listAdapter);
-            binding.listView.setClickable(true);
         } catch (Exception e) {
-            Toast toast = Toast.makeText(getApplicationContext(), "Error reading tickets", Toast.LENGTH_SHORT);
-            System.out.println(e.getMessage());
-            toast.show();
+            handleException("Error reading tickets", e);
         }
     }
+
     @Override
     protected void onResume() {
-        updateList();
+        updateDataList();
+        listAdapter.notifyDataSetChanged();
         super.onResume();
     }
-    private void updateList() {
+
+    private void updateDataList() {
         try (DbManager dataBaseHelper = new DbManager(this)) {
             booking = new DBBookingLocal().getAllBookings(dataBaseHelper.getWritableDatabase());
-            tickets = new DBTicketLocal().getAllTicketsByBookingId(booking.get(2).getHash(), dataBaseHelper.getWritableDatabase());
+            tickets = new DBTicketLocal().getAllTicketsByBookingId(booking.get(0).getHash(), dataBaseHelper.getWritableDatabase());
 
             dataArrayList.clear();
-            for (int i = 0; i < tickets.size(); i++) {
-                listData = new ListData(tickets.get(i).getTitle(), tickets.get(i).getDescription());
+            for (Ticket ticket : tickets) {
+                listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getLastModified(), ticket.getId());
                 dataArrayList.add(listData);
+                System.out.println(dataArrayList);
             }
-
-            listAdapter = new ListAdapter(this, dataArrayList, this);
-            binding.listView.setAdapter(listAdapter);
-            binding.listView.setClickable(true);
         } catch (Exception e) {
-            Toast toast = Toast.makeText(getApplicationContext(), "Error reading tickets", Toast.LENGTH_SHORT);
-            System.out.println(e.getMessage());
-            toast.show();
+            handleException("Error updating data list", e);
         }
     }
+
+    private void handleException(String message, Exception e) {
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        System.out.println(e.getMessage());
+        toast.show();
+    }
 }
+

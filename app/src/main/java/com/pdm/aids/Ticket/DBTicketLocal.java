@@ -27,12 +27,13 @@ public class DBTicketLocal {
     public static final String COLUMN_IMAGE_ID = "IMAGE_ID";
     public static final String COLUMN_TICKET_IMAGE_ID = "TICKET_ID";
     public static final String COLUMN_FILENAME = "FILENAME";
+    public static final String COLUMN_IMAGE_PATH = "IMAGE_PATH";
     public static final String COLUMN_IMAGE = "IMAGE";
 
     public static String CreateTicketTable() {
         return "CREATE TABLE " + TICKET_TABLE + " (" +
                 COLUMN_TICKET_ID + " TEXT, " +
-                COLUMN_BOOKING_ID + " INTEGER, " +
+                COLUMN_BOOKING_ID + " TEXT, " +
                 COLUMN_TICKET_STATUS_ID + " INTEGER, " +
                 COLUMN_TITLE + " TEXT, " +
                 COLUMN_DESCRIPTION + " TEXT" +
@@ -49,7 +50,7 @@ public class DBTicketLocal {
                    TICKET_TABLE + "(" + COLUMN_TICKET_ID + ")" +
                    ")";
        }
-    public boolean createTicket(Ticket ticket, Context context, SQLiteDatabase db) {
+    public static boolean createTicket(Ticket ticket, Context context, SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_TICKET_ID, ticket.getId());
@@ -126,12 +127,33 @@ public class DBTicketLocal {
     }
 
     @SuppressLint("Range")
+    public ArrayList<byte[]> getByteTicketImagesForTicket(String ticketId, SQLiteDatabase db) {
+        ArrayList<byte[]> ticketImages = new ArrayList<>();
+
+        String query = "SELECT * FROM " + TICKET_IMAGE_TABLE +
+                " WHERE " + COLUMN_TICKET_IMAGE_ID + " = '" + ticketId + "'";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                byte[] image = cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE));
+                ticketImages.add(image);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return ticketImages;
+    }
+
+
+    @SuppressLint("Range")
     public ArrayList<Ticket> getAllTicketsByBookingId(String bookingId, SQLiteDatabase db) {
         ArrayList<Ticket> ticketList = new ArrayList<>();
 
         String query = "SELECT * FROM " + TICKET_TABLE +
-                " WHERE " + COLUMN_BOOKING_ID + " = '" + bookingId + "'";
-        Cursor cursor = db.rawQuery(query, null);
+                " WHERE " + COLUMN_BOOKING_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{bookingId});
 
         if (cursor.moveToFirst()) {
             do {

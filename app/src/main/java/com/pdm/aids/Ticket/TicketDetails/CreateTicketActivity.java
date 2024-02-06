@@ -26,6 +26,7 @@ import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.Common.Utils;
+import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Ticket.DBTicketLocal;
@@ -53,10 +54,16 @@ public class CreateTicketActivity extends AppCompatActivity {
     private DbManager dbManager;
     private List<byte[]> pictures;
     private List <String> picturesToSend;
+    private String userId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_ticket);
+
+        Intent intent = getIntent();
+        String title = intent.getStringExtra("title");
+        String description = intent.getStringExtra("description");
+        String uuid = intent.getStringExtra("uuid");
 
         dbManager = new DbManager(this);
 
@@ -65,10 +72,28 @@ public class CreateTicketActivity extends AppCompatActivity {
         pictures = new ArrayList<>();
         picturesToSend = new ArrayList<>();
 
+        userId = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE)
+                .getString("Id", "");
+
         ViewPager viewPager = findViewById(R.id.viewPager);
 
         adapter = new CarouselAdapter(this, pictures);
         viewPager.setAdapter(adapter);
+
+        List<byte[]> teste = new DBTicketLocal().getByteTicketImagesForTicket(uuid, dbManager.getWritableDatabase());
+        System.out.println("teste " + teste);
+
+        for (byte[] test: teste
+        ) {
+            pictures.add(test);
+            adapter.notifyDataSetChanged();
+        }
+        if (pictures != null && !pictures.isEmpty()) {
+            System.out.println(pictures.size());
+            System.out.println("pictures " +pictures);
+        } else {
+            System.out.println("Pictures list is either null or empty.");
+        }
 
         RelativeLayout cameraLayout = findViewById(R.id.cameraLayout);
         cameraLayout.setOnClickListener(v -> dispatchTakePictureIntent());
@@ -92,6 +117,9 @@ public class CreateTicketActivity extends AppCompatActivity {
 
         titleEditText = findViewById(R.id.edit_text_title);
         descriptionEditText = findViewById(R.id.edit_text_description);
+
+        titleEditText.setText(title);
+        descriptionEditText.setText(description);
 
         facility = findViewById(R.id.facility);
         expectedStart = findViewById(R.id.expectedStart);
@@ -132,8 +160,8 @@ public class CreateTicketActivity extends AppCompatActivity {
                         pictureByteArray = getBytesFromBitmap(imageBitmap);
                         picturesToSend.add(Base64.getEncoder().encodeToString(pictureByteArray));
                         pictures.add(pictureByteArray);
+                        System.out.println("fotos tiradas " + pictures);
                         adapter.notifyDataSetChanged();
-
                 } else {
                     showToast("Failed to capture image");
                 }
@@ -166,6 +194,8 @@ public class CreateTicketActivity extends AppCompatActivity {
                     ArrayList<TicketImage> allImages = new ArrayList<>();
 
                     Ticket newTicket = new Ticket(id, booking.get(0).getHash(), 1, title, description);
+                    newTicket.setCreationDate(new Date(System.currentTimeMillis()));
+                    newTicket.setLastModified(new Date(System.currentTimeMillis()));
                     for (String picture: picturesToSend
                          ) {
                         TicketImage ticketImage = new TicketImage(newTicket.getId(), "filename", picture);
@@ -177,7 +207,7 @@ public class CreateTicketActivity extends AppCompatActivity {
                     boolean ticketIsInserted = new DBTicketLocal().createTicket(newTicket, this, dbManager.getWritableDatabase());
 
                     if (ticketIsInserted) {
-                        OutsystemsAPI.submitTicket(newTicket, this, new OutsystemsAPI.VolleyCallback() {
+                        OutsystemsAPI.submitTicket(newTicket, userId,this, new OutsystemsAPI.VolleyCallback() {
                             @Override
                             public void onSuccess(String result) {
                                 Toast.makeText(CreateTicketActivity.this, result, Toast.LENGTH_SHORT).show();
