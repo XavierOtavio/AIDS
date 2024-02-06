@@ -19,6 +19,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.DBBookingLocal;
+import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.Room.DBRoomImageLocal;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
@@ -45,6 +46,7 @@ import java.util.Locale;
 
 
 public class OutsystemsAPI extends AppCompatActivity {
+    private String id;
     public interface VolleyCallback {
         void onSuccess(String result);
         void onError(String error);
@@ -90,6 +92,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         getRoomsINeed(userId, context, db, dbManager);
         //Get room images
         getRoomImages(userId, context, db, dbManager);
+
     }
 
     public static void getBookingsByUser(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
@@ -189,7 +192,6 @@ public class OutsystemsAPI extends AppCompatActivity {
 
         queue.add(stringRequest);
     }
-
 
     public static void getRoomImages(String roomId, Context context, SQLiteDatabase db, DbManager dbManager) {
         String url = apiUrl + "GetRoomImagesUserNeeds?UserId=" + roomId;
@@ -323,12 +325,12 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    public static void submitTicket(Ticket ticket, Context context, VolleyCallback callback) {
+    public static void submitTicket(Ticket ticket, String userId, Context context, VolleyCallback callback) {
         String url = apiUrl + "SubmitTicket";
 
         try {
             JSONObject ticketJsonObject = new JSONObject();
-            ticketJsonObject.put("tickets", new JSONObject(ticket.toJsonWithoutImages()));
+            ticketJsonObject.put("tickets", new JSONObject(ticket.toJsonWithoutImages(Integer.parseInt(userId))));
             ticketJsonObject.put("ticketImages", new JSONArray(ticket.toJsonImagesOnly()));
             System.out.println(ticketJsonObject);
 
@@ -353,6 +355,52 @@ public class OutsystemsAPI extends AppCompatActivity {
             callback.onError("Error converting Ticket to JSON " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public static void getTicketsByUser(String userId, String uuid, Context context, SQLiteDatabase db, DbManager dbManager) {
+        String url = apiUrl + "GetTicketsByUser?UserId=" + userId + "&UUID=" + uuid;
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            db.execSQL("DELETE FROM " + dbManager.TICKET_TABLE);
+                            JSONArray ticketList = new JSONArray(obj.getString("TicketList"));
+
+                            for (int i = 0; i < ticketList.length(); i++) {
+                                JSONObject ticketObj = ticketList.getJSONObject(i);
+                                //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+                                Ticket ticket = new Ticket(
+                                        ticketObj.getString("UUID"),
+                                        ticketObj.getString("BookingUUID"),
+                                        ticketObj.getInt("TicketStatusId"),
+                                        ticketObj.getString("Title"),
+                                        ticketObj.getString("Description"),
+                                        Utils.convertUnixToDate(ticketObj.getString("CreatedOn")),
+                                        Utils.convertUnixToDate(ticketObj.getString("ModifiedOn"))
+                                );
+                                DBTicketLocal.createTicket(ticket, context, db);
+                            }
+                        } else {
+                            Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }, error -> {
+            try {
+                JSONObject obj = new JSONObject(error.getMessage());
+                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+        );
+        queue.add(stringRequest);
     }
 
     public static void getTicketImages(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {

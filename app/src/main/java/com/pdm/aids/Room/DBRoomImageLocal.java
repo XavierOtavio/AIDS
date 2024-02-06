@@ -44,6 +44,7 @@ public class DBRoomImageLocal {
         if (cursor.moveToFirst()) {
             do {
                 String imagePath = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH));
+                System.out.println(imagePath);
                 File imgFile = new File(imagePath);
                 if (imgFile.exists()) {
                     imageBytes = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
