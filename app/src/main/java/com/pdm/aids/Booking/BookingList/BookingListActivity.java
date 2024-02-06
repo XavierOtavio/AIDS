@@ -71,8 +71,6 @@ public class BookingListActivity extends AppCompatActivity {
         //-----------------Lazy Loading-----------------
         executorService = Executors.newSingleThreadExecutor();
         uiHandler = new Handler(Looper.getMainLooper());
-        binding.progressBar.setVisibility(View.VISIBLE);
-        loadDataInBackGround();
 
         historyButton.setOnClickListener(v -> startActivity(new Intent(BookingListActivity.this, BookingHistoryActivity.class)));
 
@@ -152,15 +150,21 @@ public class BookingListActivity extends AppCompatActivity {
 
 
     private void  updateList() {
-        listAdapter = new BookingListAdapter( BookingListActivity.this, dataArrayList, BookingListActivity.this);
-        binding.listView.setAdapter(listAdapter);
-        binding.listView.setClickable(true);
+        if (dataArrayList.size() == 0) {
+            binding.emptyBookingList.setVisibility(View.VISIBLE);
+            binding.listView.setVisibility(View.GONE);
+        } else {
+            listAdapter = new BookingListAdapter( BookingListActivity.this, dataArrayList, BookingListActivity.this);
+            binding.listView.setAdapter(listAdapter);
+            binding.listView.setClickable(true);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        updateList();
+        binding.progressBar.setVisibility(View.VISIBLE);
+        loadDataInBackGround();
     }
 
     @Override
