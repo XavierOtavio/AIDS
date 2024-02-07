@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 import com.pdm.aids.Booking.Booking;
+import com.pdm.aids.Booking.BookingHistory.BookingHistoryActivity;
 import com.pdm.aids.Booking.BookingList.BookingListActivity;
 import com.pdm.aids.Booking.BookingList.BookingListAdapter;
 import com.pdm.aids.Booking.BookingList.ListData;
@@ -38,6 +39,7 @@ import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomImageLocal;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
+import com.pdm.aids.Ticket.TicketList.TicketListActivity;
 import com.pdm.aids.databinding.ActivityBookingDetailBinding;
 
 import java.text.SimpleDateFormat;
@@ -70,6 +72,17 @@ public class BookingDetailActivity extends AppCompatActivity {
         binding.linearLayoutContent.setVisibility(View.GONE);
         setupNetworkChecker();
         loadDataInBackGround();
+
+        binding.ticketButton.setOnClickListener(v -> {
+            Intent intent = new Intent(BookingDetailActivity.this, TicketListActivity.class);
+            intent.putExtra("bookingHash", booking.getHash());
+            startActivity(intent);
+        });
+
+        binding.ticketButton.setOnClickListener(v -> {
+            Intent intent = new Intent(BookingDetailActivity.this, TicketListActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void setupNetworkChecker() {
@@ -251,6 +264,7 @@ public class BookingDetailActivity extends AppCompatActivity {
 
         qrCodeLauncher.launch(options);
     }
+
 
     private ActivityResultLauncher<ScanOptions> qrCodeLauncher = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() == null) {
