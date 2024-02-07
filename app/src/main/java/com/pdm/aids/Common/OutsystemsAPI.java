@@ -96,10 +96,11 @@ public class OutsystemsAPI extends AppCompatActivity {
         //Get room images
         getRoomImages(userId, context, db, dbManager);
         //Get OnGoing Bookings Tickets
-        List<Integer> statusIds = Arrays.asList(3);
-        getTicketsByUser(userId, new DBBookingLocal().getBookingsByStatus(statusIds, db).get(0).getHash(), context, db, dbManager);
+        Toast.makeText(context, "Getting tickets", Toast.LENGTH_SHORT).show();
+        getTicketsByUser(userId, context, db, dbManager);
         //Get OnGoing Images for Tickets
-        getTicketImages(userId, new DBBookingLocal().getBookingsByStatus(statusIds, db).get(0).getHash(), context, db, dbManager);
+        Toast.makeText(context, "Getting ticket images", Toast.LENGTH_SHORT).show();
+        getTicketImages(userId, context, db, dbManager);
 
     }
 
@@ -335,12 +336,13 @@ public class OutsystemsAPI extends AppCompatActivity {
 
     public static void submitTicket(Ticket ticket, String userId, Context context, VolleyCallback callback) {
         String url = apiUrl + "SubmitTicket";
+        DbManager dbManager = new DbManager(context);
+        SQLiteDatabase db = dbManager.getWritableDatabase();
 
         try {
             JSONObject ticketJsonObject = new JSONObject();
             ticketJsonObject.put("tickets", new JSONObject(ticket.toJsonWithoutImages(Integer.parseInt(userId))));
-            ticketJsonObject.put("ticketImages", new JSONArray(ticket.toJsonImagesOnly()));
-            System.out.println(ticketJsonObject);
+            ticketJsonObject.put("ticketImages", new JSONArray(ticket.toJsonImagesOnly(db)));
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, ticketJsonObject,
                     response -> {
@@ -365,8 +367,8 @@ public class OutsystemsAPI extends AppCompatActivity {
         }
     }
 
-    public static void getTicketsByUser(String userId, String uuid, Context context, SQLiteDatabase db, DbManager dbManager) {
-        String url = apiUrl + "GetTicketsByUser?UserId=" + userId + "&UUID=" + uuid;
+    public static void getTicketsByUser(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
+        String url = apiUrl + "GetTicketsByUser?UserId=" + userId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
 
@@ -375,7 +377,6 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
-                            db.execSQL("DELETE FROM " + dbManager.TICKET_TABLE);
                             JSONArray ticketList = new JSONArray(obj.getString("TicketList"));
 
                             for (int i = 0; i < ticketList.length(); i++) {
@@ -391,13 +392,15 @@ public class OutsystemsAPI extends AppCompatActivity {
                                         Utils.convertUnixToDate(ticketObj.getString("CreatedOn")),
                                         Utils.convertUnixToDate(ticketObj.getString("ModifiedOn"))
                                 );
-                                DBTicketLocal.createTicket(ticket, context, db);
+                                DBTicketLocal.createOrUpdateTicket(ticket, context, db);
                             }
                         } else {
                             Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
                     }
                 }, error -> {
             try {
@@ -411,8 +414,8 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    public static void getTicketImages(String userId, String uuid, Context context, SQLiteDatabase db, DbManager dbManager) {
-        String url = apiUrl + "GetTicketImagesUserNeeds?UserId=" + userId + "&UUID=" + uuid;
+    public static void getTicketImages(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
+        String url = apiUrl + "GetTicketImagesUserNeeds?UserId=" + userId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
 
@@ -421,6 +424,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
+                            //TODO: ISTO NÃO PODE ACONTECER. OS TICKETS PODEM AINDA NÃO TEREM SIDO SINCRONIZADOS
                             db.execSQL("DELETE FROM " + dbManager.TICKET_IMAGE_TABLE);
                             JSONArray imageList = new JSONArray(obj.getString("TicketImageList"));
                             for (int i = 0; i < imageList.length(); i++) {

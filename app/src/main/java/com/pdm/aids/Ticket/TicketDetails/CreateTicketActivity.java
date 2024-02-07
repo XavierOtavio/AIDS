@@ -98,13 +98,13 @@ public class CreateTicketActivity extends AppCompatActivity {
         adapter = new CarouselAdapter(this, pictures);
         viewPager.setAdapter(adapter);
 
-        List<String> teste = new DBTicketLocal().getStringTicketImagesForTicket(uuid, dbManager.getWritableDatabase());
+//        List<String> teste = new DBTicketLocal().getStringTicketImagesForTicket(uuid, dbManager.getWritableDatabase());
 
-        for (String encodedImage : teste) {
-            byte[] imageBytes = Base64.getDecoder().decode(encodedImage);
-            pictures.add(imageBytes);
-            adapter.notifyDataSetChanged();
-        }
+//        for (String encodedImage : teste) {
+//            byte[] imageBytes = Base64.getDecoder().decode(encodedImage);
+//            pictures.add(imageBytes);
+//            adapter.notifyDataSetChanged();
+//        }
 
         RelativeLayout cameraLayout = findViewById(R.id.cameraLayout);
         cameraLayout.setOnClickListener(v -> dispatchTakePictureIntent());
@@ -219,10 +219,17 @@ public class CreateTicketActivity extends AppCompatActivity {
                         ticket.setDescription(description);
                         ticket.setLastModified(new Date(System.currentTimeMillis()));
                     }
-                    for (String picture : picturesToSend
-                    ) {
-                        TicketImage ticketImage = new TicketImage(ticket.getId(), ticket.getId()+".jpg", picture);
+                    for (int i= 0; i < picturesToSend.size(); i++) {
+                        JSONObject img = new JSONObject();
+                        img.put("Filename", ticket.getId() + "_" + i + ".jpg");
+                        img.put("Image", picturesToSend.get(i));
+                        String path = "ticketImages";
+                        String filepath = Utils.addImageToLocalStorage(path, img, this);
+
+                        TicketImage ticketImage = new TicketImage(ticket.getId(), ticket.getId()+".jpg", filepath);
                         boolean imageIsInserted = new DBTicketLocal().createTicketImage(ticketImage, this, dbManager.getWritableDatabase());
+
+
                         allImages.add(ticketImage);
                     }
                     ticket.setTicketImages(allImages);

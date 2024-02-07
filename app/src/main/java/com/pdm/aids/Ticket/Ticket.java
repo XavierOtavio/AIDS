@@ -2,10 +2,19 @@ package com.pdm.aids.Ticket;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.pdm.aids.Common.Utils;
 import com.pdm.aids.Login.LoginActivity;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -59,9 +68,11 @@ public class Ticket {
         return gson.toJson(ticketWithoutImages);
     }
 
-    public String toJsonImagesOnly() {
+    public String toJsonImagesOnly(SQLiteDatabase db) {
         Gson gson = new Gson();
-
+        for(TicketImage ticketImage : ticketImages) {
+            ticketImage.setImage(Utils.imageConvert(DBTicketLocal.getTicketImageByFilename(ticketImage.getFilename(), db)));
+        }
         String imagesJson = gson.toJson(ticketImages);
         return imagesJson;
     }

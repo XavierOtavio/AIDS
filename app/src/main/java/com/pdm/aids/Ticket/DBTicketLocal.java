@@ -6,7 +6,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,7 +35,6 @@ public class DBTicketLocal {
     public static final String COLUMN_TICKET_IMAGE_ID = "TICKET_ID";
     public static final String COLUMN_FILENAME = "FILENAME";
     public static final String COLUMN_IMAGE_PATH = "IMAGE_PATH";
-    public static final String COLUMN_IMAGE = "IMAGE";
 
     public static String CreateTicketTable() {
         return "CREATE TABLE " + TICKET_TABLE + " (" +
@@ -51,7 +53,7 @@ public class DBTicketLocal {
                 COLUMN_IMAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_TICKET_IMAGE_ID + " INTEGER, " +
                 COLUMN_FILENAME + " TEXT, " +
-                COLUMN_IMAGE + " BLOB, " +
+                COLUMN_IMAGE_PATH + " TEXT, " +
                 "FOREIGN KEY(" + COLUMN_TICKET_IMAGE_ID + ") REFERENCES " +
                 TICKET_TABLE + "(" + COLUMN_TICKET_ID + ")" +
                 ")";
@@ -91,12 +93,24 @@ public class DBTicketLocal {
         return insert != -1;
     }
 
+    public static boolean createOrUpdateTicket(Ticket ticket, Context context, SQLiteDatabase db) throws ParseException {
+        Ticket foundTicket = getTicketByUUID(ticket.getId(), db);
+        if (foundTicket == null) {
+            return createTicket(ticket, context, db);
+        } else {
+            if(foundTicket.getLastModified().before(ticket.getLastModified())) {
+                return updateTicket(ticket, context, db);
+            }
+            return true;
+        }
+    }
+
     public static boolean createTicketImage(TicketImage ticketImage, Context context, SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_TICKET_IMAGE_ID, ticketImage.getTicketUuid());
         cv.put(COLUMN_FILENAME, ticketImage.getFilename());
-        cv.put(COLUMN_IMAGE, ticketImage.getImage());
+
 
         long insert = db.insert(TICKET_IMAGE_TABLE, null, cv);
         return insert != -1;
@@ -104,7 +118,7 @@ public class DBTicketLocal {
 
 
     @SuppressLint("Range")
-    public ArrayList<Ticket> getAllTicketsWithImages(SQLiteDatabase db) throws ParseException {
+    public static ArrayList<Ticket> getAllTicketsWithImages(SQLiteDatabase db) throws ParseException {
         ArrayList<Ticket> ticketList = new ArrayList<>();
 
         String query = "SELECT * FROM " + TICKET_TABLE;
@@ -135,7 +149,7 @@ public class DBTicketLocal {
     }
 
     @SuppressLint("Range")
-    private ArrayList<TicketImage> getTicketImagesForTicket(String ticketId, SQLiteDatabase db) {
+    private static ArrayList<TicketImage> getTicketImagesForTicket(String ticketId, SQLiteDatabase db) {
         ArrayList<TicketImage> ticketImages = new ArrayList<>();
 
         String query = "SELECT * FROM " + TICKET_IMAGE_TABLE +
@@ -147,11 +161,8 @@ public class DBTicketLocal {
             do {
                 int imageId = cursor.getInt(cursor.getColumnIndex(COLUMN_IMAGE_ID));
                 String filename = cursor.getString(cursor.getColumnIndex(COLUMN_FILENAME));
-                byte[] image = cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE));
-                String base64Image = Base64.getEncoder().encodeToString(image);
-
-
-                TicketImage ticketImage = new TicketImage(ticketId, filename, base64Image);
+                String imagePath = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH));
+                TicketImage ticketImage = new TicketImage(ticketId, filename, imagePath);
                 ticketImages.add(ticketImage);
             } while (cursor.moveToNext());
         }
@@ -160,25 +171,25 @@ public class DBTicketLocal {
         return ticketImages;
     }
 
-    @SuppressLint("Range")
-    public ArrayList<String> getStringTicketImagesForTicket(String ticketId, SQLiteDatabase db) {
-        ArrayList<String> ticketImages = new ArrayList<>();
-
-        String query = "SELECT * FROM " + TICKET_IMAGE_TABLE +
-                " WHERE " + COLUMN_TICKET_IMAGE_ID + " = '" + ticketId + "'";
-
-        Cursor cursor = db.rawQuery(query, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                String image = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE));
-                ticketImages.add(image);
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-        return ticketImages;
-    }
+//    @SuppressLint("Range")
+//    public ArrayList<String> getStringTicketImagesForTicket(String ticketId, SQLiteDatabase db) {
+//        ArrayList<String> ticketImages = new ArrayList<>();
+//
+//        String query = "SELECT * FROM " + TICKET_IMAGE_TABLE +
+//                " WHERE " + COLUMN_TICKET_IMAGE_ID + " = '" + ticketId + "'";
+//
+//        Cursor cursor = db.rawQuery(query, null);
+//
+//        if (cursor.moveToFirst()) {
+//            do {
+//                String image = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE));
+//                ticketImages.add(image);
+//            } while (cursor.moveToNext());
+//        }
+//
+//        cursor.close();
+//        return ticketImages;
+//    }
 
 
     @SuppressLint("Range")
@@ -212,7 +223,7 @@ public class DBTicketLocal {
     }
 
     @SuppressLint("Range")
-    public Ticket getTicketByUUID(String UUID, SQLiteDatabase db) throws ParseException {
+    public static Ticket getTicketByUUID(String UUID, SQLiteDatabase db) throws ParseException {
         String query = "SELECT * FROM " + TICKET_TABLE +
                 " WHERE " + COLUMN_TICKET_ID + " = ?";
         Cursor cursor = db.rawQuery(query, new String[]{UUID});
@@ -234,6 +245,40 @@ public class DBTicketLocal {
         cursor.close();
         return null;
     }
-
+    @SuppressLint("Range")
+    public static ArrayList<Bitmap> getTicketImageByTicketId(String ticketId, SQLiteDatabase db) {
+        ArrayList<Bitmap> imageBytes = new ArrayList<>();
+        String query = "SELECT * FROM " + TICKET_IMAGE_TABLE + " WHERE " + COLUMN_TICKET_IMAGE_ID + " = " + ticketId;
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                String imagePath = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH));
+                File imgFile = new File(imagePath);
+                if (imgFile.exists()) {
+                    imageBytes.add(BitmapFactory.decodeFile(imgFile.getAbsolutePath()));
+                }
+            } while (cursor.moveToNext());
+        }
+        if (!cursor.isClosed()) {
+            cursor.close();
+        }
+        return imageBytes;
+    }
+    @SuppressLint("Range")
+    public static Bitmap getTicketImageByFilename(String filename, SQLiteDatabase db) {
+        String query = "SELECT * FROM " + TICKET_IMAGE_TABLE + " WHERE " + COLUMN_FILENAME + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{filename});
+        if (cursor.moveToFirst()) {
+            String imagePath = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH));
+            File imgFile = new File(imagePath);
+            if (imgFile.exists()) {
+                return BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            }
+        }
+        if (!cursor.isClosed()) {
+            cursor.close();
+        }
+        return null;
+    }
 
 }

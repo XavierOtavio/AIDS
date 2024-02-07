@@ -131,6 +131,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             OutsystemsAPI.getDataFromAPI(obj.getString("Id"), LoginActivity.this);
 
+                            Toast.makeText(getApplicationContext(), "Login com Xavier Passo 4", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                             startActivity(intent);
                             finish();
@@ -147,7 +148,7 @@ public class LoginActivity extends AppCompatActivity {
                 public void onError(String error) {
                     try {
                         JSONObject obj = new JSONObject(error);
-                        Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(),"Login" + obj.getString("Message"), Toast.LENGTH_SHORT).show();
                     } catch (JSONException e) {
                         Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }

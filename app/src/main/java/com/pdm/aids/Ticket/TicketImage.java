@@ -4,21 +4,27 @@ public class TicketImage {
     String id;
     String ticketUuid;
     String filename;
-    String image;
     String imagePath;
+    String image;
 
-    public TicketImage(String ticketId, String filename, String image){
+    public TicketImage(String ticketId, String filename, String imagePath, String image) {
         this.ticketUuid = ticketId;
         this.filename = filename;
+        this.imagePath = imagePath;
         this.image = image;
     }
-    public TicketImage() {}
-    public String  getId() {
-        return id;
+
+    public TicketImage(String ticketId, String filename, String imagePath) {
+        this.ticketUuid = ticketId;
+        this.filename = filename;
+        this.imagePath = imagePath;
     }
 
-    public String getImage() {
-        return image;
+    public TicketImage() {
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getTicketUuid() {
@@ -33,12 +39,8 @@ public class TicketImage {
         this.filename = filename;
     }
 
-    public void setId(String  id) {
+    public void setId(String id) {
         this.id = id;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public void setTicketUuid(String ticketId) {
@@ -52,4 +54,14 @@ public class TicketImage {
     public String getImagePath() {
         return imagePath;
     }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+
 }
