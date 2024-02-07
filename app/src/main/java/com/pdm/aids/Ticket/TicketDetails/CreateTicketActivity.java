@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
 
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -45,6 +46,7 @@ import java.util.UUID;
 
 public class CreateTicketActivity extends AppCompatActivity {
 
+    private Toolbar toolbar;
     private EditText titleEditText;
     private EditText descriptionEditText;
     private TextView facility, expectedStart, expectedLeave;
@@ -102,13 +104,6 @@ public class CreateTicketActivity extends AppCompatActivity {
             adapter.notifyDataSetChanged();
         }
 
-        if (pictures != null && !pictures.isEmpty()) {
-            System.out.println(pictures.size());
-            System.out.println("pictures " + pictures);
-        } else {
-            System.out.println("Pictures list is either null or empty.");
-        }
-
         RelativeLayout cameraLayout = findViewById(R.id.cameraLayout);
         cameraLayout.setOnClickListener(v -> dispatchTakePictureIntent());
 
@@ -128,9 +123,10 @@ public class CreateTicketActivity extends AppCompatActivity {
             }
         });
 
-
         titleEditText = findViewById(R.id.edit_text_title);
         descriptionEditText = findViewById(R.id.edit_text_description);
+        toolbar = findViewById(R.id.toolbar_main);
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         titleEditText.setText(title);
         descriptionEditText.setText(description);

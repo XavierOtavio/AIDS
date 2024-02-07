@@ -13,8 +13,6 @@ public class ListData {
         this.description = description;
         this.startDate = startDate;
         this.uuid = uuid;
-
-        System.out.println("ListData created - Title: " + title + ", Description: " + description + ", UUID: " + uuid);
     }
 
     public String getTitle() {
@@ -34,7 +32,7 @@ public class ListData {
     }
 
     public String getFormattedStartDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         return dateFormat.format(startDate);
     }
 }
