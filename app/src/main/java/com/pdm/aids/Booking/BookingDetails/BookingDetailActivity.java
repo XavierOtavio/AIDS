@@ -110,22 +110,15 @@ public class BookingDetailActivity extends AppCompatActivity {
                 try (DbManager dbManager = new DbManager(BookingDetailActivity.this)) {
                     booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
                     room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
-                    uiHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            populateUIFromDatabase();
-                            binding.progressBar.setVisibility(View.GONE);
-                            binding.linearLayoutTop.setVisibility(View.VISIBLE);
-                            binding.linearLayoutContent.setVisibility(View.VISIBLE);
-                        }
+                    uiHandler.post(() -> {
+                        populateUIFromDatabase();
+                        binding.progressBar.setVisibility(View.GONE);
+                        binding.linearLayoutTop.setVisibility(View.VISIBLE);
+                        binding.linearLayoutContent.setVisibility(View.VISIBLE);
                     });
                 } catch (Exception e) {
-                    uiHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(BookingDetailActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    System.out.println(e.getMessage());
+                    uiHandler.post(() -> Toast.makeText(BookingDetailActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                 }
             }
         });

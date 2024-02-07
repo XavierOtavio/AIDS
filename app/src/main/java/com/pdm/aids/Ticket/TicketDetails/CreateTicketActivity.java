@@ -94,14 +94,14 @@ public class CreateTicketActivity extends AppCompatActivity {
         adapter = new CarouselAdapter(this, pictures);
         viewPager.setAdapter(adapter);
 
-        List<byte[]> teste = new DBTicketLocal().getByteTicketImagesForTicket(uuid, dbManager.getWritableDatabase());
-        System.out.println("teste " + teste);
+        List<String> teste = new DBTicketLocal().getStringTicketImagesForTicket(uuid, dbManager.getWritableDatabase());
 
-        for (byte[] test : teste
-        ) {
-            pictures.add(test);
+        for (String encodedImage : teste) {
+            byte[] imageBytes = Base64.getDecoder().decode(encodedImage);
+            pictures.add(imageBytes);
             adapter.notifyDataSetChanged();
         }
+
         if (pictures != null && !pictures.isEmpty()) {
             System.out.println(pictures.size());
             System.out.println("pictures " + pictures);

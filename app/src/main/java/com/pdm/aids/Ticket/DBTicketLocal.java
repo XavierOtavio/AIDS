@@ -161,8 +161,8 @@ public class DBTicketLocal {
     }
 
     @SuppressLint("Range")
-    public ArrayList<byte[]> getByteTicketImagesForTicket(String ticketId, SQLiteDatabase db) {
-        ArrayList<byte[]> ticketImages = new ArrayList<>();
+    public ArrayList<String> getStringTicketImagesForTicket(String ticketId, SQLiteDatabase db) {
+        ArrayList<String> ticketImages = new ArrayList<>();
 
         String query = "SELECT * FROM " + TICKET_IMAGE_TABLE +
                 " WHERE " + COLUMN_TICKET_IMAGE_ID + " = '" + ticketId + "'";
@@ -171,7 +171,7 @@ public class DBTicketLocal {
 
         if (cursor.moveToFirst()) {
             do {
-                byte[] image = cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE));
+                String image = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE));
                 ticketImages.add(image);
             } while (cursor.moveToNext());
         }
