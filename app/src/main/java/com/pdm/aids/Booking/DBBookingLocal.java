@@ -202,7 +202,6 @@ public class DBBookingLocal  {
         }
 
         cursor.close();
-        db.close();
         return bookingsList;
     }
 

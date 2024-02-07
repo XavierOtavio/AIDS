@@ -36,6 +36,8 @@ import com.pdm.aids.Ticket.DBTicketLocal;
 import com.pdm.aids.Ticket.Ticket;
 import com.pdm.aids.Ticket.TicketImage;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -219,7 +221,7 @@ public class CreateTicketActivity extends AppCompatActivity {
                     }
                     for (String picture : picturesToSend
                     ) {
-                        TicketImage ticketImage = new TicketImage(ticket.getId(), "filename", picture);
+                        TicketImage ticketImage = new TicketImage(ticket.getId(), ticket.getId()+".jpg", picture);
                         boolean imageIsInserted = new DBTicketLocal().createTicketImage(ticketImage, this, dbManager.getWritableDatabase());
                         allImages.add(ticketImage);
                     }

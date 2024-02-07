@@ -4,293 +4,285 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:fillViewport="true"
-     android:layout_height="match_parent"
+    android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white"
-    tools:context=".Booking.BookingDetails.BookingDetailActivity">
-
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_main"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-        <TextView
-            android:id="@+id/toolbar_title"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="Title"
-            android:textColor="@android:color/black"
-            android:textSize="20dp"
-            android:textStyle="bold" />
-    </androidx.appcompat.widget.Toolbar>
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        tools:context=".Booking.BookingDetails.BookingDetailActivity">
 
 
-    <LinearLayout
-        android:id="@+id/linearLayoutTop"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_main"
-        tools:layout_editor_absoluteX="0dp">
-
-        <RelativeLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar_main"
             android:layout_width="match_parent"
-            android:layout_height="200dp">
-
-            <ImageButton
-                android:id="@+id/btnLeftArrow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/viewPager"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="10dp"
-                android:src="@drawable/chevronleftoutline"
-                android:background="@android:color/transparent"/>
-
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/viewPager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerHorizontal="true"
-                android:layout_marginHorizontal="45dp"
-                android:background="@drawable/card_white"
-                android:backgroundTint="#D9D9D9"/>
-
-            <ImageButton
-                android:id="@+id/btnRightArrow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/viewPager"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/chevronrightoutline" />
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/cameraLayout"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="30dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginHorizontal="45dp"
-            android:background="@drawable/card_white"
-            android:backgroundTint="#D9D9D9">
-
-            <ImageButton
-                android:id="@+id/camera"
-                android:layout_width="35dp"
-                android:layout_height="match_parent"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="15dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/icon_camera"
-                />
-
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
             <TextView
-                android:id="@+id/qrCodeLabel"
+                android:id="@+id/toolbar_title"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:text="Adicionar Fotografia"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="Title"
                 android:textColor="@android:color/black"
-                android:textSize="20sp" />
+                android:textSize="20dp"
+                android:textStyle="bold" />
+        </androidx.appcompat.widget.Toolbar>
 
-        </RelativeLayout>
-
-
-    </LinearLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayoutTop"
-        app:layout_constraintVertical_bias="1.0"
-        tools:layout_editor_absoluteX="-16dp">
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayoutTop"
-        app:layout_constraintVertical_bias="1.0"
-        tools:layout_editor_absoluteX="-16dp">
 
         <LinearLayout
-            android:id="@+id/linearLayoutContent"
+            android:id="@+id/linearLayoutTop"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@drawable/page_details_card_background"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
             android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar_main"
+            tools:layout_editor_absoluteX="0dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp">
+
+                <ImageButton
+                    android:id="@+id/btnLeftArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/viewPager"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="10dp"
+                    android:src="@drawable/chevronleftoutline"
+                    android:background="@android:color/transparent"/>
+
+                <androidx.viewpager.widget.ViewPager
+                    android:id="@+id/viewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginHorizontal="45dp"
+                    android:background="@drawable/card_white"
+                    android:backgroundTint="#D9D9D9"/>
+
+                <ImageButton
+                    android:id="@+id/btnRightArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/viewPager"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/chevronrightoutline" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/cameraLayout"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="45dp"
+                android:background="@drawable/card_white"
+                android:backgroundTint="#D9D9D9">
+
+                <ImageButton
+                    android:id="@+id/camera"
+                    android:layout_width="35dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/icon_camera"
+                    />
+
+                <TextView
+                    android:id="@+id/qrCodeLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:text="Adicionar Fotografia"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp" />
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayoutTop"
             app:layout_constraintVertical_bias="1.0"
             tools:layout_editor_absoluteX="-16dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="25dp"
-                android:layout_marginTop="30dp"
-                android:layout_marginRight="25dp"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
-                    android:text="Espaço:"
-                    android:textColor="@android:color/white"
-                    android:textSize="20dp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/facility"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
-                    android:text="Pavilhão 3"
-                    android:textAlignment="textEnd"
-                    android:textColor="@android:color/white"
-                    android:textSize="20dp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/linearLayoutContent"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="25dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="25dp"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal">
+                android:layout_height="0dp"
+                android:background="@drawable/page_details_card_background"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayoutTop"
+                app:layout_constraintVertical_bias="1.0"
+                tools:layout_editor_absoluteX="-16dp">
 
-                <TextView
-                    android:id="@+id/expectedStart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Início: 12/1/2024 12:30"
-                    android:textColor="@android:color/white"
-                    android:textSize="16dp" />
-
-                <TextView
-                    android:id="@+id/expectedLeave"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Fim: 12/01/2024 13:30"
-                    android:textAlignment="textEnd"
-                    android:textColor="@android:color/white"
-                    android:textSize="16dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="25dp"
-                android:layout_marginRight="25dp"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal" />
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="25dp"
-                android:orientation="vertical">
-
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_text_title"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Título"
-                    android:textColorHint="@color/white">
+                    android:layout_marginLeft="25dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginRight="25dp"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edit_text_title"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:inputType="text"
-                        android:textColor="@color/white"/>
+                        android:layout_weight="0.5"
+                        android:text="Espaço:"
+                        android:textColor="@android:color/white"
+                        android:textSize="20dp"
+                        android:textStyle="bold" />
 
-                </com.google.android.material.textfield.TextInputLayout>
+                    <TextView
+                        android:id="@+id/facility"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.5"
+                        android:text="Pavilhão 3"
+                        android:textAlignment="textEnd"
+                        android:textColor="@android:color/white"
+                        android:textSize="20dp"
+                        android:textStyle="bold" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_text_description"
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Descrição"
-                    android:layout_marginTop="10dp"
-                    android:textColorHint="@color/white">
+                    android:layout_marginLeft="25dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginRight="25dp"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edit_text_description"
+                    <TextView
+                        android:id="@+id/expectedStart"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Início: 12/1/2024 12:30"
+                        android:textColor="@android:color/white"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:id="@+id/expectedLeave"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Fim: 12/01/2024 13:30"
+                        android:textAlignment="textEnd"
+                        android:textColor="@android:color/white"
+                        android:textSize="16dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="25dp"
+                    android:layout_marginRight="25dp"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal" />
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="25dp"
+                    android:orientation="vertical">
+
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_text_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textMultiLine"
-                        android:lines="5"
-                        android:textColor="@color/white" />
+                        android:hint="Título"
+                        android:textColorHint="@color/white">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edit_text_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text"
+                            android:textColor="@color/white"/>
 
-            </LinearLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="25dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="25dp"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal">
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_text_description"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Descrição"
+                        android:layout_marginTop="10dp"
+                        android:textColorHint="@color/white">
 
-                <Button
-                    android:id="@+id/button_save"
-                    android:layout_width="0dp"
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edit_text_description"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textMultiLine"
+                            android:lines="5"
+                            android:textColor="@color/white" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="16dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="@color/pending"
-                    android:text="Guardar" />
+                    android:layout_marginLeft="25dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginRight="25dp"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="@color/material_dynamic_neutral40"
-                    android:text="Cancelar" />
+                    <Button
+                        android:id="@+id/button_save"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="16dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/pending"
+                        android:text="Guardar" />
 
+                    <Button
+                        android:id="@+id/button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/material_dynamic_neutral40"
+                        android:text="Cancelar" />
+
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
-    </ScrollView>
+        </ScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -41,12 +41,15 @@ import java.sql.SQLOutput;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 
 public class OutsystemsAPI extends AppCompatActivity {
     private String id;
+    private static List<Booking> bookings;
     public interface VolleyCallback {
         void onSuccess(String result);
         void onError(String error);
@@ -92,6 +95,11 @@ public class OutsystemsAPI extends AppCompatActivity {
         getRoomsINeed(userId, context, db, dbManager);
         //Get room images
         getRoomImages(userId, context, db, dbManager);
+        //Get OnGoing Bookings Tickets
+        List<Integer> statusIds = Arrays.asList(3);
+        getTicketsByUser(userId, new DBBookingLocal().getBookingsByStatus(statusIds, db).get(0).getHash(), context, db, dbManager);
+        //Get OnGoing Images for Tickets
+        getTicketImages(userId, new DBBookingLocal().getBookingsByStatus(statusIds, db).get(0).getHash(), context, db, dbManager);
 
     }
 
@@ -375,7 +383,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                                 //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
 
                                 Ticket ticket = new Ticket(
-                                        ticketObj.getString("UUID"),
+                                        ticketObj.getString("TicketUUID"),
                                         ticketObj.getString("BookingUUID"),
                                         ticketObj.getInt("TicketStatusId"),
                                         ticketObj.getString("Title"),
@@ -403,8 +411,8 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    public static void getTicketImages(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
-        String url = apiUrl + "GetTicketImagesUserNeeds?UserId=" + userId;
+    public static void getTicketImages(String userId, String uuid, Context context, SQLiteDatabase db, DbManager dbManager) {
+        String url = apiUrl + "GetTicketImagesUserNeeds?UserId=" + userId + "&UUID=" + uuid;
 
         RequestQueue queue = Volley.newRequestQueue(context);
 
@@ -422,7 +430,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                                 TicketImage ticketImage = new TicketImage();
                                 ticketImage.setFilename(imageObj.getString("Filename"));
                                 ticketImage.setImagePath(filePath);
-                                ticketImage.setTicketUuid((imageObj.getString("TicketUuid")));
+                                ticketImage.setTicketUuid((imageObj.getString("TicketUUID")));
 
                                 DBTicketLocal.createTicketImage(ticketImage, context, db);
                             }
@@ -439,7 +447,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                 }, error -> {
             try {
                 JSONObject obj = new JSONObject(error.getMessage());
-                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
             } catch (JSONException e) {
                 Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
