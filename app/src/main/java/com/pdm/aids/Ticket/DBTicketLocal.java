@@ -46,16 +46,17 @@ public class DBTicketLocal {
                 ")";
     }
 
-    public static String CreateTicketImageTable(){
+    public static String CreateTicketImageTable() {
         return "CREATE TABLE " + TICKET_IMAGE_TABLE + " (" +
-                   COLUMN_IMAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                   COLUMN_TICKET_IMAGE_ID + " INTEGER, " +
-                   COLUMN_FILENAME + " TEXT, " +
-                   COLUMN_IMAGE + " BLOB, " +
-                   "FOREIGN KEY(" + COLUMN_TICKET_IMAGE_ID + ") REFERENCES " +
-                   TICKET_TABLE + "(" + COLUMN_TICKET_ID + ")" +
-                   ")";
-       }
+                COLUMN_IMAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_TICKET_IMAGE_ID + " INTEGER, " +
+                COLUMN_FILENAME + " TEXT, " +
+                COLUMN_IMAGE + " BLOB, " +
+                "FOREIGN KEY(" + COLUMN_TICKET_IMAGE_ID + ") REFERENCES " +
+                TICKET_TABLE + "(" + COLUMN_TICKET_ID + ")" +
+                ")";
+    }
+
     public static boolean createTicket(Ticket ticket, Context context, SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
 
@@ -73,6 +74,23 @@ public class DBTicketLocal {
         return insert != -1;
     }
 
+    public static boolean updateTicket(Ticket ticket, Context context, SQLiteDatabase db) {
+        ContentValues cv = new ContentValues();
+
+        cv.put(COLUMN_TICKET_ID, ticket.getId());
+        cv.put(COLUMN_BOOKING_ID, ticket.getBookingId());
+        cv.put(COLUMN_TICKET_STATUS_ID, ticket.getTicketStatusId());
+        cv.put(COLUMN_TITLE, ticket.getTitle());
+        cv.put(COLUMN_DESCRIPTION, ticket.getDescription());
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        cv.put(COLUMN_TICKET_STARTDATE, dateFormat.format(ticket.getCreationDate()));
+        cv.put(COLUMN_TICKET_MODIFIED, dateFormat.format(ticket.getLastModified()));
+
+        long insert = db.update(TICKET_TABLE, cv, COLUMN_TICKET_ID + " = ?", new String[]{ticket.getId()});
+        return insert != -1;
+    }
+
     public static boolean createTicketImage(TicketImage ticketImage, Context context, SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
 
@@ -83,6 +101,7 @@ public class DBTicketLocal {
         long insert = db.insert(TICKET_IMAGE_TABLE, null, cv);
         return insert != -1;
     }
+
 
     @SuppressLint("Range")
     public ArrayList<Ticket> getAllTicketsWithImages(SQLiteDatabase db) throws ParseException {
@@ -106,7 +125,7 @@ public class DBTicketLocal {
 
                 ArrayList<TicketImage> ticketImages = getTicketImagesForTicket(ticketId, db);
 
-                Ticket ticket = new Ticket(ticketId,bookingId, ticketStatusId, title, description, startDate, modifiedDate, ticketImages);
+                Ticket ticket = new Ticket(ticketId, bookingId, ticketStatusId, title, description, startDate, modifiedDate, ticketImages);
                 ticketList.add(ticket);
             } while (cursor.moveToNext());
         }
@@ -130,7 +149,6 @@ public class DBTicketLocal {
                 String filename = cursor.getString(cursor.getColumnIndex(COLUMN_FILENAME));
                 byte[] image = cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE));
                 String base64Image = Base64.getEncoder().encodeToString(image);
-
 
 
                 TicketImage ticketImage = new TicketImage(ticketId, filename, base64Image);
@@ -193,6 +211,29 @@ public class DBTicketLocal {
         return ticketList;
     }
 
+    @SuppressLint("Range")
+    public Ticket getTicketByUUID(String UUID, SQLiteDatabase db) throws ParseException {
+        String query = "SELECT * FROM " + TICKET_TABLE +
+                " WHERE " + COLUMN_TICKET_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{UUID});
+
+        if (cursor.moveToFirst()) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+            String bookingId = cursor.getString(cursor.getColumnIndex(COLUMN_BOOKING_ID));
+            int statusId = cursor.getInt(cursor.getColumnIndex(COLUMN_TICKET_STATUS_ID));
+            String title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
+            String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+            Date startDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_TICKET_STARTDATE)));
+            Date modifiedDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_TICKET_MODIFIED)));
+
+            ArrayList<TicketImage> ticketImages = getTicketImagesForTicket(UUID, db);
+
+            return new Ticket(UUID, bookingId, statusId, title, description, startDate, modifiedDate, ticketImages);
+        }
+        cursor.close();
+        return null;
+    }
 
 
 }

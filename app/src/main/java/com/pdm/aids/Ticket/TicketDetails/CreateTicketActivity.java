@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.text.ParseException;
 import java.time.LocalDateTime;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -53,19 +55,31 @@ public class CreateTicketActivity extends AppCompatActivity {
     private List<Booking> booking;
     private DbManager dbManager;
     private List<byte[]> pictures;
-    private List <String> picturesToSend;
+    private List<String> picturesToSend;
     private String userId;
+    private String uuid;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_ticket);
 
         Intent intent = getIntent();
-        String title = intent.getStringExtra("title");
-        String description = intent.getStringExtra("description");
-        String uuid = intent.getStringExtra("uuid");
-
+        uuid = intent.getStringExtra("uuid");
+        String title = "";
+        String description = "";
         dbManager = new DbManager(this);
+        if (uuid != null) {
+            try {
+                Ticket ticket = new DBTicketLocal().getTicketByUUID(uuid, dbManager.getWritableDatabase());
+                title = ticket.getTitle();
+                description = ticket.getDescription();
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
 
         List<Integer> statusIds = Arrays.asList(3);
         booking = new DBBookingLocal().getBookingsByStatus(statusIds, dbManager.getWritableDatabase());
@@ -83,14 +97,14 @@ public class CreateTicketActivity extends AppCompatActivity {
         List<byte[]> teste = new DBTicketLocal().getByteTicketImagesForTicket(uuid, dbManager.getWritableDatabase());
         System.out.println("teste " + teste);
 
-        for (byte[] test: teste
+        for (byte[] test : teste
         ) {
             pictures.add(test);
             adapter.notifyDataSetChanged();
         }
         if (pictures != null && !pictures.isEmpty()) {
             System.out.println(pictures.size());
-            System.out.println("pictures " +pictures);
+            System.out.println("pictures " + pictures);
         } else {
             System.out.println("Pictures list is either null or empty.");
         }
@@ -125,7 +139,7 @@ public class CreateTicketActivity extends AppCompatActivity {
         expectedStart = findViewById(R.id.expectedStart);
         expectedLeave = findViewById(R.id.expectedLeave);
 
-        facility.setText(new DBRoomLocal().getRoomById(booking.get(0).getRoomId(),dbManager.getWritableDatabase()).getName());
+        facility.setText(new DBRoomLocal().getRoomById(booking.get(0).getRoomId(), dbManager.getWritableDatabase()).getName());
         expectedStart.setText(booking.get(0).getExpectedStartDate().toString());
         expectedLeave.setText(booking.get(0).getExpectedEndDate().toString());
 
@@ -142,9 +156,9 @@ public class CreateTicketActivity extends AppCompatActivity {
         } else {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             PackageManager packageManager = getPackageManager();
-            if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
+            if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            } else{
+            } else {
                 Toast.makeText(this, "No camera available", Toast.LENGTH_SHORT).show();
             }
         }
@@ -156,15 +170,15 @@ public class CreateTicketActivity extends AppCompatActivity {
         try {
             if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
                 Bundle extras = data.getExtras();
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-                        pictureByteArray = getBytesFromBitmap(imageBitmap);
-                        picturesToSend.add(Base64.getEncoder().encodeToString(pictureByteArray));
-                        pictures.add(pictureByteArray);
-                        System.out.println("fotos tiradas " + pictures);
-                        adapter.notifyDataSetChanged();
-                } else {
-                    showToast("Failed to capture image");
-                }
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                pictureByteArray = getBytesFromBitmap(imageBitmap);
+                picturesToSend.add(Base64.getEncoder().encodeToString(pictureByteArray));
+                pictures.add(pictureByteArray);
+                System.out.println("fotos tiradas " + pictures);
+                adapter.notifyDataSetChanged();
+            } else {
+                showToast("Failed to capture image");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             showToast("Error: " + e.getMessage());
@@ -188,26 +202,40 @@ public class CreateTicketActivity extends AppCompatActivity {
                     if (picturesToSend == null) {
                         pictureByteArray = new byte[0];
                     }
-
-                    UUID uuid = UUID.randomUUID();
-                    String id = uuid.toString();
+                    Ticket ticket = new Ticket();
                     ArrayList<TicketImage> allImages = new ArrayList<>();
+                    if (uuid == null) {
+                        UUID uuid = UUID.randomUUID();
+                        String id = uuid.toString();
 
-                    Ticket newTicket = new Ticket(id, booking.get(0).getHash(), 1, title, description);
-                    newTicket.setCreationDate(new Date(System.currentTimeMillis()));
-                    newTicket.setLastModified(new Date(System.currentTimeMillis()));
-                    for (String picture: picturesToSend
-                         ) {
-                        TicketImage ticketImage = new TicketImage(newTicket.getId(), "filename", picture);
+                        ticket.setId(id);
+                        ticket.setBookingId(booking.get(0).getHash());
+                        ticket.setTicketStatusId(1);
+                        ticket.setTitle(title);
+                        ticket.setDescription(description);
+                        ticket.setCreationDate(new Date(System.currentTimeMillis()));
+                        ticket.setLastModified(new Date(System.currentTimeMillis()));
+                    } else {
+                        ticket = new DBTicketLocal().getTicketByUUID(uuid, dbManager.getWritableDatabase());
+                        ticket.setTitle(title);
+                        ticket.setDescription(description);
+                        ticket.setLastModified(new Date(System.currentTimeMillis()));
+                    }
+                    for (String picture : picturesToSend
+                    ) {
+                        TicketImage ticketImage = new TicketImage(ticket.getId(), "filename", picture);
                         boolean imageIsInserted = new DBTicketLocal().createTicketImage(ticketImage, this, dbManager.getWritableDatabase());
                         allImages.add(ticketImage);
                     }
-
-                    newTicket.setTicketImages(allImages);
-                    boolean ticketIsInserted = new DBTicketLocal().createTicket(newTicket, this, dbManager.getWritableDatabase());
-
+                    ticket.setTicketImages(allImages);
+                    boolean ticketIsInserted;
+                    if(uuid == null) {
+                        ticketIsInserted = new DBTicketLocal().createTicket(ticket, this, dbManager.getWritableDatabase());
+                    } else {
+                        ticketIsInserted = new DBTicketLocal().updateTicket(ticket, this, dbManager.getWritableDatabase());
+                    }
                     if (ticketIsInserted) {
-                        OutsystemsAPI.submitTicket(newTicket, userId,this, new OutsystemsAPI.VolleyCallback() {
+                        OutsystemsAPI.submitTicket(ticket, userId, this, new OutsystemsAPI.VolleyCallback() {
                             @Override
                             public void onSuccess(String result) {
                                 Toast.makeText(CreateTicketActivity.this, result, Toast.LENGTH_SHORT).show();

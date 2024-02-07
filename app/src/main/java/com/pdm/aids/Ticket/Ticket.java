@@ -21,6 +21,8 @@ public class Ticket {
     private String description;
     private int createdBy;
     private ArrayList<TicketImage> ticketImages;
+    public Ticket() {
+    }
     public Ticket(String uuid, String bookingId, int ticketStatusId, String title, String description) {
         this.ticketUuid = uuid;
         this.title = title;
@@ -73,7 +75,6 @@ public class Ticket {
     public String getDescription() {
         return description;
     }
-
 
     public void setTitle(String title) {
         this.title = title;

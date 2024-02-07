@@ -74,8 +74,6 @@ public class TicketListActivity extends AppCompatActivity {
                         System.out.println("Clicked on item with title: " + clickedItem.getTitle());
 
                         Intent intent = new Intent(getApplicationContext(), CreateTicketActivity.class);
-                        intent.putExtra("title", clickedItem.getTitle());
-                        intent.putExtra("description", clickedItem.getDescription());
                         intent.putExtra("uuid", clickedItem.getUuid());
 
                         startActivity(intent);
