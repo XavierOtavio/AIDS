@@ -102,10 +102,7 @@ public class BookingListActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try (DbManager dataBaseHelper = new DbManager(BookingListActivity.this)) {
-
-                    listData = null;
-                    dataArrayList.clear();
-
+                    
                     if(networkChecker.isInternetConnected()) {
                         OutsystemsAPI.getDataFromAPI(getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", ""), BookingListActivity.this);
                     }
