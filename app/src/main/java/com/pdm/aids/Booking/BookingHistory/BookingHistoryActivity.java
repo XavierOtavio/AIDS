@@ -100,23 +100,31 @@ public class BookingHistoryActivity extends AppCompatActivity {
 
     private void updateUIWithBookings() {
         try (DbManager dataBaseHelper = new DbManager(this)) {
-            OutsystemsAPI.getDataFromAPI(id, this);
+            OutsystemsAPI.getDataFromAPI(id, this, new OutsystemsAPI.DataLoadCallback() {
+                @Override
+                public void onDataLoaded() {
+                    rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
 
-            rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
-
-            for (int i = 0; i < bookings.size(); i++) {
-                for (int j = 0; j < rooms.size(); j++) {
-                    if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
-                        currentRoom = rooms.get(j);
-                        currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
+                    for (int i = 0; i < bookings.size(); i++) {
+                        for (int j = 0; j < rooms.size(); j++) {
+                            if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
+                                currentRoom = rooms.get(j);
+                                currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
+                            }
+                        }
+                        listData = new ListData(currentRoom.getName(),
+                                bookings.get(i).getExpectedStartDate(),
+                                bookings.get(i).getExpectedEndDate(),
+                                currentRoomImage);
+                        dataArrayList.add(listData);
                     }
                 }
-                listData = new ListData(currentRoom.getName(),
-                        bookings.get(i).getExpectedStartDate(),
-                        bookings.get(i).getExpectedEndDate(),
-                        currentRoomImage);
-                dataArrayList.add(listData);
-            }
+
+                @Override
+                public void onError(String error) {
+                    Toast.makeText(getApplicationContext(), "Failed to load data: " + error, Toast.LENGTH_SHORT).show();
+                }
+            });
 
             listAdapter = new BookingHistoryAdapter(this, dataArrayList, this);
             binding.listView.setAdapter(listAdapter);

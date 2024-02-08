@@ -28,7 +28,7 @@ public class DBRoomLocal {
                 ");";
     }
 
-    public static void addRoom(Room room, Context context, SQLiteDatabase db) {
+    public static void createRoom(Room room, Context context, SQLiteDatabase db) {
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_ID, room.getId());
@@ -36,6 +36,29 @@ public class DBRoomLocal {
         values.put(COLUMN_DESCRIPTION, room.getDescription());
 
         db.insert(ROOM_TABLE, null, values);
+    }
+
+    public static void updateRoom(Room room, Context context, SQLiteDatabase db) {
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_ID, room.getId());
+        values.put(COLUMN_NAME, room.getName());
+        values.put(COLUMN_DESCRIPTION, room.getDescription());
+
+        db.update(ROOM_TABLE, values, COLUMN_ID + "=?", new String[]{String.valueOf(room.getId())});
+    }
+
+    public static void deleteRoom(int roomId, Context context, SQLiteDatabase db) {
+        db.delete(ROOM_TABLE, COLUMN_ID + "=?", new String[]{String.valueOf(roomId)});
+    }
+
+    public static void createOrUpdateRoom(Room room, Context context, SQLiteDatabase db) {
+        Room roomInDb = getRoomById(room.getId(), db);
+        if (roomInDb == null) {
+            createRoom(room, context, db);
+        } else {
+            updateRoom(room, context, db);
+        }
     }
 
     @SuppressLint("Range")
@@ -55,7 +78,6 @@ public class DBRoomLocal {
         }
 
         cursor.close();
-        db.close();
         return roomList;
     }
 
@@ -80,7 +102,6 @@ public class DBRoomLocal {
         if (cursor != null) {
             cursor.close();
         }
-        db.close();
         return room;
     }
 }

@@ -74,9 +74,9 @@ public class LoginActivity extends AppCompatActivity {
         //------------------Internet Connection------------------
         networkChecker = new NetworkChecker(this);
         if (networkChecker.isInternetConnected()) {
-               layoutWithoutInternet.setVisibility(LinearLayout.GONE);
-               layoutWithInternet.setVisibility(LinearLayout.VISIBLE);
-                txtTitle.setVisibility(TextView.VISIBLE);
+            layoutWithoutInternet.setVisibility(LinearLayout.GONE);
+            layoutWithInternet.setVisibility(LinearLayout.VISIBLE);
+            txtTitle.setVisibility(TextView.VISIBLE);
 
         } else {
             layoutWithoutInternet.setVisibility(LinearLayout.VISIBLE);
@@ -116,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
         //-----------------Xavier Login Button-----------------
         btnXavier.setOnClickListener(v -> {
             disablePage();
+            loading.setVisibility(LinearLayout.VISIBLE);//Show loading
             OutsystemsAPI.checkLogin("0", "admin", LoginActivity.this, new OutsystemsAPI.VolleyCallback() {
                 @Override
                 public void onSuccess(String result) {
@@ -129,12 +130,23 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("Id", obj.getString("Id"));
                             editor.apply();
 
-                            OutsystemsAPI.getDataFromAPI(obj.getString("Id"), LoginActivity.this);
+                            OutsystemsAPI.getDataFromAPI(obj.getString("Id"), LoginActivity.this, new OutsystemsAPI.DataLoadCallback() {
+                                @Override
+                                public void onDataLoaded() {
+                                    // All data fetched successfully, proceed to HomeActivity
+                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                    startActivity(intent);
+                                    finish(); // Close LoginActivity
+                                }
 
-                            Toast.makeText(getApplicationContext(), "Login com Xavier Passo 4", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                            startActivity(intent);
-                            finish();
+                                @Override
+                                public void onError(String error) {
+                                    // Handle errors, possibly retry or show a message
+                                    loading.setVisibility(LinearLayout.GONE);
+                                    enablePage();
+                                    Toast.makeText(getApplicationContext(), "Failed to load data: " + error, Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         } else {
                             enablePage();
                             Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
@@ -148,7 +160,7 @@ public class LoginActivity extends AppCompatActivity {
                 public void onError(String error) {
                     try {
                         JSONObject obj = new JSONObject(error);
-                        Toast.makeText(getApplicationContext(),"Login" + obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Login" + obj.getString("Message"), Toast.LENGTH_SHORT).show();
                     } catch (JSONException e) {
                         Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
@@ -158,17 +170,18 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         //-----------------Login Button-----------------
-        btnLogin.setOnClickListener(v ->
-        {
-            disablePage();//Disable page to prevent multiple clicks
+        btnLogin.setOnClickListener(v -> {
+            disablePage(); // Disable page to prevent multiple clicks
 
             if (!validateNMec((TextInputLayout) findViewById(R.id.textInputLayout_NMec)) | !validatePassword((TextInputLayout) findViewById(R.id.textInputLayout_Password))) {
-                enablePage();//if inputs are not valid, enable page
+                enablePage(); // If inputs are not valid, enable page
                 return;
             }
 
-            //-----------------Process Login-----------------
-            loading.setVisibility(LinearLayout.VISIBLE);//Show loading
+            // Show loading
+            loading.setVisibility(LinearLayout.VISIBLE);
+
+            // Process Login
             OutsystemsAPI.checkLogin(numMec.getText().toString(), password.getText().toString(), LoginActivity.this, new OutsystemsAPI.VolleyCallback() {
                 @Override
                 public void onSuccess(String result) {
@@ -182,35 +195,45 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("Id", obj.getString("Id"));
                             editor.apply();
 
-                            OutsystemsAPI.getDataFromAPI(obj.getString("Id"), LoginActivity.this);//Retrieve data from API
+                            // Retrieve data from API and wait for completion before moving to HomeActivity
+                            OutsystemsAPI.getDataFromAPI(obj.getString("Id"), LoginActivity.this, new OutsystemsAPI.DataLoadCallback() {
+                                @Override
+                                public void onDataLoaded() {
+                                    // All data fetched successfully, proceed to HomeActivity
+                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                    startActivity(intent);
+                                    finish(); // Close LoginActivity
+                                }
 
-                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                            startActivity(intent);//Go to HomeActivity
-                            finish();//Close LoginActivity
-
+                                @Override
+                                public void onError(String error) {
+                                    // Handle errors, possibly retry or show a message
+                                    loading.setVisibility(LinearLayout.GONE);
+                                    enablePage();
+                                    Toast.makeText(getApplicationContext(), "Failed to load data: " + error, Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         } else {
                             loading.setVisibility(LinearLayout.GONE);
                             enablePage();
                             Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
                         }
                     } catch (Exception e) {
+                        loading.setVisibility(LinearLayout.GONE);
+                        enablePage();
                         Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onError(String error) {
-                    try {
-                        loading.setVisibility(LinearLayout.GONE);
-                        enablePage();
-                        JSONObject obj = new JSONObject(error);
-                        Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
-                    } catch (JSONException e) {
-                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                    loading.setVisibility(LinearLayout.GONE);
+                    enablePage();
+                    Toast.makeText(getApplicationContext(), "Login failed: " + error, Toast.LENGTH_SHORT).show();
                 }
             });
         });
+
     }
 
 

@@ -99,15 +99,16 @@ public class BookingDetailActivity extends AppCompatActivity {
                     }
                 });
             }
+
             @Override
             public void onNetworkUnavailable() {
-                    runOnUiThread(() -> {
-                        if (binding.enterRoomDate.getText().equals("-")) {
-                            updateUIState(false, 0);
-                        } else {
-                            updateUIState(false, 1);
-                        }
-                    });
+                runOnUiThread(() -> {
+                    if (binding.enterRoomDate.getText().equals("-")) {
+                        updateUIState(false, 0);
+                    } else {
+                        updateUIState(false, 1);
+                    }
+                });
             }
         });
     }
@@ -118,20 +119,43 @@ public class BookingDetailActivity extends AppCompatActivity {
             public void run() {
                 if (networkChecker.isInternetConnected()) {
                     String userId = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", "");
-                    OutsystemsAPI.getDataFromAPI(userId, BookingDetailActivity.this);
-                }
-                try (DbManager dbManager = new DbManager(BookingDetailActivity.this)) {
-                    booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
-                    room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
-                    uiHandler.post(() -> {
-                        populateUIFromDatabase();
-                        binding.progressBar.setVisibility(View.GONE);
-                        binding.linearLayoutTop.setVisibility(View.VISIBLE);
-                        binding.linearLayoutContent.setVisibility(View.VISIBLE);
+                    OutsystemsAPI.RefreshBookingDetail(userId, getIntent().getStringExtra("bookingHash"), BookingDetailActivity.this, new OutsystemsAPI.DataLoadCallback() {
+                        @Override
+                        public void onDataLoaded() {
+                            try (DbManager dbManager = new DbManager(BookingDetailActivity.this)) {
+                                booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
+                                room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
+                                uiHandler.post(() -> {
+                                    populateUIFromDatabase();
+                                    binding.progressBar.setVisibility(View.GONE);
+                                    binding.linearLayoutTop.setVisibility(View.VISIBLE);
+                                    binding.linearLayoutContent.setVisibility(View.VISIBLE);
+                                });
+                            } catch (Exception e) {
+                                System.out.println(e.getMessage());
+                                uiHandler.post(() -> Toast.makeText(BookingDetailActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            }
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            Toast.makeText(getApplicationContext(), "Failed to load data: " + error, Toast.LENGTH_SHORT).show();
+                        }
                     });
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    uiHandler.post(() -> Toast.makeText(BookingDetailActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                } else {
+                    try (DbManager dbManager = new DbManager(BookingDetailActivity.this)) {
+                        booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
+                        room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
+                        uiHandler.post(() -> {
+                            populateUIFromDatabase();
+                            binding.progressBar.setVisibility(View.GONE);
+                            binding.linearLayoutTop.setVisibility(View.VISIBLE);
+                            binding.linearLayoutContent.setVisibility(View.VISIBLE);
+                        });
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                        uiHandler.post(() -> Toast.makeText(BookingDetailActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    }
                 }
             }
         });

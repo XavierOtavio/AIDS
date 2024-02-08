@@ -55,4 +55,14 @@ public class DBRoomImageLocal {
         }
         return imageBytes;
     }
+
+    public static boolean RoomImageExistsByFilePath(String imagePath, SQLiteDatabase db) {
+        String query = "SELECT * FROM " + ROOM_IMAGE_TABLE + " WHERE " + COLUMN_IMAGE_PATH + " = '" + imagePath + "'";
+        Cursor cursor = db.rawQuery(query, null);
+        boolean exists = cursor.moveToFirst();
+        if (!cursor.isClosed()) {
+            cursor.close();
+        }
+        return exists;
+    }
 }

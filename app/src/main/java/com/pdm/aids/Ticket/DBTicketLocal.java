@@ -42,8 +42,8 @@ public class DBTicketLocal {
                 COLUMN_BOOKING_ID + " TEXT, " +
                 COLUMN_TICKET_STATUS_ID + " INTEGER, " +
                 COLUMN_TITLE + " TEXT, " +
-                COLUMN_TICKET_STARTDATE + " TEXT, " +
-                COLUMN_TICKET_MODIFIED + " TEXT, " +
+                COLUMN_TICKET_STARTDATE + " DATE, " +
+                COLUMN_TICKET_MODIFIED + " DATE, " +
                 COLUMN_DESCRIPTION + " TEXT" +
                 ")";
     }
@@ -98,7 +98,7 @@ public class DBTicketLocal {
         if (foundTicket == null) {
             return createTicket(ticket, context, db);
         } else {
-            if(foundTicket.getLastModified().before(ticket.getLastModified())) {
+            if (foundTicket.getLastModified().before(ticket.getLastModified())) {
                 return updateTicket(ticket, context, db);
             }
             return true;
@@ -245,6 +245,7 @@ public class DBTicketLocal {
         cursor.close();
         return null;
     }
+
     @SuppressLint("Range")
     public static ArrayList<Bitmap> getTicketImageByTicketId(String ticketId, SQLiteDatabase db) {
         ArrayList<Bitmap> imageBytes = new ArrayList<>();
@@ -264,6 +265,7 @@ public class DBTicketLocal {
         }
         return imageBytes;
     }
+
     @SuppressLint("Range")
     public static Bitmap getTicketImageByFilename(String filename, SQLiteDatabase db) {
         String query = "SELECT * FROM " + TICKET_IMAGE_TABLE + " WHERE " + COLUMN_FILENAME + " = ?";

@@ -131,22 +131,21 @@ public class Utils {
         File imageFile = new File(filePath);
         if (!imageFile.exists()) {
             String base64Image = img.getString("Image");
-            Bitmap bmp = Utils.imageConvert(base64Image);
+            Bitmap bmp = imageConvert(base64Image);
 
             FileOutputStream stream = new FileOutputStream(filePath);
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
             stream.close();
             bmp.recycle();
         }
         return filePath;
     }
-    public static Bitmap imageConvert(String base64Str) throws IllegalArgumentException
+    public static Bitmap imageConvert(String base64Image) throws IllegalArgumentException
     {
-        byte[] decodedBytes = Base64.decode(
-                base64Str.substring(base64Str.indexOf(",")  + 1),
-                Base64.DEFAULT
-        );
+        byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+        Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
-        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+        return bmp;
     }
 
     public static String imageConvert(Bitmap bitmap)

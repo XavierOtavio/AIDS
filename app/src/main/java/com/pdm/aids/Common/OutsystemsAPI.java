@@ -50,9 +50,21 @@ import java.util.Locale;
 public class OutsystemsAPI extends AppCompatActivity {
     private String id;
     private static List<Booking> bookings;
+
     public interface VolleyCallback {
         void onSuccess(String result);
+
         void onError(String error);
+    }
+
+    public interface DataLoadCallback {
+        void onDataLoaded();
+
+        void onError(String error);
+    }
+
+    public interface BookingCallback {
+        void onBookingsReceived(ArrayList<Booking> bookingArrayList);
     }
 
     static String apiUrl = "https://personal-8o07igno.outsystemscloud.com/AIDS/rest/RestAPI/";
@@ -85,26 +97,109 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-
-    public static void getDataFromAPI(String userId, Context context) {
+    public static void getDataFromAPI(String userId, Context context, final DataLoadCallback finalCallback) {
         DbManager dbManager = new DbManager(context);
         SQLiteDatabase db = dbManager.getWritableDatabase();
-        //Get bookings by user
-        getBookingsByUser(userId, context, db, dbManager);
-        //Get rooms
-        getRoomsINeed(userId, context, db, dbManager);
-        //Get room images
-        getRoomImages(userId, context, db, dbManager);
-        //Get OnGoing Bookings Tickets
-        Toast.makeText(context, "Getting tickets", Toast.LENGTH_SHORT).show();
-        getTicketsByUser(userId, context, db, dbManager);
-        //Get OnGoing Images for Tickets
-        Toast.makeText(context, "Getting ticket images", Toast.LENGTH_SHORT).show();
-        getTicketImages(userId, context, db, dbManager);
+        final int[] pendingTasks = {5};
+        final String[] errorMessages = {null};
+
+        VolleyCallback volleyCallback = new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                synchronized (pendingTasks) {
+                    pendingTasks[0]--;
+                    if (pendingTasks[0] == 0 && errorMessages[0] == null) {
+                        finalCallback.onDataLoaded();
+                    }
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                synchronized (pendingTasks) {
+                    if (errorMessages[0] == null) { // Report first error encountered
+                        errorMessages[0] = error;
+                        finalCallback.onError(error);
+                    }
+                }
+            }
+        };
+
+        getBookingsByUser(userId, context, db, dbManager, volleyCallback);
+        getRoomsINeed(userId, context, db, dbManager, volleyCallback);
+        getRoomImages(userId, context, db, dbManager, volleyCallback);
+        getTicketsByUser(userId, context, db, dbManager, volleyCallback);
+        getTicketImages(userId, context, db, dbManager, volleyCallback);
 
     }
 
-    public static void getBookingsByUser(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
+    public static void RefreshBookings(String userId, Context context, final DataLoadCallback finalCallback) {
+        DbManager dbManager = new DbManager(context);
+        SQLiteDatabase db = dbManager.getWritableDatabase();
+        final int[] pendingTasks = {3};
+        final String[] errorMessages = {null};
+
+        VolleyCallback volleyCallback = new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                synchronized (pendingTasks) {
+                    pendingTasks[0]--;
+                    if (pendingTasks[0] == 0 && errorMessages[0] == null) {
+                        finalCallback.onDataLoaded();
+                    }
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                synchronized (pendingTasks) {
+                    if (errorMessages[0] == null) { // Report first error encountered
+                        errorMessages[0] = error;
+                        finalCallback.onError(error);
+                    }
+                }
+            }
+        };
+
+        getBookingsByUser(userId, context, db, dbManager, volleyCallback);
+        getRoomsINeed(userId, context, db, dbManager, volleyCallback);
+        getRoomImages(userId, context, db, dbManager, volleyCallback);
+
+    }
+
+    public static void RefreshBookingDetail(String userId, String bookingUUID, Context context, final DataLoadCallback finalCallback) {
+        DbManager dbManager = new DbManager(context);
+        SQLiteDatabase db = dbManager.getWritableDatabase();
+        final int[] pendingTasks = {2};
+        final String[] errorMessages = {null};
+
+        VolleyCallback volleyCallback = new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                synchronized (pendingTasks) {
+                    pendingTasks[0]--;
+                    if (pendingTasks[0] == 0 && errorMessages[0] == null) {
+                        finalCallback.onDataLoaded();
+                    }
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                synchronized (pendingTasks) {
+                    if (errorMessages[0] == null) { // Report first error encountered
+                        errorMessages[0] = error;
+                        finalCallback.onError(error);
+                    }
+                }
+            }
+        };
+
+        getBookingsByUser(userId, context, db, dbManager, volleyCallback);
+        getTicketsByBookingUUID(bookingUUID, context, db, dbManager, volleyCallback);
+    }
+
+    public static void getBookingsByUser(String userId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
         String url = apiUrl + "GetMyBookingsByUser?UserId=" + userId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -114,7 +209,6 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
-                            db.execSQL("DELETE FROM " + dbManager.BOOKING_TABLE);
                             JSONArray bookingList = new JSONArray(obj.getString("BookingList"));
 
                             for (int i = 0; i < bookingList.length(); i++) {
@@ -132,8 +226,9 @@ public class OutsystemsAPI extends AppCompatActivity {
                                         Utils.convertUnixToDate(bookingObj.getString("ModifiedOn")),
                                         bookingObj.getString("UUID")
                                 );
-                                DBBookingLocal.addBooking(booking, db);
+                                DBBookingLocal.createOrUpdateBooking(booking, db);
                             }
+                            callback.onSuccess("Bookings fetched successfully");
                         } else {
                             Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
                         }
@@ -151,9 +246,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         );
         queue.add(stringRequest);
     }
-    public interface BookingCallback {
-        void onBookingsReceived(ArrayList<Booking> bookingArrayList);
-    }
+
 
     public static void getBookingsHistory(String userId, Context context, BookingCallback callback) {
         String url = apiUrl + "GetBookingHistory?UserId=" + userId;
@@ -202,7 +295,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    public static void getRoomImages(String roomId, Context context, SQLiteDatabase db, DbManager dbManager) {
+    public static void getRoomImages(String roomId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
         String url = apiUrl + "GetRoomImagesUserNeeds?UserId=" + roomId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -212,19 +305,20 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
-                            db.execSQL("DELETE FROM " + dbManager.ROOM_IMAGE_TABLE);
                             JSONArray imageList = new JSONArray(obj.getString("RoomImageList"));
                             for (int i = 0; i < imageList.length(); i++) {
                                 JSONObject imageObj = imageList.getJSONObject(i);
                                 String filePath = Utils.addImageToLocalStorage("RoomImages", imageObj, context);
+                                if (!DBRoomImageLocal.RoomImageExistsByFilePath(filePath, db)) {
+                                    RoomImage roomImage = new RoomImage();
+                                    roomImage.setFileName(imageObj.getString("Filename"));
+                                    roomImage.setImagePath(filePath);
+                                    roomImage.setRoomId(Integer.parseInt(imageObj.getString("RoomId")));
 
-                                RoomImage roomImage = new RoomImage();
-                                roomImage.setFileName(imageObj.getString("Filename"));
-                                roomImage.setImagePath(filePath);
-                                roomImage.setRoomId(Integer.parseInt(imageObj.getString("RoomId")));
-
-                                DBRoomImageLocal.addRoomImage(roomImage, db);
+                                    DBRoomImageLocal.addRoomImage(roomImage, db);
+                                }
                             }
+                            callback.onSuccess("Room Images fetched successfully");
                         } else {
                             Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
                         }
@@ -247,8 +341,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-
-    public static void getRoomsINeed(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
+    public static void getRoomsINeed(String userId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
         String url = apiUrl + "GetRoomsUserNeeds?UserId=" + userId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -258,14 +351,12 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
-                            db.execSQL("DELETE FROM " + dbManager.ROOM_TABLE);
-
                             JSONArray roomList = new JSONArray(obj.getString("RoomList"));
 
                             for (int i = 0; i < roomList.length(); i++) {
                                 JSONObject roomObj = roomList.getJSONObject(i);
                                 Room room = new Room(roomObj.getInt("Id"), roomObj.getString("Name"), roomObj.getString("Description"));
-                                DBRoomLocal.addRoom(room, context, db);
+                                DBRoomLocal.createOrUpdateRoom(room, context, db);
                             }
                         } else {
                             Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
@@ -273,6 +364,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                     } catch (JSONException e) {
                         Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
+                    callback.onSuccess("Rooms fetched successfully");
                 }, error -> {
             try {
                 JSONObject obj = new JSONObject(error.getMessage());
@@ -311,7 +403,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                                     Utils.convertUnixToDate(obj.getString("ModifiedOn")),
                                     obj.getString("UUID")
                             );
-                            DBBookingLocal.addBooking(booking, db);
+                            DBBookingLocal.createBooking(booking, db);
 
                             callback.onSuccess("Validation successful");
                         } else {
@@ -367,7 +459,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         }
     }
 
-    public static void getTicketsByUser(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
+    public static void getTicketsByUser(String userId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
         String url = apiUrl + "GetTicketsByUser?UserId=" + userId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -394,6 +486,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                                 );
                                 DBTicketLocal.createOrUpdateTicket(ticket, context, db);
                             }
+                            callback.onSuccess("Tickets fetched successfully");
                         } else {
                             Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
                         }
@@ -414,7 +507,55 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    public static void getTicketImages(String userId, Context context, SQLiteDatabase db, DbManager dbManager) {
+    public static void getTicketsByBookingUUID(String bookingUUID, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
+        String url = apiUrl + "GetTicketsByBooking?BookingUUID=" + bookingUUID;
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            JSONArray ticketList = new JSONArray(obj.getString("Tickets"));
+
+                            for (int i = 0; i < ticketList.length(); i++) {
+                                JSONObject ticketObj = ticketList.getJSONObject(i);
+                                //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+                                Ticket ticket = new Ticket(
+                                        ticketObj.getString("TicketUUID"),
+                                        ticketObj.getString("BookingUUID"),
+                                        ticketObj.getInt("TicketStatusId"),
+                                        ticketObj.getString("Title"),
+                                        ticketObj.getString("Description"),
+                                        Utils.convertUnixToDate(ticketObj.getString("CreatedOn")),
+                                        Utils.convertUnixToDate(ticketObj.getString("ModifiedOn"))
+                                );
+                                DBTicketLocal.createOrUpdateTicket(ticket, context, db);
+                            }
+                            callback.onSuccess("Tickets fetched successfully");
+                        } else {
+                            Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                }, error -> {
+            try {
+                JSONObject obj = new JSONObject(error.getMessage());
+                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+        );
+        queue.add(stringRequest);
+    }
+
+    public static void getTicketImages(String userId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
         String url = apiUrl + "GetTicketImagesUserNeeds?UserId=" + userId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -438,6 +579,7 @@ public class OutsystemsAPI extends AppCompatActivity {
 
                                 DBTicketLocal.createTicketImage(ticketImage, context, db);
                             }
+                            callback.onSuccess("Ticket Images fetched successfully");
                         } else {
                             Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
                         }

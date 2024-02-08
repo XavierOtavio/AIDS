@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class DBBookingLocal  {
+public class DBBookingLocal {
     public static final String BOOKING_TABLE = "BOOKING_TABLE";
     public static final String COLUMN_ID = "ID";
     public static final String COLUMN_ROOM_ID = "ROOM_ID";
@@ -47,7 +47,7 @@ public class DBBookingLocal  {
                 ");";
     }
 
-    public static void addBooking(Booking booking, SQLiteDatabase db){
+    public static void createBooking(Booking booking, SQLiteDatabase db) {
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_ROOM_ID, booking.getRoomId());
@@ -64,6 +64,41 @@ public class DBBookingLocal  {
         values.put(COLUMN_HASH, booking.getHash());
 
         db.insert(BOOKING_TABLE, null, values);
+    }
+
+    public static void updateBooking(Booking booking, SQLiteDatabase db) {
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_ROOM_ID, booking.getRoomId());
+        values.put(COLUMN_USER_ID, booking.getUserId());
+        values.put(COLUMN_BOOKING_STATUS_ID, booking.getBookingStatusId());
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        values.put(COLUMN_EXPECTED_START_DATE, dateFormat.format(booking.getExpectedStartDate()));
+        values.put(COLUMN_EXPECTED_END_DATE, dateFormat.format(booking.getExpectedEndDate()));
+        values.put(COLUMN_ACTUAL_START_DATE, booking.getActualStartDate() != null ? dateFormat.format(booking.getActualStartDate()) : null);
+        values.put(COLUMN_ACTUAL_END_DATE, booking.getActualEndDate() != null ? dateFormat.format(booking.getActualEndDate()) : null);
+        values.put(COLUMN_LAST_UPDATE, dateFormat.format(booking.getLast_modified()));
+
+        values.put(COLUMN_HASH, booking.getHash());
+
+        db.update(BOOKING_TABLE, values, COLUMN_ID + " = " + booking.getId(), null);
+    }
+
+    public static void deleteBooking(int id, SQLiteDatabase db) {
+        db.delete(BOOKING_TABLE, COLUMN_ID + " = " + id, null);
+    }
+
+    public static void createOrUpdateBooking(Booking booking, SQLiteDatabase db) {
+        Booking foundBooking = getBookingByHash(booking.getHash(), db);
+        if (foundBooking == null) {
+            createBooking(booking, db);
+        } else {
+            if (foundBooking.getLast_modified().before(booking.getLast_modified())) {
+                booking.setId(foundBooking.getId());
+                updateBooking(booking, db);
+            }
+        }
     }
 
     @SuppressLint("Range")
@@ -111,7 +146,6 @@ public class DBBookingLocal  {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        db.close();
         return bookingsList;
     }
 
@@ -149,7 +183,6 @@ public class DBBookingLocal  {
             }
         }
         cursor.close();
-        db.close();
         return booking;
     }
 

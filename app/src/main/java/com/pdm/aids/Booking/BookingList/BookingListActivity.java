@@ -34,6 +34,7 @@ import java.util.List;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import android.os.Handler;
 import android.os.Looper;
 
@@ -79,6 +80,7 @@ public class BookingListActivity extends AppCompatActivity {
                     binding.internetConnectionWarning.setVisibility(LinearLayout.GONE);
                 });
             }
+
             @Override
             public void onNetworkUnavailable() {
                 runOnUiThread(() -> {
@@ -102,48 +104,83 @@ public class BookingListActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try (DbManager dataBaseHelper = new DbManager(BookingListActivity.this)) {
-                    
-                    if(networkChecker.isInternetConnected()) {
-                        OutsystemsAPI.getDataFromAPI(getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", ""), BookingListActivity.this);
-                    }
 
-                    rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
-                    List<Integer> statusIds = Arrays.asList(3, 4);
-                    bookings = new DBBookingLocal().getBookingsByStatus(statusIds, dataBaseHelper.getWritableDatabase());
+                    if (networkChecker.isInternetConnected()) {
+                        OutsystemsAPI.RefreshBookings(getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", ""), BookingListActivity.this, new OutsystemsAPI.DataLoadCallback() {
+                            @Override
+                            public void onDataLoaded() {
+                                rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
+                                List<Integer> statusIds = Arrays.asList(3, 4);
+                                bookings = new DBBookingLocal().getBookingsByStatus(statusIds, dataBaseHelper.getWritableDatabase());
 
-                    for (int i = 0; i < bookings.size(); i++) {
-                        for (int j = 0; j < rooms.size(); j++) {
-                            if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
-                                currentRoom = rooms.get(j);
-                                currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
+                                for (int i = 0; i < bookings.size(); i++) {
+                                    for (int j = 0; j < rooms.size(); j++) {
+                                        if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
+                                            currentRoom = rooms.get(j);
+                                            currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
+                                        }
+                                    }
+                                    listData = new ListData(currentRoom.getName(),
+                                            bookings.get(i).getExpectedStartDate(),
+                                            bookings.get(i).getExpectedEndDate(),
+                                            currentRoomImage);
+                                    dataArrayList.add(listData);
+                                }
+                                uiHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateList();
+                                        binding.progressBar.setVisibility(View.GONE);
+                                    }
+                                });
                             }
+
+                            @Override
+                            public void onError(String error) {
+                                Toast.makeText(getApplicationContext(), "Failed to load data: " + error, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
+                        List<Integer> statusIds = Arrays.asList(3, 4);
+                        bookings = new DBBookingLocal().getBookingsByStatus(statusIds, dataBaseHelper.getWritableDatabase());
+
+                        for (int i = 0; i < bookings.size(); i++) {
+                            for (int j = 0; j < rooms.size(); j++) {
+                                if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
+                                    currentRoom = rooms.get(j);
+                                    currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
+                                }
+                            }
+                            listData = new ListData(currentRoom.getName(),
+                                    bookings.get(i).getExpectedStartDate(),
+                                    bookings.get(i).getExpectedEndDate(),
+                                    currentRoomImage);
+                            dataArrayList.add(listData);
                         }
-                        listData = new ListData(currentRoom.getName(),
-                                bookings.get(i).getExpectedStartDate(),
-                                bookings.get(i).getExpectedEndDate(),
-                                currentRoomImage);
-                        dataArrayList.add(listData);
+                        uiHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateList();
+                                binding.progressBar.setVisibility(View.GONE);
+                            }
+                        });
                     }
+
+
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-                uiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateList();
-                        binding.progressBar.setVisibility(View.GONE);
-                    }
-                });
             }
         });
     }
 
-    private void  updateList() {
+    private void updateList() {
         if (dataArrayList.size() == 0) {
             binding.emptyBookingList.setVisibility(View.VISIBLE);
             binding.listView.setVisibility(View.GONE);
         } else {
-            listAdapter = new BookingListAdapter( BookingListActivity.this, dataArrayList, BookingListActivity.this);
+            listAdapter = new BookingListAdapter(BookingListActivity.this, dataArrayList, BookingListActivity.this);
             binding.listView.setAdapter(listAdapter);
             binding.listView.setClickable(true);
         }
