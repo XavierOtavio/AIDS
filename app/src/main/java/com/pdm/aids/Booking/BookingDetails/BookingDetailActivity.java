@@ -39,6 +39,7 @@ import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomImageLocal;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
+import com.pdm.aids.Ticket.TicketDetails.CreateTicketActivity;
 import com.pdm.aids.Ticket.TicketList.TicketListActivity;
 import com.pdm.aids.databinding.ActivityBookingDetailBinding;
 
@@ -75,16 +76,16 @@ public class BookingDetailActivity extends AppCompatActivity {
         setupNetworkChecker();
         loadDataInBackGround();
 
-//        binding.ticketButton.setOnClickListener(v -> {
-//            Intent intent = new Intent(BookingDetailActivity.this, TicketListActivity.class);
-//            intent.putExtra("bookingHash", booking.getHash());
+//        binding.buttonReport.setOnClickListener(v -> {
+//            Intent intent = new Intent(BookingDetailActivity.this, CreateTicketActivity.class);
+//            intent.putExtra("uuid", booking.getHash());
 //            startActivity(intent);
 //        });
 //
-//        binding.ticketButton.setOnClickListener(v -> {
-//            Intent intent = new Intent(BookingDetailActivity.this, TicketListActivity.class);
-//            startActivity(intent);
-//        });
+        binding.buttonReport.setOnClickListener(v -> {
+            Intent intent = new Intent(BookingDetailActivity.this, CreateTicketActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void setupNetworkChecker() {

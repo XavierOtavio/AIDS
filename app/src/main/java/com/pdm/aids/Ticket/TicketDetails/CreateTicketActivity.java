@@ -219,7 +219,7 @@ public class CreateTicketActivity extends AppCompatActivity {
 
                         ticket.setId(id);
                         ticket.setBookingId(booking.get(0).getHash());
-                        ticket.setTicketStatusId(1);
+                        ticket.setTicketStatusId(0);
                         ticket.setTitle(title);
                         ticket.setDescription(description);
                         ticket.setCreationDate(new Date(System.currentTimeMillis()));
