@@ -17,10 +17,8 @@ import java.util.ArrayList;
 
 public class ListAdapter extends ArrayAdapter<ListData> {
 
-    TicketListActivity binding;
-    public ListAdapter(@NonNull Context context, ArrayList<ListData> dataArrayList, TicketListActivity binding) {
+    public ListAdapter(@NonNull Context context, ArrayList<ListData> dataArrayList) {
         super(context, R.layout.list_item, dataArrayList);
-        this.binding = binding;
     }
 
     @NonNull

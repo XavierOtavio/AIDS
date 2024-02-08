@@ -65,7 +65,7 @@ public class TicketListActivity extends AppCompatActivity {
                         System.out.println("Added ticket to dataArrayList: " + listData.getTitle());
                     }
 
-                    listAdapter = new ListAdapter(TicketListActivity.this, dataArrayList, TicketListActivity.this);
+                    listAdapter = new ListAdapter(TicketListActivity.this, dataArrayList);
                     binding.listViewTicket.setAdapter(listAdapter);
 
                     binding.listViewTicket.setOnItemClickListener((parent, view, position, id) -> {

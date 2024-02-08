@@ -110,6 +110,7 @@ public class DBTicketLocal {
 
         cv.put(COLUMN_TICKET_IMAGE_ID, ticketImage.getTicketUuid());
         cv.put(COLUMN_FILENAME, ticketImage.getFilename());
+        cv.put(COLUMN_IMAGE_PATH, ticketImage.getImagePath());
 
 
         long insert = db.insert(TICKET_IMAGE_TABLE, null, cv);
@@ -171,29 +172,29 @@ public class DBTicketLocal {
         return ticketImages;
     }
 
-//    @SuppressLint("Range")
-//    public ArrayList<String> getStringTicketImagesForTicket(String ticketId, SQLiteDatabase db) {
-//        ArrayList<String> ticketImages = new ArrayList<>();
-//
-//        String query = "SELECT * FROM " + TICKET_IMAGE_TABLE +
-//                " WHERE " + COLUMN_TICKET_IMAGE_ID + " = '" + ticketId + "'";
-//
-//        Cursor cursor = db.rawQuery(query, null);
-//
-//        if (cursor.moveToFirst()) {
-//            do {
-//                String image = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE));
-//                ticketImages.add(image);
-//            } while (cursor.moveToNext());
-//        }
-//
-//        cursor.close();
-//        return ticketImages;
-//    }
+    @SuppressLint("Range")
+    public ArrayList<String> getImagePath(String ticketId, SQLiteDatabase db) {
+        ArrayList<String> ticketImages = new ArrayList<>();
+
+        String query = "SELECT * FROM " + TICKET_IMAGE_TABLE +
+                " WHERE " + COLUMN_TICKET_IMAGE_ID + " = '" + ticketId + "'";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                String image = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH));
+                ticketImages.add(image);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return ticketImages;
+    }
 
 
     @SuppressLint("Range")
-    public ArrayList<Ticket> getAllTicketsByBookingId(String bookingId, SQLiteDatabase db) throws ParseException {
+    public static ArrayList<Ticket> getAllTicketsByBookingId(String bookingId, SQLiteDatabase db) throws ParseException {
         ArrayList<Ticket> ticketList = new ArrayList<>();
 
         String query = "SELECT * FROM " + TICKET_TABLE +
