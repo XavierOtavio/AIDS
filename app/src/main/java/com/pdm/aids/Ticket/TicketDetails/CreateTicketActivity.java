@@ -4,8 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
+import java.io.File;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 
@@ -58,7 +61,7 @@ public class CreateTicketActivity extends AppCompatActivity {
     private ImageView camera, takenPicture;
     private List<Booking> booking;
     private DbManager dbManager;
-    private List<byte[]> pictures;
+    private List<Bitmap> pictures;
     private List<String> picturesToSend;
     private String userId;
     private String uuid;
@@ -98,13 +101,21 @@ public class CreateTicketActivity extends AppCompatActivity {
         adapter = new CarouselAdapter(this, pictures);
         viewPager.setAdapter(adapter);
 
-//        List<String> teste = new DBTicketLocal().getStringTicketImagesForTicket(uuid, dbManager.getWritableDatabase());
+        List<String> paths = new DBTicketLocal().getImagePath(uuid, dbManager.getWritableDatabase());
 
-//        for (String encodedImage : teste) {
-//            byte[] imageBytes = Base64.getDecoder().decode(encodedImage);
-//            pictures.add(imageBytes);
-//            adapter.notifyDataSetChanged();
-//        }
+        for (String imagePath : paths) {
+
+            File imgFile = new File(imagePath);
+
+            if (imgFile.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                pictures.add(bitmap);
+                adapter.notifyDataSetChanged();
+            } else {
+                Log.e("Image Loading", "Image file does not exist: " + imagePath);
+            }
+        }
+
 
         RelativeLayout cameraLayout = findViewById(R.id.cameraLayout);
         cameraLayout.setOnClickListener(v -> dispatchTakePictureIntent());
@@ -171,7 +182,7 @@ public class CreateTicketActivity extends AppCompatActivity {
                 Bitmap imageBitmap = (Bitmap) extras.get("data");
                 pictureByteArray = getBytesFromBitmap(imageBitmap);
                 picturesToSend.add(Base64.getEncoder().encodeToString(pictureByteArray));
-                pictures.add(pictureByteArray);
+                pictures.add(imageBitmap);
                 System.out.println("fotos tiradas " + pictures);
                 adapter.notifyDataSetChanged();
             } else {
@@ -226,7 +237,7 @@ public class CreateTicketActivity extends AppCompatActivity {
                         String path = "ticketImages";
                         String filepath = Utils.addImageToLocalStorage(path, img, this);
 
-                        TicketImage ticketImage = new TicketImage(ticket.getId(), ticket.getId()+".jpg", filepath);
+                        TicketImage ticketImage = new TicketImage(ticket.getId(), ticket.getId() + "_" + i + ".jpg", filepath);
                         boolean imageIsInserted = new DBTicketLocal().createTicketImage(ticketImage, this, dbManager.getWritableDatabase());
 
 
