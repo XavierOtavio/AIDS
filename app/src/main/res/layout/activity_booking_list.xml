@@ -26,15 +26,6 @@
             android:textColor="@android:color/black"
             android:textSize="20sp"
             android:textStyle="bold" />
-        <ImageView
-            android:id="@+id/historyButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginEnd="12dp"
-            android:padding="12dp"
-            android:src="@drawable/baseline_library_books_24"
-            android:contentDescription="@string/button_to_history_page" />
     </androidx.appcompat.widget.Toolbar>
 
     <ProgressBar

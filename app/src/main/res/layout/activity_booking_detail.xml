@@ -70,7 +70,7 @@
                     android:layout_height="150dp"
                     android:background="@drawable/camera_button_circle"
                     android:contentDescription="@string/todo"
-                    android:visibility="gone" />
+                    android:visibility="visible" />
 
                 <ImageView
                     android:id="@+id/QRimage"
@@ -123,53 +123,82 @@
                     android:textSize="25sp"
                     android:textStyle="bold" />
 
-                <RelativeLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
                     android:background="@drawable/card_white"
                     android:backgroundTint="#27000000"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="10dp">
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/startDate"
-                        android:layout_width="wrap_content"
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:text="00:00\n00/00/0000"
-                        android:textAlignment="textStart"
-                        android:layout_centerInParent="true"
-                        android:textColor="@android:color/white"
-                        android:textSize="20sp" />
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="10dp">
+
+                        <TextView
+                            android:id="@+id/startDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:text="00:00\n00/00/0000"
+                            android:textAlignment="textStart"
+                            android:layout_centerInParent="true"
+                            android:textColor="@android:color/white"
+                            android:textSize="20sp" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:src="@drawable/arrow_right"
+                            app:tint="@color/white" />
+
+                        <TextView
+                            android:id="@+id/endDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="00:00\n00/00/0000"
+                            android:textAlignment="textEnd"
+                            android:layout_centerInParent="true"
+                            android:textColor="@android:color/white"
+                            android:textSize="20sp" />
+                    </RelativeLayout>
 
                     <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:src="@drawable/arrow_right"
-                        app:tint="@color/white" />
+                        android:id="@+id/roomImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:background="#BDBDBD"
+                        android:contentDescription="@string/todo"
+                        android:scaleType="centerCrop"
+                        android:layout_marginHorizontal="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:src="@drawable/logo_aids" />
+                </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/endDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:text="00:00\n00/00/0000"
-                        android:textAlignment="textEnd"
-                        android:layout_centerInParent="true"
-                        android:textColor="@android:color/white"
-                        android:textSize="20sp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@color/white"
+                    android:orientation="horizontal"/>
 
-                </RelativeLayout>
-
-
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:text="Entrada/Saída"
+                    android:textColor="@android:color/white"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/card_white"
                     android:backgroundTint="#27FFFFFF"
                     android:orientation="horizontal"
@@ -208,14 +237,6 @@
 
                 </RelativeLayout>
 
-                <ImageView
-                    android:id="@+id/roomImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:background="#BDBDBD"
-                    android:contentDescription="@string/todo"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/logo_aids" />
 
                 <TextView
                     android:layout_width="match_parent"

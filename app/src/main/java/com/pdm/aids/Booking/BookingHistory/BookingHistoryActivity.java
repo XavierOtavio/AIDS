@@ -66,7 +66,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar_booking_history_list);
         ListView listItem = findViewById(R.id.listView);
 
-        textTitle_toolbar.setText("Histórico");
+        textTitle_toolbar.setText("Reservas");
         toolbar.setNavigationOnClickListener(v -> finish());
         networkChecker = new NetworkChecker(this);
 
@@ -93,6 +93,8 @@ public class BookingHistoryActivity extends AppCompatActivity {
                 });
             }
         });
+
+        binding.buttonUpcoming.setOnClickListener(v -> finish());
 
         listItem.setOnItemClickListener((adapterView, view, i, l) -> {
             Intent intent = new Intent(BookingHistoryActivity.this, BookingDetailActivity.class);

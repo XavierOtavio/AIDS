@@ -164,7 +164,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.5"
-                        android:text="Pavilhão 3"
                         android:textAlignment="textEnd"
                         android:textColor="@android:color/white"
                         android:textSize="20dp"

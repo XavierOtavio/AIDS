@@ -96,7 +96,7 @@ public class BookingListActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        binding.historyButton.setOnClickListener(v -> startActivity(new Intent(BookingListActivity.this, BookingHistoryActivity.class)));
+        binding.buttonHistory.setOnClickListener(v -> startActivity(new Intent(BookingListActivity.this, BookingHistoryActivity.class)));
     }
 
     private void loadDataInBackGround() {
