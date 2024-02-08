@@ -28,7 +28,6 @@ import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.BookingHistory.BookingHistoryActivity;
 import com.pdm.aids.Booking.BookingList.BookingListActivity;
 import com.pdm.aids.Booking.BookingList.BookingListAdapter;
-import com.pdm.aids.Booking.BookingList.ListData;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.Common.NetworkChecker;
@@ -39,11 +38,16 @@ import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomImageLocal;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
+import com.pdm.aids.Ticket.DBTicketLocal;
+import com.pdm.aids.Ticket.Ticket;
 import com.pdm.aids.Ticket.TicketDetails.CreateTicketActivity;
+import com.pdm.aids.Ticket.TicketList.ListAdapter;
+import com.pdm.aids.Ticket.TicketList.ListData;
 import com.pdm.aids.Ticket.TicketList.TicketListActivity;
 import com.pdm.aids.databinding.ActivityBookingDetailBinding;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -54,6 +58,10 @@ public class BookingDetailActivity extends AppCompatActivity {
     private ActivityBookingDetailBinding binding;
     private Booking booking;
     private Room room;
+    private ListData listData;
+    ArrayList<ListData> dataArrayList = new ArrayList<>();
+    private ListAdapter listAdapter;
+    private ArrayList<Ticket> tickets;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", new Locale("pt", "PT"));
     SimpleDateFormat dateFormatHour = new SimpleDateFormat("HH:mm", new Locale("pt", "PT"));
     SimpleDateFormat dateFormatDay = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "PT"));
@@ -128,6 +136,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                             try (DbManager dbManager = new DbManager(BookingDetailActivity.this)) {
                                 booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
                                 room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
+                                tickets = DBTicketLocal.getAllTicketsByBookingId(booking.getHash(), dbManager.getWritableDatabase());
                                 uiHandler.post(() -> {
                                     populateUIFromDatabase();
                                     binding.progressBar.setVisibility(View.GONE);
@@ -149,6 +158,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                     try (DbManager dbManager = new DbManager(BookingDetailActivity.this)) {
                         booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
                         room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
+                        tickets = DBTicketLocal.getAllTicketsByBookingId(booking.getHash(), dbManager.getWritableDatabase());
                         uiHandler.post(() -> {
                             populateUIFromDatabase();
                             binding.progressBar.setVisibility(View.GONE);
@@ -186,6 +196,14 @@ public class BookingDetailActivity extends AppCompatActivity {
                 binding.noWifiImage.setVisibility(View.GONE);
                 binding.QRimage.setVisibility(View.VISIBLE);
                 binding.qrCodeLabel.setText(R.string.read_qrcode_exit);
+                for (Ticket ticket : tickets) {
+                    listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getLastModified(), ticket.getId());
+                    dataArrayList.add(listData);
+                    System.out.println("Added ticket to dataArrayList: " + listData.getTitle());
+                }
+
+                listAdapter = new ListAdapter(BookingDetailActivity.this, dataArrayList );
+                binding.ticketListView.setAdapter(listAdapter);
                 break;
         }
     }

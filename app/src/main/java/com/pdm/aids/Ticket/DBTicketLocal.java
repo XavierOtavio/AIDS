@@ -194,7 +194,7 @@ public class DBTicketLocal {
 
 
     @SuppressLint("Range")
-    public ArrayList<Ticket> getAllTicketsByBookingId(String bookingId, SQLiteDatabase db) throws ParseException {
+    public static ArrayList<Ticket> getAllTicketsByBookingId(String bookingId, SQLiteDatabase db) throws ParseException {
         ArrayList<Ticket> ticketList = new ArrayList<>();
 
         String query = "SELECT * FROM " + TICKET_TABLE +
