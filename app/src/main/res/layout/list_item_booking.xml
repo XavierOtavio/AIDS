@@ -16,7 +16,9 @@
             android:id="@+id/roomImage_item"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginEnd="16dp"
+            android:scaleType="centerCrop"
+            android:background="#BDBDBD"
             android:src="@drawable/logo_aids" />
 
         <LinearLayout

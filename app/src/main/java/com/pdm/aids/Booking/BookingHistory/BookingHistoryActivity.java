@@ -3,6 +3,7 @@ package com.pdm.aids.Booking.BookingHistory;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -15,6 +16,8 @@ import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.BookingDetails.BookingDetailActivity;
 import com.pdm.aids.Booking.BookingHistory.BookingHistoryAdapter;
 import com.pdm.aids.Booking.BookingHistory.ListData;
+import com.pdm.aids.Booking.BookingList.BookingListActivity;
+import com.pdm.aids.Booking.BookingList.BookingListAdapter;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.Common.NetworkChecker;
@@ -63,7 +66,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar_booking_history_list);
         ListView listItem = findViewById(R.id.listView);
 
-        textTitle_toolbar.setText("Histórico de Reservas");
+        textTitle_toolbar.setText("Histórico");
         toolbar.setNavigationOnClickListener(v -> finish());
         networkChecker = new NetworkChecker(this);
 
@@ -126,9 +129,15 @@ public class BookingHistoryActivity extends AppCompatActivity {
                 }
             });
 
-            listAdapter = new BookingHistoryAdapter(this, dataArrayList, this);
-            binding.listView.setAdapter(listAdapter);
-            binding.listView.setClickable(true);
+            if (dataArrayList.size() == 0) {
+                binding.emptyBookingList.setVisibility(View.VISIBLE);
+                binding.listView.setVisibility(View.GONE);
+            } else {
+                listAdapter = new BookingHistoryAdapter(this, dataArrayList, this);
+                binding.listView.setAdapter(listAdapter);
+                binding.listView.setClickable(true);
+            }
+
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }

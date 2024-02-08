@@ -57,7 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_marginHorizontal="20dp"
-            android:background="@drawable/gradient_orange">
+            android:background="@drawable/gradient_blue">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -80,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_margin="20dp"
-            android:background="@drawable/gradient_teal">
+            android:background="@drawable/gradient_orange">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -103,7 +103,7 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_marginHorizontal="20dp"
-            android:background="@drawable/gradient_blue">
+            android:background="@drawable/gradient_teal">
 
             <ImageView
                 android:layout_width="wrap_content"

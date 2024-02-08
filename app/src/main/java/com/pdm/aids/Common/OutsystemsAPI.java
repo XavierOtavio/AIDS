@@ -517,7 +517,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
-                            JSONArray ticketList = new JSONArray(obj.getString("Tickets"));
+                            JSONArray ticketList = new JSONArray(obj.getString("TicketList"));
 
                             for (int i = 0; i < ticketList.length(); i++) {
                                 JSONObject ticketObj = ticketList.getJSONObject(i);

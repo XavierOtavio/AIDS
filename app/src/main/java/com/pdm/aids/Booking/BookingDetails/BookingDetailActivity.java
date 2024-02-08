@@ -54,6 +54,8 @@ public class BookingDetailActivity extends AppCompatActivity {
     private Booking booking;
     private Room room;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", new Locale("pt", "PT"));
+    SimpleDateFormat dateFormatHour = new SimpleDateFormat("HH:mm", new Locale("pt", "PT"));
+    SimpleDateFormat dateFormatDay = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "PT"));
     private NetworkChecker networkChecker;
     private ExecutorService executorService;
     private Handler uiHandler;
@@ -73,16 +75,16 @@ public class BookingDetailActivity extends AppCompatActivity {
         setupNetworkChecker();
         loadDataInBackGround();
 
-        binding.ticketButton.setOnClickListener(v -> {
-            Intent intent = new Intent(BookingDetailActivity.this, TicketListActivity.class);
-            intent.putExtra("bookingHash", booking.getHash());
-            startActivity(intent);
-        });
-
-        binding.ticketButton.setOnClickListener(v -> {
-            Intent intent = new Intent(BookingDetailActivity.this, TicketListActivity.class);
-            startActivity(intent);
-        });
+//        binding.ticketButton.setOnClickListener(v -> {
+//            Intent intent = new Intent(BookingDetailActivity.this, TicketListActivity.class);
+//            intent.putExtra("bookingHash", booking.getHash());
+//            startActivity(intent);
+//        });
+//
+//        binding.ticketButton.setOnClickListener(v -> {
+//            Intent intent = new Intent(BookingDetailActivity.this, TicketListActivity.class);
+//            startActivity(intent);
+//        });
     }
 
     private void setupNetworkChecker() {
@@ -189,10 +191,10 @@ public class BookingDetailActivity extends AppCompatActivity {
 
     private void populateUIFromDatabase() {
         binding.toolbarTitle.setText(String.format("Reserva: %s", room != null ? room.getName() : ""));
-        binding.startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormat.format(booking.getExpectedStartDate()));
-        binding.endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormat.format(booking.getExpectedEndDate()));
-        binding.enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormat.format(booking.getActualStartDate()));
-        binding.exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "-" : dateFormat.format(booking.getActualEndDate()));
+        binding.startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormatHour.format(booking.getExpectedStartDate()) + "\n" + dateFormatDay.format(booking.getExpectedStartDate()));
+        binding.endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormatHour.format(booking.getExpectedEndDate()) + "\n" + dateFormatDay.format(booking.getExpectedEndDate()));
+        binding.enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormatHour.format(booking.getActualStartDate()) + "\n" + dateFormatDay.format(booking.getActualStartDate()));
+        binding.exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "-" : dateFormatHour.format(booking.getActualEndDate()) + "\n" + dateFormatDay.format(booking.getActualEndDate()));
 
         if (room != null) {
             binding.roomImage.setImageBitmap(DBRoomImageLocal.getRoomImageByRoomId(room.getId(), new DbManager(this).getReadableDatabase()));
