@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -135,7 +136,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                                 tickets = DBTicketLocal.getAllTicketsByBookingId(booking.getHash(), dbManager.getReadableDatabase());
 
                                 for (Ticket ticket : tickets) {
-                                    listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), null);
+                                    listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId());
                                     ticketLisDataArray.add(listData);
                                 }
 
@@ -237,17 +238,22 @@ public class BookingDetailActivity extends AppCompatActivity {
             // Infla o layout do item do ticket
             View ticketItemView = LayoutInflater.from(this).inflate(R.layout.list_item, ticketsContainer, false);
 
-            // Configura os dados do ticket no layout
             TextView titleTextView = ticketItemView.findViewById(R.id.idTitle);
             TextView descriptionTextView = ticketItemView.findViewById(R.id.idDescription);
             TextView statusTextView = ticketItemView.findViewById(R.id.idStatus);
 
             titleTextView.setText(ticketData.getTitle());
             descriptionTextView.setText(ticketData.getDescription());
+            statusTextView.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.pending)));
 
-            // Configura a margem para a visualização do item
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            ticketItemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(BookingDetailActivity.this, CreateTicketActivity.class);
+                    intent.putExtra("uuid", ticketData.getUuid());
+                    startActivity(intent);
+                }
+            });
 
             // Adiciona a visualização do item ao container
             ticketsContainer.addView(ticketItemView);

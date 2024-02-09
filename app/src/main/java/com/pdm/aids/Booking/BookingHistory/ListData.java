@@ -8,13 +8,16 @@ import java.util.Locale;
 
 public class ListData {
     String roomName;
-    String expectedDate;
+    String expectedStartDate;
+    String expectedEndDate;
     Bitmap roomImage;
-
+    SimpleDateFormat dateFormatHour = new SimpleDateFormat("HH:mm", Locale.getDefault());
+    SimpleDateFormat dateFormatDay = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
     public ListData(String roomName, Date startDate, Date endDate, Bitmap roomImage) {
         this.roomName = roomName;
         this.roomImage = roomImage;
-        this.expectedDate = new com.pdm.aids.Booking.BookingHistory.ListData.ExpectedDate(startDate, endDate).toString();
+        this.expectedStartDate = dateFormatHour.format(startDate) + "\n" + dateFormatDay.format(startDate);
+        this.expectedEndDate = dateFormatHour.format(endDate) + "\n" + dateFormatDay.format(endDate);
     }
 
     public class ExpectedDate {

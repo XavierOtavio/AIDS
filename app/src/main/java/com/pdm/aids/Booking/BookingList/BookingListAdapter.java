@@ -34,18 +34,20 @@ public class BookingListAdapter extends ArrayAdapter<ListData> {
         }
 
         TextView roomName = view.findViewById(R.id.roomTitle_item);
-        ImageView roomImage = view.findViewById(R.id.roomImage_item);
-        TextView expectedDate = view.findViewById(R.id.expected_datetime_item);
+//        ImageView roomImage = view.findViewById(R.id.roomImage_item);
+        TextView expected_startDate = view.findViewById(R.id.expected_startDate);
+        TextView expected_endDate = view.findViewById(R.id.expected_endDate);
 
         if (listData != null) {
             roomName.setText(String.valueOf(listData.roomName));
-            expectedDate.setText(String.valueOf(listData.expectedDate));
-            Bitmap bmp = listData.roomImage;
-            if (bmp != null) {
-                roomImage.setImageBitmap(bmp);
-            } else {
-                Toast.makeText(getContext(), "Erro ao carregar imagem", Toast.LENGTH_SHORT).show();
-            }
+            expected_startDate.setText(String.valueOf(listData.expectedStartDate));
+            expected_endDate.setText(String.valueOf(listData.expectedEndDate));
+//            Bitmap bmp = listData.roomImage;
+//            if (bmp != null) {
+//                roomImage.setImageBitmap(bmp);
+//            } else {
+//                Toast.makeText(getContext(), "Erro ao carregar imagem", Toast.LENGTH_SHORT).show();
+//            }
         }
         return view;
     }
