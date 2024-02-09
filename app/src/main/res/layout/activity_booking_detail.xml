@@ -247,20 +247,18 @@
                     android:textSize="25sp"
                     android:textStyle="bold" />
 
-                <ListView
-                    android:id="@+id/ticketListView"
+                <LinearLayout
+                    android:id="@+id/ticketsContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:divider="@android:color/transparent"
-                    android:dividerHeight="10dp"
-                    android:listSelector="@android:color/transparent"
-                    tools:listitem="@layout/list_item" />
-
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical">
+                </LinearLayout>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
-                    android:layout_marginTop="8dp"
                     android:background="@drawable/gradient_orange">
 
                     <ImageView

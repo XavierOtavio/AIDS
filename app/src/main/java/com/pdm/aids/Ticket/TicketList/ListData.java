@@ -8,10 +8,10 @@ public class ListData {
     private String title, description, uuid;
     private Date startDate;
 
-    public ListData(String title, String description, Date startDate, String uuid) {
+    public ListData(String title, String description, Date date, String uuid) {
         this.title = title;
         this.description = description;
-        this.startDate = startDate;
+        this.startDate = date;
         this.uuid = uuid;
     }
 

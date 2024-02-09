@@ -17,18 +17,15 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 import com.pdm.aids.Booking.Booking;
-import com.pdm.aids.Booking.BookingHistory.BookingHistoryActivity;
-import com.pdm.aids.Booking.BookingList.BookingListActivity;
-import com.pdm.aids.Booking.BookingList.BookingListAdapter;
-import com.pdm.aids.Booking.BookingList.ListData;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.Common.NetworkChecker;
@@ -39,13 +36,15 @@ import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomImageLocal;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
+import com.pdm.aids.Ticket.DBTicketLocal;
+import com.pdm.aids.Ticket.Ticket;
 import com.pdm.aids.Ticket.TicketDetails.CreateTicketActivity;
-import com.pdm.aids.Ticket.TicketList.TicketListActivity;
+import com.pdm.aids.Ticket.TicketList.ListAdapter;
+import com.pdm.aids.Ticket.TicketList.ListData;
 import com.pdm.aids.databinding.ActivityBookingDetailBinding;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,6 +53,10 @@ public class BookingDetailActivity extends AppCompatActivity {
     private ActivityBookingDetailBinding binding;
     private Booking booking;
     private Room room;
+    ListAdapter listAdapter;
+    ListData listData;
+    ArrayList<ListData> ticketLisDataArray = new ArrayList<>();
+    ArrayList<Ticket> tickets = new ArrayList<>();
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", new Locale("pt", "PT"));
     SimpleDateFormat dateFormatHour = new SimpleDateFormat("HH:mm", new Locale("pt", "PT"));
     SimpleDateFormat dateFormatDay = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "PT"));
@@ -129,6 +132,13 @@ public class BookingDetailActivity extends AppCompatActivity {
                             try (DbManager dbManager = new DbManager(BookingDetailActivity.this)) {
                                 booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
                                 room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
+                                tickets = DBTicketLocal.getAllTicketsByBookingId(booking.getHash(), dbManager.getReadableDatabase());
+
+                                for (Ticket ticket : tickets) {
+                                    listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), null);
+                                    ticketLisDataArray.add(listData);
+                                }
+
                                 uiHandler.post(() -> {
                                     populateUIFromDatabase();
                                     binding.progressBar.setVisibility(View.GONE);
@@ -150,6 +160,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                     try (DbManager dbManager = new DbManager(BookingDetailActivity.this)) {
                         booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
                         room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
+//                        ticketArrayList = DBTicketLocal.getAllTicketsByBookingId(String.valueOf(booking.getId()), dbManager.getReadableDatabase());
                         uiHandler.post(() -> {
                             populateUIFromDatabase();
                             binding.progressBar.setVisibility(View.GONE);
@@ -209,11 +220,40 @@ public class BookingDetailActivity extends AppCompatActivity {
             Utils u = new Utils();
             Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
             binding.QRimage.setImageBitmap(qrBitmap);
+            //populate list of tickets
+            populateTicketsLinearLayout(ticketLisDataArray);
+
             updateUIState(networkChecker.isInternetConnected(), 1);
         } else {
             updateUIState(networkChecker.isInternetConnected(), 0);
         }
     }
+
+    private void populateTicketsLinearLayout(ArrayList<ListData> ticketListDataArray) {
+        LinearLayout ticketsContainer = binding.ticketsContainer;
+        ticketsContainer.removeAllViews(); // Limpa todos os itens se já existirem
+
+        for (ListData ticketData : ticketListDataArray) {
+            // Infla o layout do item do ticket
+            View ticketItemView = LayoutInflater.from(this).inflate(R.layout.list_item, ticketsContainer, false);
+
+            // Configura os dados do ticket no layout
+            TextView titleTextView = ticketItemView.findViewById(R.id.idTitle);
+            TextView descriptionTextView = ticketItemView.findViewById(R.id.idDescription);
+            TextView statusTextView = ticketItemView.findViewById(R.id.idStatus);
+
+            titleTextView.setText(ticketData.getTitle());
+            descriptionTextView.setText(ticketData.getDescription());
+
+            // Configura a margem para a visualização do item
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+            // Adiciona a visualização do item ao container
+            ticketsContainer.addView(ticketItemView);
+        }
+    }
+
 
 
     @Override

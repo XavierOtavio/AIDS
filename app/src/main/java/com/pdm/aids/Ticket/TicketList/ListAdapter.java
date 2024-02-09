@@ -31,13 +31,11 @@ public class ListAdapter extends ArrayAdapter<ListData> {
 
         TextView title = view.findViewById(R.id.idTitle);
         TextView description = view.findViewById(R.id.idDescription);
-        TextView date = view.findViewById(R.id.idDate);
         TextView status = view.findViewById(R.id.idStatus);
 
         assert listData != null;
         title.setText(listData.getTitle());
         description.setText(listData.getDescription());
-        date.setText(listData.getFormattedStartDate());
 
         // TODO: Set the status based on the actual status of the ticket.
         // For example, you can create a method in ListData like getStatus() and use it here.
