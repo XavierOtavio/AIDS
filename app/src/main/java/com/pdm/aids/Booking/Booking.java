@@ -15,6 +15,19 @@ public class Booking {
     private Date last_modified;
     private String hash;
 
+    public Booking(int id, int roomId, int userId, int bookingStatusId, Date expectedStartDate,
+                   Date expectedEndDate, Date actualStartDate, Date actualEndDate, Date last_modified, String hash) {
+        this.id = id;
+        this.roomId = roomId;
+        this.userId = userId;
+        this.bookingStatusId = bookingStatusId;
+        this.expectedStartDate = expectedStartDate;
+        this.expectedEndDate = expectedEndDate;
+        this.actualStartDate = actualStartDate;
+        this.actualEndDate = actualEndDate;
+        this.last_modified = last_modified;
+        this.hash = hash;
+    }
     public Booking(int roomId, int userId, int bookingStatusId, Date expectedStartDate,
                    Date expectedEndDate, Date actualStartDate, Date actualEndDate, Date last_modified, String hash) {
         this.roomId = roomId;

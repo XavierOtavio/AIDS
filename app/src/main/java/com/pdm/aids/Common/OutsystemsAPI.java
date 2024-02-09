@@ -1,7 +1,9 @@
 package com.pdm.aids.Common;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -97,6 +99,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
+    @SuppressLint("Range")
     public static void getDataFromAPI(String userId, Context context, final DataLoadCallback finalCallback) {
         DbManager dbManager = new DbManager(context);
         SQLiteDatabase db = dbManager.getWritableDatabase();
@@ -125,18 +128,28 @@ public class OutsystemsAPI extends AppCompatActivity {
             }
         };
 
+        ArrayList<Integer> IdList = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT ID FROM " + dbManager.BOOKING_TABLE, null);
+        if (cursor.moveToFirst()) {
+            IdList = new ArrayList<>();
+            do {
+                IdList.add(cursor.getInt(cursor.getColumnIndex("ID")));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        checkBookingStatus(IdList, context, db, dbManager, volleyCallback);
         getBookingsByUser(userId, context, db, dbManager, volleyCallback);
         getRoomsINeed(userId, context, db, dbManager, volleyCallback);
         getRoomImages(userId, context, db, dbManager, volleyCallback);
         getTicketsByUser(userId, context, db, dbManager, volleyCallback);
-        getTicketImages(userId, context, db, dbManager, volleyCallback);
-
+//        getTicketImages(userId, context, db, dbManager, volleyCallback);
     }
 
     public static void RefreshBookings(String userId, Context context, final DataLoadCallback finalCallback) {
         DbManager dbManager = new DbManager(context);
         SQLiteDatabase db = dbManager.getWritableDatabase();
-        final int[] pendingTasks = {3};
+        final int[] pendingTasks = {2};
         final String[] errorMessages = {null};
 
         VolleyCallback volleyCallback = new VolleyCallback() {
@@ -163,8 +176,6 @@ public class OutsystemsAPI extends AppCompatActivity {
 
         getBookingsByUser(userId, context, db, dbManager, volleyCallback);
         getRoomsINeed(userId, context, db, dbManager, volleyCallback);
-        getRoomImages(userId, context, db, dbManager, volleyCallback);
-
     }
 
     public static void RefreshBookingDetail(String userId, String bookingUUID, Context context, final DataLoadCallback finalCallback) {
@@ -199,6 +210,38 @@ public class OutsystemsAPI extends AppCompatActivity {
         getTicketsByBookingUUID(bookingUUID, context, db, dbManager, volleyCallback);
     }
 
+    public static void checkBookingStatus(ArrayList<Integer> bookingIds, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
+        String url = apiUrl + "CheckBookingStatus";
+
+        try {
+            JSONObject bookingIdsJson = new JSONObject();
+            String str = Arrays.toString(bookingIds.toArray()).replace("[", "").replace("]", "");
+            bookingIdsJson.put("IdList", String.join(",", str));
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, bookingIdsJson,
+                    response -> {
+                        try {
+                            if (response.getString("HTTPCode").equals("200")) {
+                                db.execSQL("DELETE FROM " + dbManager.BOOKING_TABLE + " WHERE HASH IN (\"" + response.getString("IdsToDelete") + "\")");
+                                callback.onSuccess("Booking status checked successfully");
+                            } else {
+                                callback.onError(response.getString("Message"));
+                            }
+                        } catch (JSONException e) {
+                            callback.onError("Error parsing response");
+                        }
+                    },
+                    error -> callback.onError("Error submitting ticket: " + error.getMessage()));
+
+            RequestQueue queue = Volley.newRequestQueue(context);
+            queue.add(jsonObjectRequest);
+
+        } catch (JSONException e) {
+            callback.onError("Error converting Ticket to JSON " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public static void getBookingsByUser(String userId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
         String url = apiUrl + "GetMyBookingsByUser?UserId=" + userId;
 
@@ -209,6 +252,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
+                            db.execSQL("DELETE FROM " + dbManager.BOOKING_TABLE + " WHERE NOT USER_ID = " + userId);
                             JSONArray bookingList = new JSONArray(obj.getString("BookingList"));
 
                             for (int i = 0; i < bookingList.length(); i++) {
@@ -216,6 +260,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                                 //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
 
                                 Booking booking = new Booking(
+                                        bookingObj.getInt("Id"),
                                         bookingObj.getInt("RoomId"),
                                         bookingObj.getInt("ReservedBy"),
                                         bookingObj.getInt("BookingStatusId"),
