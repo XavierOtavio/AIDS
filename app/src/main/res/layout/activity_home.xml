@@ -4,21 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/page_background"
+    android:background="@color/primary"
     tools:context=".Login.LoginActivity">
 
     <RelativeLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:layout_marginTop="30dp"
-        android:layout_marginHorizontal="20dp"
+        android:layout_marginHorizontal="15dp"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
+        <ImageButton
+            android:id="@+id/user_icon"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_alignParentEnd="true"
+            android:background="@android:color/transparent"
+            android:scaleType="centerCrop"
             android:src="@drawable/user_icon" />
 
         <TextView
@@ -42,116 +45,305 @@
             android:text="Xavier Otávio!"
             android:textColor="@color/white"
             android:textSize="20sp" />
-    </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/menu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/header"
-        app:layout_constraintBottom_toTopOf="@+id/footer">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="@drawable/gradient_blue">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginHorizontal="20dp"
-            android:src="@drawable/booking_icon"
-            app:tint="@color/white" />
-
-        <Button
-            android:id="@+id/button_myBookings"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Reservas"
-            android:textSize="25sp"
-            android:background="@android:color/transparent"/>
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_margin="20dp"
-            android:background="@drawable/gradient_orange">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginHorizontal="20dp"
-                android:src="@drawable/alert_icon"
-                app:tint="@color/white" />
-
-            <Button
-                android:id="@+id/button_myTickets"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="Reportar"
-                android:textSize="25sp"
-                android:background="@android:color/transparent"/>
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="@drawable/gradient_teal">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_margin="20dp"
-                android:src="@drawable/web_icon"
-                app:tint="@color/white" />
-
-            <Button
-                android:id="@+id/button_web"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="Web"
-                android:textSize="25sp"
-                android:background="@android:color/transparent"/>
-
-        </RelativeLayout>
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/footer"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageButton
             android:id="@+id/button_logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/logout"
-            app:tint="@color/white" />
-
-        <ImageView
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:src="@drawable/pvestgv"
-            app:tint="@color/white" />
+            android:layout_below="@+id/user_icon"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/button_logout"
+            android:visibility="gone"
+            android:background="@android:color/transparent"/>
+
     </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/active_booking"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        app:layout_constraintTop_toBottomOf="@+id/header"
+        android:layout_marginHorizontal="15dp"
+        android:padding="15dp"
+        android:visibility="gone"
+        android:background="@drawable/primary_gradient_horizontal_lr">
+
+        <Button
+            android:id="@+id/button_activeBooking"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent" />
+
+        <LinearLayout
+            android:id="@+id/active_booking_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/button_showQrCode"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:src="@drawable/qr_scan"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="90dp"
+                android:layout_marginStart="15dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/roomTitle_item"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="Laboratório de Informática"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Status"
+                        android:textColor="#B2B2B2"
+                        android:textSize="10sp"
+                        android:padding="5dp"
+                        android:background="@drawable/white_border"
+                        android:backgroundTint="#B2B2B2" />
+                </LinearLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/expected_startDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:text="--:--\n--/--/----"
+                        android:textAlignment="textStart"
+                        android:textColor="@android:color/white"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/arrow_right"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:id="@+id/expected_endDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:text="--:--\n--/--/----"
+                        android:textAlignment="textEnd"
+                        android:textColor="@android:color/white"
+                        android:textSize="15sp" />
+                </RelativeLayout>
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/gradient_orange"
+            android:layout_below="@id/active_booking_info">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="10dp"
+                android:src="@drawable/alert_icon"
+                app:tint="@color/white" />
+
+            <Button
+                android:id="@+id/button_report"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Reportar"
+                android:textSize="15sp"
+                android:background="@android:color/transparent"/>
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        app:layout_constraintTop_toBottomOf="@+id/active_booking"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="15dp"
+        android:background="@drawable/primary_gradient_horizontal_lr">
+
+        <Button
+            android:id="@+id/button_web"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="15dp"
+                android:text="RESERVAR UM ESPAÇO"
+                android:textColor="#90FFFFFF"
+                android:textStyle="bold"
+                android:textSize="10sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="15dp"
+                    android:text="Precisas de um espaço?"
+                    android:textColor="@color/white"
+                    android:textSize="30sp" />
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/graduation_elements"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="15dp"
+                android:text="Acede à plataforma web da tua Universidade para reservares um espaço.\n\nDepois as tuas reservas iram aparecer aqui!"
+                android:textColor="#95FFFFFF"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginVertical="20dp"
+                android:text="Ir para a web"
+                android:textStyle="bold"
+                android:textColor="#FDAB2E"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/taskbar"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerInParent="true"
+            android:background="@drawable/taskbar_gradient_horizontal_lr">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <Button
+                    android:id="@+id/button_goToHome"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"/>
+                <ImageView
+                    android:id="@+id/home_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="10dp"
+                    android:background="@android:color/transparent"
+                    android:paddingEnd="50dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/home_icon" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Início"
+                    android:textColor="@android:color/white"
+                    android:layout_below="@id/home_icon"
+                    android:layout_centerHorizontal="true"
+                    android:paddingEnd="50dp"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <Button
+                    android:id="@+id/button_goToBookingList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"/>
+                <ImageView
+                    android:id="@+id/booking_list_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:scaleType="centerInside"
+                    android:layout_marginTop="10dp"
+                    android:paddingStart="50dp"
+                    android:layout_centerHorizontal="true"
+
+                    android:src="@drawable/booking_list_icon" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reservas"
+                    android:textColor="@android:color/white"
+                    android:layout_below="@id/booking_list_icon"
+                    android:layout_centerHorizontal="true"
+                    android:paddingStart="50dp"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+        </LinearLayout>
+        <ImageButton
+            android:id="@+id/button_readQrCode"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/camera_button_circle" />
+    </RelativeLayout>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

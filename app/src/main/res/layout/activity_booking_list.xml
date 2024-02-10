@@ -8,7 +8,7 @@
     android:dividerHeight="8dp"
     android:paddingHorizontal="0dp"
     android:showDividers="middle"
-    android:background="@color/white"
+    android:background="@color/primary"
     tools:context=".Booking.BookingList.BookingListActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -23,8 +23,9 @@
             android:layout_height="match_parent"
             android:layout_alignParentStart="true"
             android:gravity="center"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             android:textSize="20sp"
+            android:text="Reservas"
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
 
@@ -34,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:indeterminate="true"
-        android:indeterminateTint="#F39C12"
+        android:indeterminateTint="@color/white"
         android:visibility="gone" />
 
     <LinearLayout
@@ -61,17 +62,20 @@
     <LinearLayout
         android:id="@+id/tabButtons"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:layout_marginHorizontal="8dp"
+        android:layout_marginBottom="25dp"
         android:layout_below="@id/internetConnectionWarning"
+        android:background="@drawable/primary_gradient_horizontal_lr"
         android:orientation="horizontal" >
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/card_white"
-            android:backgroundTint="#000000">
+            android:background="@drawable/card_secondary_color"
+            android:orientation="horizontal">
+
             <Button
                 android:id="@+id/button_upcoming"
                 android:layout_width="match_parent"
@@ -80,23 +84,24 @@
                 android:textSize="20sp"
                 android:background="@android:color/transparent"/>
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/card_white">
+            android:background="@android:color/transparent"
+            android:orientation="horizontal">
+
             <Button
                 android:id="@+id/button_history"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="Histórico"
                 android:textSize="20sp"
-                android:textColor="#000000"
                 android:background="@android:color/transparent"/>
         </LinearLayout>
 
     </LinearLayout>
-
 
     <LinearLayout
         android:id="@+id/emptyBookingList"
@@ -133,22 +138,119 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="De que estás à espera?"
-            android:textColor="#838282"
+            android:textColor="#EEEEEE"
             android:textSize="20sp"
             android:layout_marginHorizontal="30dp" />
 
     </LinearLayout>
 
-
-    <ListView
-        android:id="@+id/listView"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tabButtons"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="10dp"
-        android:listSelector="@android:color/transparent"
-        android:paddingHorizontal="8dp"
-        android:visibility="visible"
-        tools:listitem="@layout/list_item_booking" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/tabButtons">
+
+        <ListView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="10dp"
+            android:listSelector="@android:color/transparent"
+            android:paddingHorizontal="8dp"
+            android:visibility="visible"
+            android:layout_marginBottom="80dp"
+            tools:listitem="@layout/list_item_booking" />
+
+        <RelativeLayout
+            android:id="@+id/taskbar"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_alignParentBottom="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerInParent="true"
+                android:background="@drawable/taskbar_gradient_horizontal_rl">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <Button
+                        android:id="@+id/button_goToHome"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"/>
+                    <ImageView
+                        android:id="@+id/home_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:color/transparent"
+                        android:paddingEnd="50dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/home_icon" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Início"
+                        android:textColor="@android:color/white"
+                        android:layout_below="@id/home_icon"
+                        android:layout_centerHorizontal="true"
+                        android:paddingEnd="50dp"
+                        android:textSize="12sp" />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:id="@+id/button_goToBookingList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"/>
+                    <ImageView
+                        android:id="@+id/booking_list_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:scaleType="centerInside"
+                        android:layout_marginTop="10dp"
+                        android:paddingStart="50dp"
+                        android:layout_centerHorizontal="true"
+
+                        android:src="@drawable/booking_list_icon" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Reservas"
+                        android:textColor="@android:color/white"
+                        android:layout_below="@id/booking_list_icon"
+                        android:layout_centerHorizontal="true"
+                        android:paddingStart="50dp"
+                        android:textSize="12sp" />
+                </RelativeLayout>
+            </LinearLayout>
+            <ImageButton
+                android:id="@+id/button_readQrCode"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@android:color/transparent"
+                android:scaleType="centerInside"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp"
+                android:src="@drawable/camera_button_circle"/>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+
+
+
+
 </RelativeLayout>

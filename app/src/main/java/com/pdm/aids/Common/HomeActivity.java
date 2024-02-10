@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 
@@ -17,7 +18,8 @@ import com.pdm.aids.Ticket.TicketList.TicketListActivity;
 import com.pdm.aids.databinding.ActivityHomeBinding;
 public class HomeActivity extends AppCompatActivity {
 
-    private Button btnBookingList, btnTicketList, btnWeb;
+    private Button btnBookingList, btnTicketList, btnWeb, btnActiveBooking;
+    private ImageButton btnShowQrCode, bntUser;
     private ImageButton btnLogout;
     private ActivityHomeBinding binding;
 
@@ -30,9 +32,11 @@ public class HomeActivity extends AppCompatActivity {
 
         //-----------------Initialize Variables-----------------
         SharedPreferences sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
-        btnBookingList = (Button) findViewById(R.id.button_myBookings);
-        btnTicketList = (Button) findViewById(R.id.button_myTickets);
+        btnBookingList = (Button) findViewById(R.id.button_goToBookingList);
+        btnTicketList = (Button) findViewById(R.id.button_report);
+        btnShowQrCode = findViewById(R.id.button_showQrCode);
         btnWeb = (Button) findViewById(R.id.button_web);
+        btnActiveBooking = findViewById(R.id.button_activeBooking);
         btnLogout = findViewById(R.id.button_logout);
         binding.username.setText(sharedpreferences.getString("Name", ""));
 
@@ -52,8 +56,26 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(browserIntent);
         });
 
+        btnShowQrCode.setOnClickListener(v -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://personal-8o07igno.outsystemscloud.com/AIDS/Bookings"));
+            startActivity(browserIntent);
+        });
+
+        btnActiveBooking.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, BookingListActivity.class);
+            startActivity(intent);
+        });
+
         btnLogout.setOnClickListener(v -> {
             logout();
+        });
+
+        binding.userIcon.setOnClickListener(v -> {
+            if (binding.buttonLogout.getVisibility() == View.VISIBLE) {
+                binding.buttonLogout.setVisibility(View.GONE);
+            } else {
+                binding.buttonLogout.setVisibility(View.VISIBLE);
+            }
         });
     }
 

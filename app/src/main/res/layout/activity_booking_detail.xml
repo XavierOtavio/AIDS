@@ -70,7 +70,7 @@
                     android:layout_height="150dp"
                     android:background="@drawable/camera_button_circle"
                     android:contentDescription="@string/todo"
-                    android:visibility="visible" />
+                    android:visibility="gone" />
 
                 <ImageView
                     android:id="@+id/QRimage"
