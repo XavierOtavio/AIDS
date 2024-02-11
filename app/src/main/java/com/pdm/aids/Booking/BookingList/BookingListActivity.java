@@ -1,6 +1,10 @@
 package com.pdm.aids.Booking.BookingList;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
@@ -10,14 +14,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.BookingDetails.BookingDetailActivity;
 import com.pdm.aids.Booking.BookingHistory.BookingHistoryActivity;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
+import com.pdm.aids.Common.HomeActivity;
 import com.pdm.aids.Common.NetworkChecker;
 import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.Login.LoginActivity;
@@ -62,7 +72,7 @@ public class BookingListActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         //-----------------Toolbar-----------------
-        binding.toolbarBookingList.setNavigationOnClickListener(v -> finish());
+//        binding.toolbarBookingList.setNavigationOnClickListener(v -> finish());
         binding.toolbarBookingTitle.setText("Reservas");
 
         //-----------------Lazy Loading Variables-----------------
@@ -97,6 +107,10 @@ public class BookingListActivity extends AppCompatActivity {
         });
 
         binding.buttonHistory.setOnClickListener(v -> startActivity(new Intent(BookingListActivity.this, BookingHistoryActivity.class)));
+
+        binding.buttonGoToHome.setOnClickListener(v -> finish());
+
+        binding.buttonReadQrCode.setOnClickListener(view -> checkPermissionAndShowActivity(this));
     }
 
     private void loadDataInBackGround() {
@@ -215,4 +229,64 @@ public class BookingListActivity extends AppCompatActivity {
             executorService.shutdown();
         }
     }
+
+    private void checkPermissionAndShowActivity(Context context) {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED) {
+            showCamera();
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+            Toast.makeText(context, "Camera permission required", Toast.LENGTH_SHORT).show();
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+        }
+    }
+
+    private ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    showCamera();
+                } else {
+                    Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+    private void showCamera() {
+        ScanOptions options = new ScanOptions();
+        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
+        options.setPrompt("Scan QR code");
+        options.setBeepEnabled(false);
+        options.setBarcodeImageEnabled(true);
+        options.setOrientationLocked(false);
+
+        qrCodeLauncher.launch(options);
+    }
+
+    private ActivityResultLauncher<ScanOptions> qrCodeLauncher = registerForActivityResult(new ScanContract(), result -> {
+        if (result.getContents() == null) {
+            Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
+        } else {
+            DbManager dbHelper = new DbManager(BookingListActivity.this);
+            String bookingHash = new DBBookingLocal().getCurrentAvaliableBooking(dbHelper.getWritableDatabase()).getHash();
+            Toast.makeText(this, "Scanned: " + bookingHash, Toast.LENGTH_SHORT).show();
+            SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+            String id = sharedPreferences.getString("Id", "");
+
+            OutsystemsAPI.validateEntry(bookingHash, id, result.getContents(), this, new OutsystemsAPI.VolleyCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    Toast.makeText(BookingListActivity.this, result, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(BookingListActivity.this, BookingDetailActivity.class);
+                    intent.putExtra("bookingHash", bookingHash);
+                    startActivity(intent);
+                }
+
+                @Override
+                public void onError(String error) {
+                    Toast.makeText(BookingListActivity.this, "Validation failed: " + error, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    });
 }

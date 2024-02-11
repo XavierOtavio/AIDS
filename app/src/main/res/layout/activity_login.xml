@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/page_background"
+    android:background="@color/primary"
     tools:context=".Login.LoginActivity">
 
     <LinearLayout
@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="20dp"
             android:text="Login"
             android:textColor="@color/white"
             android:textSize="30sp"
@@ -49,9 +49,8 @@
             android:id="@+id/layoutWithInternet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
+            android:layout_marginHorizontal="15dp"
             android:layout_marginTop="15dp"
-            android:layout_marginRight="30dp"
             android:background="@drawable/card_white"
             android:orientation="vertical"
             android:padding="20dp"
@@ -116,7 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Ainda não tem uma conta?"
+                    android:text="Ainda não tens uma conta?"
                     android:textSize="15sp" />
 
                 <Button

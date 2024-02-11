@@ -15,10 +15,13 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -74,22 +77,18 @@ public class BookingDetailActivity extends AppCompatActivity {
         executorService = Executors.newSingleThreadExecutor();
         uiHandler = new Handler(Looper.getMainLooper());
         binding.progressBar.setVisibility(View.VISIBLE);
-        binding.linearLayoutTop.setVisibility(View.GONE);
+//        binding.linearLayoutTop.setVisibility(View.GONE);
         binding.linearLayoutContent.setVisibility(View.GONE);
         setupNetworkChecker();
         loadDataInBackGround();
 
-//        binding.ticketButton.setOnClickListener(v -> {
-//            Intent intent = new Intent(BookingDetailActivity.this, TicketListActivity.class);
-//            intent.putExtra("bookingHash", booking.getHash());
-//            startActivity(intent);
-//        });
-//
         binding.buttonReport.setOnClickListener(v -> {
             Intent intent = new Intent(BookingDetailActivity.this, CreateTicketActivity.class);
             intent.putExtra("bookingHash", booking.getHash());
             startActivity(intent);
         });
+
+        binding.toolbarMain.setNavigationOnClickListener(v -> finish());
     }
 
     private void setupNetworkChecker() {
@@ -145,7 +144,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                                 uiHandler.post(() -> {
                                     populateUIFromDatabase();
                                     binding.progressBar.setVisibility(View.GONE);
-                                    binding.linearLayoutTop.setVisibility(View.VISIBLE);
+//                                    binding.linearLayoutTop.setVisibility(View.VISIBLE);
                                     binding.linearLayoutContent.setVisibility(View.VISIBLE);
                                 });
                             } catch (Exception e) {
@@ -176,7 +175,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                         uiHandler.post(() -> {
                             populateUIFromDatabase();
                             binding.progressBar.setVisibility(View.GONE);
-                            binding.linearLayoutTop.setVisibility(View.VISIBLE);
+//                            binding.linearLayoutTop.setVisibility(View.VISIBLE);
                             binding.linearLayoutContent.setVisibility(View.VISIBLE);
                         });
                     } catch (Exception e) {
@@ -195,21 +194,21 @@ public class BookingDetailActivity extends AppCompatActivity {
             case 0:
                 if (isNetworkAvailable) {
                     binding.noWifiImage.setVisibility(View.GONE);
-                    binding.QRimage.setVisibility(View.GONE);
-                    binding.imageViewCaptured.setVisibility(View.VISIBLE);
-                    binding.qrCodeLabel.setText(R.string.read_qr);
+//                    binding.QRimage.setVisibility(View.GONE);
+//                    binding.imageViewCaptured.setVisibility(View.VISIBLE);
+//                    binding.qrCodeLabel.setText(R.string.read_qr);
                 } else {
                     binding.noWifiImage.setVisibility(View.VISIBLE);
-                    binding.imageViewCaptured.setVisibility(View.GONE);
-                    binding.QRimage.setVisibility(View.GONE);
-                    binding.qrCodeLabel.setText(R.string.qr_failed);
+//                    binding.imageViewCaptured.setVisibility(View.GONE);
+//                    binding.QRimage.setVisibility(View.GONE);
+//                    binding.qrCodeLabel.setText(R.string.qr_failed);
                 }
                 break;
             case 1:
-                binding.imageViewCaptured.setVisibility(View.GONE);
+//                binding.imageViewCaptured.setVisibility(View.GONE);
                 binding.noWifiImage.setVisibility(View.GONE);
-                binding.QRimage.setVisibility(View.VISIBLE);
-                binding.qrCodeLabel.setText(R.string.read_qrcode_exit);
+//                binding.QRimage.setVisibility(View.VISIBLE);
+//                binding.qrCodeLabel.setText(R.string.read_qrcode_exit);
                 break;
         }
     }
@@ -222,7 +221,10 @@ public class BookingDetailActivity extends AppCompatActivity {
         binding.exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "-" : dateFormatHour.format(booking.getActualEndDate()) + "\n" + dateFormatDay.format(booking.getActualEndDate()));
 
         if (room != null) {
-            binding.roomImage.setImageBitmap(DBRoomImageLocal.getRoomImageByRoomId(room.getId(), new DbManager(this).getReadableDatabase()));
+//            binding.roomImage.setImageBitmap(DBRoomImageLocal.getRoomImageByRoomId(room.getId(), new DbManager(this).getReadableDatabase()));
+            Bitmap roomImageBitmap = DBRoomImageLocal.getRoomImageByRoomId(room.getId(), new DbManager(this).getReadableDatabase());
+            Drawable roomImageDrawable = new BitmapDrawable(getResources(), roomImageBitmap);
+            binding.banner.setBackground(roomImageDrawable);
             binding.roomName.setText(room.getName());
         }
 
@@ -316,7 +318,7 @@ public class BookingDetailActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        binding.imageViewCaptured.setOnClickListener(view -> checkPermissionAndShowActivity(this));
+//        binding.imageViewCaptured.setOnClickListener(view -> checkPermissionAndShowActivity(this));
         binding.toolbarMain.setNavigationOnClickListener(v -> finish());
     }
 
@@ -354,6 +356,7 @@ public class BookingDetailActivity extends AppCompatActivity {
     }
 
 
+
     private ActivityResultLauncher<ScanOptions> qrCodeLauncher = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() == null) {
             Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
@@ -378,6 +381,5 @@ public class BookingDetailActivity extends AppCompatActivity {
             });
         }
     });
-
 
 }

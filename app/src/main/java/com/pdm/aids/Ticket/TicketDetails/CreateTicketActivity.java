@@ -54,7 +54,7 @@ public class CreateTicketActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private EditText titleEditText;
     private EditText descriptionEditText;
-    private TextView facility, expectedStart, expectedLeave;
+    private TextView facility, currentDateTime, toolBarTitle;
     private CarouselAdapter adapter;
     private Button takePictureButton;
     private byte[] pictureByteArray;
@@ -139,18 +139,24 @@ public class CreateTicketActivity extends AppCompatActivity {
         titleEditText = findViewById(R.id.edit_text_title);
         descriptionEditText = findViewById(R.id.edit_text_description);
         toolbar = findViewById(R.id.toolbar_main);
+        toolBarTitle = findViewById(R.id.toolbar_title);
         toolbar.setNavigationOnClickListener(v -> finish());
+        if (uuid == null) {
+            toolBarTitle.setText("Reportar Problema");
+        } else {
+            toolBarTitle.setText("Detalhes do Problema");
+        }
 
         titleEditText.setText(title);
         descriptionEditText.setText(description);
 
         facility = findViewById(R.id.facility);
-        expectedStart = findViewById(R.id.expectedStart);
-        expectedLeave = findViewById(R.id.expectedLeave);
+//        expectedStart = findViewById(R.id.expectedStart);
+//        expectedLeave = findViewById(R.id.expectedLeave);
 
         facility.setText(new DBRoomLocal().getRoomById(booking.get(0).getRoomId(), dbManager.getWritableDatabase()).getName());
-        expectedStart.setText(booking.get(0).getExpectedStartDate().toString());
-        expectedLeave.setText(booking.get(0).getExpectedEndDate().toString());
+//        expectedStart.setText(booking.get(0).getExpectedStartDate().toString());
+//        expectedLeave.setText(booking.get(0).getExpectedEndDate().toString());
 
         Button saveButton = findViewById(R.id.button_save);
         saveButton.setOnClickListener(v -> saveTicket());

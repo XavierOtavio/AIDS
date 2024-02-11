@@ -462,7 +462,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                                     Utils.convertUnixToDate(obj.getString("ExpectedStartDate")),
                                     Utils.convertUnixToDate(obj.getString("ExpectedEndDate")),
                                     Utils.convertUnixToDate(obj.getString("ActualStartDate")),
-                                    null,
+                                    Utils.convertUnixToDate(obj.getString("-2208988800")),
                                     Utils.convertUnixToDate(obj.getString("ModifiedOn")),
                                     obj.getString("UUID")
                             );

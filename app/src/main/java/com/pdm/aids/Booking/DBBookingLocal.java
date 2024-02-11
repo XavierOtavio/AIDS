@@ -239,4 +239,41 @@ public class DBBookingLocal {
         return bookingsList;
     }
 
+    //get the booking that the current date is between the expected start and end date
+    @SuppressLint("Range")
+    public Booking getCurrentAvaliableBooking(SQLiteDatabase db) {
+        Booking booking = null;
+        Date currentDate = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String selectQuery = "SELECT * FROM " + BOOKING_TABLE + " WHERE datetime('now') BETWEEN " + COLUMN_EXPECTED_START_DATE + " AND " + COLUMN_EXPECTED_END_DATE;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.moveToFirst()) {
+            try {
+                Date expectedStartDate, expectedEndDate;
+                String actualStartDateString = cursor.getString(cursor.getColumnIndex(COLUMN_ACTUAL_START_DATE));
+                String actualEndDateString = cursor.getString(cursor.getColumnIndex(COLUMN_ACTUAL_END_DATE));
+
+                int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+                int roomId = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_ID));
+                int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
+                int bookingStatusId = cursor.getInt(cursor.getColumnIndex(COLUMN_BOOKING_STATUS_ID));
+                expectedStartDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_START_DATE)));
+                expectedEndDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_END_DATE)));
+                Date actualStartDate = actualStartDateString != null ? dateFormat.parse(actualStartDateString) : null;
+                Date actualEndDate = actualEndDateString != null ? dateFormat.parse(actualEndDateString) : null;
+                Date dateTime = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE)));
+                String hash = cursor.getString(cursor.getColumnIndex(COLUMN_HASH));
+
+                booking = new Booking(roomId, userId, bookingStatusId, expectedStartDate,
+                        expectedEndDate, actualStartDate, actualEndDate, dateTime, hash);
+                booking.setId(id);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        cursor.close();
+        return booking;
+    }
+
 }
