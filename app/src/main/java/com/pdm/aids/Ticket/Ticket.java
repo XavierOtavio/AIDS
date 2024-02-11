@@ -25,34 +25,34 @@ public class Ticket {
     private Date creationDate;
     private Date lastModified;
     private String bookingUuid;
-    private int ticketStatusId;
+    private boolean isSynchronized;
     private String title;
     private String description;
     private int createdBy;
     private ArrayList<TicketImage> ticketImages;
     public Ticket() {
     }
-    public Ticket(String uuid, String bookingId, int ticketStatusId, String title, String description) {
+    public Ticket(String uuid, String bookingId, boolean isSynchronized, String title, String description) {
         this.ticketUuid = uuid;
         this.title = title;
         this.description = description;
-        this.ticketStatusId = ticketStatusId;
+        this.isSynchronized = isSynchronized;
         this.bookingUuid = bookingId;
     }
-    public Ticket(String uuid, String bookingId, int ticketStatusId, String title, String description, Date creationDate, Date lastModified) {
+    public Ticket(String uuid, String bookingId, boolean isSynchronized, String title, String description, Date creationDate, Date lastModified) {
         this.ticketUuid = uuid;
         this.title = title;
         this.description = description;
-        this.ticketStatusId = ticketStatusId;
+        this.isSynchronized = isSynchronized;
         this.bookingUuid = bookingId;
         this.creationDate = creationDate;
         this.lastModified = lastModified;
     }
-    public Ticket(String id, String bookingId, int ticketStatusId, String title, String description, Date creationDate, Date lastModified, ArrayList<TicketImage> ticketImages) {
+    public Ticket(String id, String bookingId, boolean isSynchronized, String title, String description, Date creationDate, Date lastModified, ArrayList<TicketImage> ticketImages) {
         this.ticketUuid = id;
         this.title = title;
         this.description = description;
-        this.ticketStatusId = ticketStatusId;
+        this.isSynchronized = isSynchronized;
         this.bookingUuid = bookingId;
         this.creationDate = creationDate;
         this.lastModified = lastModified;
@@ -63,7 +63,7 @@ public class Ticket {
         Gson gson = new Gson();
 
         System.out.println(id);
-        Ticket ticketWithoutImages = new Ticket(ticketUuid, bookingUuid, ticketStatusId, title, description, creationDate, lastModified);
+        Ticket ticketWithoutImages = new Ticket(ticketUuid, bookingUuid, isSynchronized, title, description, creationDate, lastModified);
         ticketWithoutImages.setUserId(id);
         return gson.toJson(ticketWithoutImages);
     }
@@ -99,12 +99,12 @@ public class Ticket {
         return bookingUuid;
     }
 
-    public int getTicketStatusId() {
-        return ticketStatusId;
+    public boolean getIsSynchronized() {
+        return isSynchronized;
     }
 
-    public void setTicketStatusId(int ticketStatusId) {
-        this.ticketStatusId = ticketStatusId;
+    public void setIsSynchronized(boolean isSynchronized) {
+        this.isSynchronized = isSynchronized;
     }
 
     public void setId(String id) {

@@ -7,12 +7,14 @@ import java.util.Locale;
 public class ListData {
     private String title, description, uuid;
     private Date startDate;
+    private boolean isSynchronized;
 
-    public ListData(String title, String description, Date date, String uuid) {
+    public ListData(String title, String description, Date date, String uuid, boolean isSynchronized) {
         this.title = title;
         this.description = description;
         this.startDate = date;
         this.uuid = uuid;
+        this.isSynchronized = isSynchronized;
     }
 
     public String getTitle() {
@@ -29,6 +31,10 @@ public class ListData {
 
     public Date getStartDate() {
         return startDate;
+    }
+
+    public boolean isSynchronized() {
+        return isSynchronized;
     }
 
     public String getFormattedStartDate() {

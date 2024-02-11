@@ -54,7 +54,7 @@ public class OutsystemsAPI extends AppCompatActivity {
     private static List<Booking> bookings;
 
     public interface VolleyCallback {
-        void onSuccess(String result);
+        void onSuccess(String result) throws ParseException;
 
         void onError(String error);
     }
@@ -77,7 +77,11 @@ public class OutsystemsAPI extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 response -> {
-                    callback.onSuccess(response);
+                    try {
+                        callback.onSuccess(response);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
                 }, error -> {
             callback.onError(error.getMessage());
         }
@@ -91,7 +95,11 @@ public class OutsystemsAPI extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 response -> {
-                    callback.onSuccess(response);
+                    try {
+                        callback.onSuccess(response);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
                 }, error -> {
             callback.onError(error.getMessage());
         }
@@ -229,6 +237,8 @@ public class OutsystemsAPI extends AppCompatActivity {
                             }
                         } catch (JSONException e) {
                             callback.onError("Error parsing response");
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
                         }
                     },
                     error -> callback.onError("Error submitting ticket: " + error.getMessage()));
@@ -279,6 +289,8 @@ public class OutsystemsAPI extends AppCompatActivity {
                         }
                     } catch (JSONException e) {
                         Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
                     }
                 }, error -> {
             try {
@@ -373,6 +385,8 @@ public class OutsystemsAPI extends AppCompatActivity {
                         throw new RuntimeException(e);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
                     }
                 }, error -> {
             try {
@@ -409,7 +423,11 @@ public class OutsystemsAPI extends AppCompatActivity {
                     } catch (JSONException e) {
                         Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                    callback.onSuccess("Rooms fetched successfully");
+                    try {
+                        callback.onSuccess("Rooms fetched successfully");
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
                 }, error -> {
             try {
                 JSONObject obj = new JSONObject(error.getMessage());
@@ -456,6 +474,8 @@ public class OutsystemsAPI extends AppCompatActivity {
                         }
                     } catch (JSONException e) {
                         callback.onError(e.getMessage());
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
                     }
                 },
                 error -> {
@@ -485,12 +505,14 @@ public class OutsystemsAPI extends AppCompatActivity {
                     response -> {
                         try {
                             if (response.getString("HTTPCode").equals("200")) {
-                                callback.onSuccess(response.getString("Message"));
+                                callback.onSuccess("All good! " + response.getString("Message"));
                             } else {
-                                callback.onError(response.getString("Message"));
+                                callback.onError("Error in images but " +response.getString("Message"));
                             }
                         } catch (JSONException e) {
                             callback.onError("Error parsing response");
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
                         }
                     },
                     error -> callback.onError("Error submitting ticket: " + error.getMessage()));
@@ -523,7 +545,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                                 Ticket ticket = new Ticket(
                                         ticketObj.getString("TicketUUID"),
                                         ticketObj.getString("BookingUUID"),
-                                        ticketObj.getInt("TicketStatusId"),
+                                        true,
                                         ticketObj.getString("Title"),
                                         ticketObj.getString("Description"),
                                         Utils.convertUnixToDate(ticketObj.getString("CreatedOn")),
@@ -571,7 +593,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                                 Ticket ticket = new Ticket(
                                         ticketObj.getString("TicketUUID"),
                                         ticketObj.getString("BookingUUID"),
-                                        ticketObj.getInt("TicketStatusId"),
+                                        true,
                                         ticketObj.getString("Title"),
                                         ticketObj.getString("Description"),
                                         Utils.convertUnixToDate(ticketObj.getString("CreatedOn")),
@@ -633,6 +655,8 @@ public class OutsystemsAPI extends AppCompatActivity {
                     } catch (FileNotFoundException e) {
                         throw new RuntimeException(e);
                     } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    } catch (ParseException e) {
                         throw new RuntimeException(e);
                     }
                 }, error -> {

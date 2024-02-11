@@ -219,7 +219,7 @@ public class CreateTicketActivity extends AppCompatActivity {
 
                         ticket.setId(id);
                         ticket.setBookingId(booking.get(0).getHash());
-                        ticket.setTicketStatusId(0);
+                        ticket.setIsSynchronized(false);
                         ticket.setTitle(title);
                         ticket.setDescription(description);
                         ticket.setCreationDate(new Date(System.currentTimeMillis()));
@@ -245,16 +245,15 @@ public class CreateTicketActivity extends AppCompatActivity {
                     }
                     ticket.setTicketImages(allImages);
                     boolean ticketIsInserted;
-                    if(uuid == null) {
-                        ticketIsInserted = new DBTicketLocal().createTicket(ticket, this, dbManager.getWritableDatabase());
-                    } else {
-                        ticketIsInserted = new DBTicketLocal().updateTicket(ticket, this, dbManager.getWritableDatabase());
-                    }
+                    ticketIsInserted = new DBTicketLocal().createOrUpdateTicket(ticket, this, dbManager.getWritableDatabase());
                     if (ticketIsInserted) {
+                        Ticket finalTicket = ticket;
                         OutsystemsAPI.submitTicket(ticket, userId, this, new OutsystemsAPI.VolleyCallback() {
                             @Override
-                            public void onSuccess(String result) {
+                            public void onSuccess(String result) throws ParseException {
                                 Toast.makeText(CreateTicketActivity.this, result, Toast.LENGTH_SHORT).show();
+                                finalTicket.setIsSynchronized(true);
+                                new DBTicketLocal().createOrUpdateTicket(finalTicket, CreateTicketActivity.this, dbManager.getWritableDatabase());
                             }
 
                             @Override

@@ -54,7 +54,6 @@ public class BookingDetailActivity extends AppCompatActivity {
     private ActivityBookingDetailBinding binding;
     private Booking booking;
     private Room room;
-    ListAdapter listAdapter;
     ListData listData;
     ArrayList<ListData> ticketLisDataArray = new ArrayList<>();
     ArrayList<Ticket> tickets = new ArrayList<>();
@@ -136,8 +135,11 @@ public class BookingDetailActivity extends AppCompatActivity {
                                 tickets = DBTicketLocal.getAllTicketsByBookingId(booking.getHash(), dbManager.getReadableDatabase());
 
                                 for (Ticket ticket : tickets) {
-                                    listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId());
-                                    ticketLisDataArray.add(listData);
+                                    listData = ticketLisDataArray.stream().filter(t -> t.getUuid().equals(ticket.getId())).findFirst().orElse(null);
+                                    if(listData == null) {
+                                        listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId(), ticket.getIsSynchronized());
+                                        ticketLisDataArray.add(listData);
+                                    }
                                 }
 
                                 uiHandler.post(() -> {
@@ -161,7 +163,16 @@ public class BookingDetailActivity extends AppCompatActivity {
                     try (DbManager dbManager = new DbManager(BookingDetailActivity.this)) {
                         booking = DBBookingLocal.getBookingByHash(getIntent().getStringExtra("bookingHash"), dbManager.getWritableDatabase());
                         room = DBRoomLocal.getRoomById(booking.getRoomId(), dbManager.getReadableDatabase());
-//                        ticketArrayList = DBTicketLocal.getAllTicketsByBookingId(String.valueOf(booking.getId()), dbManager.getReadableDatabase());
+                        tickets = DBTicketLocal.getAllTicketsByBookingId(booking.getHash(), dbManager.getReadableDatabase());
+
+                        for (Ticket ticket : tickets) {
+                            listData = ticketLisDataArray.stream().filter(t -> t.getUuid().equals(ticket.getId())).findFirst().orElse(null);
+                            if(listData == null) {
+                                listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId(), ticket.getIsSynchronized());
+                                ticketLisDataArray.add(listData);
+                            }
+                        }
+
                         uiHandler.post(() -> {
                             populateUIFromDatabase();
                             binding.progressBar.setVisibility(View.GONE);
@@ -244,7 +255,11 @@ public class BookingDetailActivity extends AppCompatActivity {
 
             titleTextView.setText(ticketData.getTitle());
             descriptionTextView.setText(ticketData.getDescription());
-            statusTextView.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.pending)));
+            statusTextView.setBackgroundTintList(
+                    ticketData.isSynchronized() ?
+                            ColorStateList.valueOf(getResources().getColor(R.color.isSynchronized)) :
+                            ColorStateList.valueOf(getResources().getColor(R.color.pending))
+            );
 
             ticketItemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -265,8 +280,7 @@ public class BookingDetailActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // Registra o NetworkCallback
-//        networkChecker.registerNetworkCallback();
+        loadDataInBackGround();
         if (networkChecker != null) {
             networkChecker.registerNetworkCallback();
         }
