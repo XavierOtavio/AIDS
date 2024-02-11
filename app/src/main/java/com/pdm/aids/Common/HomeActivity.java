@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -25,14 +27,28 @@ import com.pdm.aids.Booking.BookingList.BookingListActivity;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
+import com.pdm.aids.Room.DBRoomLocal;
+import com.pdm.aids.Room.Room;
+import com.pdm.aids.Ticket.TicketDetails.CreateTicketActivity;
 import com.pdm.aids.Ticket.TicketList.TicketListActivity;
 import com.pdm.aids.databinding.ActivityHomeBinding;
+
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 public class HomeActivity extends AppCompatActivity {
 
-    private Button btnBookingList, btnTicketList, btnWeb, btnActiveBooking;
+    private Button btnBookingList, btnReport, btnWeb, btnActiveBooking;
     private ImageButton btnShowQrCode, bntUser;
     private ImageButton btnLogout;
     private ActivityHomeBinding binding;
+    private DbManager dbHelper;
+    private Booking booking;
+    private Room room;
+    private Utils u;
+    private Bitmap qrBitmap;
+    SimpleDateFormat dateFormatHour = new SimpleDateFormat("HH:mm");
+    SimpleDateFormat dateFormatDay = new SimpleDateFormat("dd/MM/yyyy");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,12 +60,30 @@ public class HomeActivity extends AppCompatActivity {
         //-----------------Initialize Variables-----------------
         SharedPreferences sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
         btnBookingList = (Button) findViewById(R.id.button_goToBookingList);
-        btnTicketList = (Button) findViewById(R.id.button_report);
+        btnReport = (Button) findViewById(R.id.button_report);
         btnShowQrCode = findViewById(R.id.button_showQrCode);
         btnWeb = (Button) findViewById(R.id.button_web);
         btnActiveBooking = findViewById(R.id.button_activeBooking);
         btnLogout = findViewById(R.id.button_logout);
         binding.username.setText(sharedpreferences.getString("Name", ""));
+
+        dbHelper = new DbManager(this);
+        booking = new DBBookingLocal().getCurrentOnGoingBooking(dbHelper.getWritableDatabase());
+
+        if (booking != null) {
+            btnActiveBooking.setVisibility(View.VISIBLE);
+            String hash = booking.getHash();
+            int roomId = booking.getRoomId();
+            room = new DBRoomLocal().getRoomById(roomId, dbHelper.getWritableDatabase());
+            binding.roomTitle.setText(room.getName());
+            binding.expectedStartDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormatHour.format(booking.getExpectedStartDate()) + "\n" + dateFormatDay.format(booking.getExpectedStartDate()));
+            binding.expectedEndDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormatHour.format(booking.getExpectedEndDate()) + "\n" + dateFormatDay.format(booking.getExpectedEndDate()));
+            u = new Utils();
+            qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
+            binding.buttonShowQrCode.setImageBitmap(qrBitmap);
+        } else {
+            btnActiveBooking.setVisibility(View.GONE);
+        }
 
         //-----------------Listeners-----------------
         btnBookingList.setOnClickListener(v -> {
@@ -57,8 +91,9 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnTicketList.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, TicketListActivity.class);
+        btnReport.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, CreateTicketActivity.class);
+            intent.putExtra("bookingHash", booking.getHash());
             startActivity(intent);
         });
 
@@ -67,15 +102,13 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(browserIntent);
         });
 
-        btnShowQrCode.setOnClickListener(v -> {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://personal-8o07igno.outsystemscloud.com/AIDS/Bookings"));
-            startActivity(browserIntent);
-        });
-
         btnActiveBooking.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, BookingListActivity.class);
+            Intent intent = new Intent(HomeActivity.this, BookingDetailActivity.class);
+            intent.putExtra("bookingHash", booking.getHash());
             startActivity(intent);
         });
+
+        binding.buttonShowQrCode.setOnClickListener(view -> u.showImageDialog(HomeActivity.this, qrBitmap));
 
         btnLogout.setOnClickListener(v -> {
             logout();

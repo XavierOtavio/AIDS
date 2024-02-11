@@ -1,14 +1,17 @@
 package com.pdm.aids.Common;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.util.Base64;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
@@ -18,6 +21,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.pdm.aids.Login.LoginActivity;
+import com.pdm.aids.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -154,5 +158,31 @@ public class Utils {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
 
         return Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
+    }
+
+    public void showImageDialog(Context context, Bitmap bitmap) {
+        Dialog dialog = new Dialog(context);
+        dialog.setContentView(R.layout.dialog_image);
+
+        ImageView enlargedImageView = dialog.findViewById(R.id.enlargedImageView);
+
+        int maxWidth = 800;
+        int maxHeight = 1200;
+        Bitmap scaledBitmap = scaleBitmap(bitmap, maxWidth, maxHeight);
+        enlargedImageView.setImageBitmap(scaledBitmap);
+
+        dialog.show();
+    }
+
+    public Bitmap scaleBitmap(Bitmap bitmap, int maxWidth, int maxHeight) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        float scale = Math.min((float) maxWidth / width, (float) maxHeight / height);
+
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+
+        return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
     }
 }

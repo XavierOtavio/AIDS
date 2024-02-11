@@ -276,4 +276,15 @@ public class DBBookingLocal {
         return booking;
     }
 
+    //get current boking with status = 3
+    public Booking getCurrentOnGoingBooking(SQLiteDatabase db) {
+        List<Integer> status = new ArrayList<>();
+        status.add(3);
+        List<Booking> bookings = getBookingsByStatus(status, db);
+        if (bookings.size() > 0) {
+            return bookings.get(0);
+        }
+        return null;
+    }
+
 }

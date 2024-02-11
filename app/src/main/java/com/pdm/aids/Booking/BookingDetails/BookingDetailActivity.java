@@ -32,6 +32,7 @@ import com.journeyapps.barcodescanner.ScanOptions;
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
+import com.pdm.aids.Common.HomeActivity;
 import com.pdm.aids.Common.NetworkChecker;
 import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.Common.Utils;
@@ -57,6 +58,8 @@ public class BookingDetailActivity extends AppCompatActivity {
     private ActivityBookingDetailBinding binding;
     private Booking booking;
     private Room room;
+    private Bitmap qrBitmap, roomImageBitmap;
+    private Utils utils;
     ListData listData;
     ArrayList<ListData> ticketLisDataArray = new ArrayList<>();
     ArrayList<Ticket> tickets = new ArrayList<>();
@@ -74,6 +77,7 @@ public class BookingDetailActivity extends AppCompatActivity {
         initBinding();
         initViews();
         //-----------------Lazy Loading-----------------
+        Utils utils = new Utils();
         executorService = Executors.newSingleThreadExecutor();
         uiHandler = new Handler(Looper.getMainLooper());
         binding.progressBar.setVisibility(View.VISIBLE);
@@ -89,6 +93,10 @@ public class BookingDetailActivity extends AppCompatActivity {
         });
 
         binding.toolbarMain.setNavigationOnClickListener(v -> finish());
+
+        binding.buttonQr.setOnClickListener(view -> utils.showImageDialog(BookingDetailActivity.this, qrBitmap));
+
+        binding.buttonBanner.setOnClickListener(view -> utils.showImageDialog(BookingDetailActivity.this, roomImageBitmap));
     }
 
     private void setupNetworkChecker() {
@@ -222,7 +230,7 @@ public class BookingDetailActivity extends AppCompatActivity {
 
         if (room != null) {
 //            binding.roomImage.setImageBitmap(DBRoomImageLocal.getRoomImageByRoomId(room.getId(), new DbManager(this).getReadableDatabase()));
-            Bitmap roomImageBitmap = DBRoomImageLocal.getRoomImageByRoomId(room.getId(), new DbManager(this).getReadableDatabase());
+            roomImageBitmap = DBRoomImageLocal.getRoomImageByRoomId(room.getId(), new DbManager(this).getReadableDatabase());
             Drawable roomImageDrawable = new BitmapDrawable(getResources(), roomImageBitmap);
             binding.banner.setBackground(roomImageDrawable);
             binding.roomName.setText(room.getName());
@@ -232,7 +240,7 @@ public class BookingDetailActivity extends AppCompatActivity {
             Intent intent = getIntent();
             String hash = intent.getStringExtra("bookingHash");
             Utils u = new Utils();
-            Bitmap qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
+            qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
             binding.QRimage.setImageBitmap(qrBitmap);
             //populate list of tickets
             populateTicketsLinearLayout(ticketLisDataArray);

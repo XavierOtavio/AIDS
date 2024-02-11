@@ -26,6 +26,12 @@
                     app:layout_constraintTop_toTopOf="parent"
                     android:background="@color/primary">
 
+                    <Button
+                        android:id="@+id/button_banner"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"/>
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -138,14 +144,29 @@
                     android:layout_below="@id/expected_date_info"
                     android:padding="15dp">
 
-                    <ImageView
-                        android:id="@+id/QRimage"
+                    <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
-                        android:contentDescription="@string/todo"
-                        android:visibility="visible"
-                        android:layout_marginBottom="30dp"
-                        tools:srcCompat="@tools:sample/avatars" />
+                        android:layout_marginBottom="30dp">
+
+                        <Button
+                            android:id="@+id/button_qr"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@android:color/transparent"/>
+
+                        <ImageView
+                            android:id="@+id/QRimage"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="@string/todo"
+                            android:visibility="visible"
+                            android:background="@android:color/transparent"
+                            tools:srcCompat="@tools:sample/avatars" />
+
+                    </RelativeLayout>
+
+
 
                     <ImageView
                         android:id="@+id/noWifiImage"
