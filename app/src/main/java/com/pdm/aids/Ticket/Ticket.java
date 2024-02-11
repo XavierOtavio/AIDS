@@ -29,7 +29,7 @@ public class Ticket {
     private String title;
     private String description;
     private int createdBy;
-    private ArrayList<TicketImage> ticketImages;
+    private ArrayList<TicketImage> ticketImages = new ArrayList<>();
     public Ticket() {
     }
     public Ticket(String uuid, String bookingId, boolean isSynchronized, String title, String description) {
@@ -88,6 +88,9 @@ public class Ticket {
     }
 
     public void setTitle(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Ticket title cannot be empty");
+        }
         this.title = title;
     }
 

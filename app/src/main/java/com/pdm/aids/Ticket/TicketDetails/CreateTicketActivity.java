@@ -257,7 +257,6 @@ public class CreateTicketActivity extends AppCompatActivity {
                         OutsystemsAPI.submitTicket(ticket, userId, this, new OutsystemsAPI.VolleyCallback() {
                             @Override
                             public void onSuccess(String result) throws ParseException {
-                                Toast.makeText(CreateTicketActivity.this, result, Toast.LENGTH_SHORT).show();
                                 finalTicket.setIsSynchronized(true);
                                 new DBTicketLocal().createOrUpdateTicket(finalTicket, CreateTicketActivity.this, dbManager.getWritableDatabase());
                             }
