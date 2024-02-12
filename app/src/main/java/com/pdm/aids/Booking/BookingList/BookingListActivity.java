@@ -137,7 +137,7 @@ public class BookingListActivity extends AppCompatActivity {
                                     listData = new ListData(currentRoom.getName(),
                                             bookings.get(i).getExpectedStartDate(),
                                             bookings.get(i).getExpectedEndDate(),
-                                            currentRoomImage);
+                                            bookings.get(i).getBookingStatusId());
                                     dataArrayList.add(listData);
                                 }
                                 uiHandler.post(new Runnable() {
@@ -169,7 +169,7 @@ public class BookingListActivity extends AppCompatActivity {
                             listData = new ListData(currentRoom.getName(),
                                     bookings.get(i).getExpectedStartDate(),
                                     bookings.get(i).getExpectedEndDate(),
-                                    currentRoomImage);
+                                    bookings.get(i).getBookingStatusId());
                             dataArrayList.add(listData);
                         }
                         uiHandler.post(new Runnable() {

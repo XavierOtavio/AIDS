@@ -6,4 +6,9 @@
     <color name="isSynchronized">#2ecc71</color>
     <color name="primary">#103D50</color>
     <color name="secondary">#3B7B96</color>
+    <color name="green">#4CAF50</color>
+    <color name="orange">#F39C12</color>
+    <color name="red">#F44336</color>
+    <color name="lightBlue">#80C0F3</color>
+    <color name="grey">#9E9E9E</color>
 </resources>

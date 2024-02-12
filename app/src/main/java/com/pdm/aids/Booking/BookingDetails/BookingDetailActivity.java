@@ -203,52 +203,71 @@ public class BookingDetailActivity extends AppCompatActivity {
             case 0:
                 if (isNetworkAvailable) {
                     binding.noWifiImage.setVisibility(View.GONE);
-//                    binding.QRimage.setVisibility(View.GONE);
-//                    binding.imageViewCaptured.setVisibility(View.VISIBLE);
-//                    binding.qrCodeLabel.setText(R.string.read_qr);
                 } else {
                     binding.noWifiImage.setVisibility(View.VISIBLE);
-//                    binding.imageViewCaptured.setVisibility(View.GONE);
-//                    binding.QRimage.setVisibility(View.GONE);
-//                    binding.qrCodeLabel.setText(R.string.qr_failed);
                 }
-                break;
             case 1:
-//                binding.imageViewCaptured.setVisibility(View.GONE);
                 binding.noWifiImage.setVisibility(View.GONE);
-//                binding.QRimage.setVisibility(View.VISIBLE);
-//                binding.qrCodeLabel.setText(R.string.read_qrcode_exit);
                 break;
         }
     }
 
     private void populateUIFromDatabase() {
         binding.toolbarTitle.setText(String.format("Reserva: %s", room != null ? room.getName() : ""));
-        binding.startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormatHour.format(booking.getExpectedStartDate()) + "\n" + dateFormatDay.format(booking.getExpectedStartDate()));
-        binding.endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormatHour.format(booking.getExpectedEndDate()) + "\n" + dateFormatDay.format(booking.getExpectedEndDate()));
-        binding.enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "-" : dateFormatHour.format(booking.getActualStartDate()) + "\n" + dateFormatDay.format(booking.getActualStartDate()));
-        binding.exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "-" : dateFormatHour.format(booking.getActualEndDate()) + "\n" + dateFormatDay.format(booking.getActualEndDate()));
+        binding.startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "--:--\n--/--/----" : dateFormatHour.format(booking.getExpectedStartDate()) + "\n" + dateFormatDay.format(booking.getExpectedStartDate()));
+        binding.endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "--:--\n--/--/----" : dateFormatHour.format(booking.getExpectedEndDate()) + "\n" + dateFormatDay.format(booking.getExpectedEndDate()));
+        binding.enterRoomDate.setText(Utils.isDateNull(booking.getActualStartDate()) ? "--:--\n--/--/----" : dateFormatHour.format(booking.getActualStartDate()) + "\n" + dateFormatDay.format(booking.getActualStartDate()));
+        binding.exitRoomDate.setText(Utils.isDateNull(booking.getActualEndDate()) ? "--:--\n--/--/----" : dateFormatHour.format(booking.getActualEndDate()) + "\n" + dateFormatDay.format(booking.getActualEndDate()));
+
+        //populate list of tickets
+        if (ticketLisDataArray.size() > 0) {
+            populateTicketsLinearLayout(ticketLisDataArray);
+        } else {
+            binding.ticketsContainer.setVisibility(View.GONE);
+            binding.ticketListEmpty.setVisibility(View.VISIBLE);
+        }
 
         if (room != null) {
-//            binding.roomImage.setImageBitmap(DBRoomImageLocal.getRoomImageByRoomId(room.getId(), new DbManager(this).getReadableDatabase()));
             roomImageBitmap = DBRoomImageLocal.getRoomImageByRoomId(room.getId(), new DbManager(this).getReadableDatabase());
             Drawable roomImageDrawable = new BitmapDrawable(getResources(), roomImageBitmap);
             binding.banner.setBackground(roomImageDrawable);
             binding.roomName.setText(room.getName());
         }
 
-        if (!binding.enterRoomDate.getText().equals("-")) {
-            Intent intent = getIntent();
-            String hash = intent.getStringExtra("bookingHash");
-            Utils u = new Utils();
-            qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
-            binding.QRimage.setImageBitmap(qrBitmap);
-            //populate list of tickets
-            populateTicketsLinearLayout(ticketLisDataArray);
-
-            updateUIState(networkChecker.isInternetConnected(), 1);
-        } else {
-            updateUIState(networkChecker.isInternetConnected(), 0);
+        switch (booking.getBookingStatusId()) {
+            case 1:
+                binding.bookingStatus.setText("Expirada");
+                binding.bookingStatus.setTextColor(getResources().getColor(R.color.grey));
+                binding.bookingStatus.setBackgroundTintList(getResources().getColorStateList(R.color.grey));
+                break;
+            case 2:
+                binding.bookingStatus.setText("Terminada");
+                binding.bookingStatus.setTextColor(getResources().getColor(R.color.lightBlue));
+                binding.bookingStatus.setBackgroundTintList(getResources().getColorStateList(R.color.lightBlue));
+                break;
+            case 3:
+                binding.bookingStatus.setText("Ativa");
+                binding.bookingStatus.setTextColor(getResources().getColor(R.color.green));
+                binding.bookingStatus.setBackgroundTintList(getResources().getColorStateList(R.color.green));
+                Intent intent = getIntent();
+                String hash = intent.getStringExtra("bookingHash");
+                Utils u = new Utils();
+                qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
+                binding.QRimage.setImageBitmap(qrBitmap);
+                binding.qrCodeContainer.setVisibility(View.VISIBLE);
+                binding.reportButtonContainer.setVisibility(View.VISIBLE);
+                break;
+            case 4:
+                binding.bookingStatus.setText("Reservada");
+                binding.bookingStatus.setTextColor(getResources().getColor(R.color.orange));
+                binding.bookingStatus.setBackgroundTintList(getResources().getColorStateList(R.color.orange));
+                break;
+            case 5:
+                binding.bookingStatus.setText("Cancelada");
+                binding.bookingStatus.setTextColor(getResources().getColor(R.color.red));
+                binding.bookingStatus.setBackgroundTintList(getResources().getColorStateList(R.color.red));
+                break;
+            default: break;
         }
     }
 

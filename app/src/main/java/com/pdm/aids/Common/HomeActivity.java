@@ -58,6 +58,8 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         //-----------------Initialize Variables-----------------
+        u = new Utils();
+        dbHelper = new DbManager(this);
         SharedPreferences sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
         btnBookingList = (Button) findViewById(R.id.button_goToBookingList);
         btnReport = (Button) findViewById(R.id.button_report);
@@ -65,55 +67,67 @@ public class HomeActivity extends AppCompatActivity {
         btnWeb = (Button) findViewById(R.id.button_web);
         btnActiveBooking = findViewById(R.id.button_activeBooking);
         btnLogout = findViewById(R.id.button_logout);
+
         binding.username.setText(sharedpreferences.getString("Name", ""));
 
-        dbHelper = new DbManager(this);
         booking = new DBBookingLocal().getCurrentOnGoingBooking(dbHelper.getWritableDatabase());
-
         if (booking != null) {
-            btnActiveBooking.setVisibility(View.VISIBLE);
             String hash = booking.getHash();
             int roomId = booking.getRoomId();
             room = new DBRoomLocal().getRoomById(roomId, dbHelper.getWritableDatabase());
+
             binding.roomTitle.setText(room.getName());
             binding.expectedStartDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormatHour.format(booking.getExpectedStartDate()) + "\n" + dateFormatDay.format(booking.getExpectedStartDate()));
             binding.expectedEndDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormatHour.format(booking.getExpectedEndDate()) + "\n" + dateFormatDay.format(booking.getExpectedEndDate()));
-            u = new Utils();
+
             qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
             binding.buttonShowQrCode.setImageBitmap(qrBitmap);
+
+            binding.bookingStatus.setText("Ativa");
+            binding.bookingStatus.setTextColor(getResources().getColor(R.color.green));
+            binding.bookingStatus.setBackgroundTintList(getResources().getColorStateList(R.color.green));
+
+            btnActiveBooking.setVisibility(View.VISIBLE);
         } else {
             btnActiveBooking.setVisibility(View.GONE);
         }
 
         //-----------------Listeners-----------------
+        //Booking List
         btnBookingList.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, BookingListActivity.class);
             startActivity(intent);
         });
 
+        //Report Problem
         btnReport.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, CreateTicketActivity.class);
             intent.putExtra("bookingHash", booking.getHash());
             startActivity(intent);
         });
 
+        //Go to Outsystems Web
         btnWeb.setOnClickListener(v -> {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://personal-8o07igno.outsystemscloud.com/AIDS/Bookings"));
             startActivity(browserIntent);
         });
 
+        //Enter in the active booking details
         btnActiveBooking.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, BookingDetailActivity.class);
             intent.putExtra("bookingHash", booking.getHash());
             startActivity(intent);
         });
 
+        //Show QR Code
         binding.buttonShowQrCode.setOnClickListener(view -> u.showImageDialog(HomeActivity.this, qrBitmap));
 
+        //Logout
         btnLogout.setOnClickListener(v -> {
             logout();
         });
 
+        //Show user options
         binding.userIcon.setOnClickListener(v -> {
             if (binding.buttonLogout.getVisibility() == View.VISIBLE) {
                 binding.buttonLogout.setVisibility(View.GONE);
@@ -122,6 +136,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        //Capture QR Code
         binding.buttonReadQrCode.setOnClickListener(view -> checkPermissionAndShowActivity(this));
     }
 

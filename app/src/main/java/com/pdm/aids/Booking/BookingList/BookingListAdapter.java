@@ -34,20 +34,23 @@ public class BookingListAdapter extends ArrayAdapter<ListData> {
         }
 
         TextView roomName = view.findViewById(R.id.roomTitle_item);
-//        ImageView roomImage = view.findViewById(R.id.roomImage_item);
         TextView expected_startDate = view.findViewById(R.id.expected_startDate);
         TextView expected_endDate = view.findViewById(R.id.expected_endDate);
+        TextView bookingStatus = view.findViewById(R.id.bookingStatus);
 
         if (listData != null) {
             roomName.setText(String.valueOf(listData.roomName));
             expected_startDate.setText(String.valueOf(listData.expectedStartDate));
             expected_endDate.setText(String.valueOf(listData.expectedEndDate));
-//            Bitmap bmp = listData.roomImage;
-//            if (bmp != null) {
-//                roomImage.setImageBitmap(bmp);
-//            } else {
-//                Toast.makeText(getContext(), "Erro ao carregar imagem", Toast.LENGTH_SHORT).show();
-//            }
+            if (listData.bookingStatusId == 3) {
+                bookingStatus.setBackgroundTintList(getContext().getColorStateList(R.color.green));
+                bookingStatus.setTextColor(getContext().getResources().getColor(R.color.green));
+                bookingStatus.setText("Ativa");
+            } else {
+                bookingStatus.setBackgroundTintList(getContext().getColorStateList(R.color.orange));
+                bookingStatus.setTextColor(getContext().getResources().getColor(R.color.orange));
+                bookingStatus.setText("Reservada");
+            }
         }
         return view;
     }

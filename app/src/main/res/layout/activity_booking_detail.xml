@@ -86,6 +86,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/bookingStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center"
@@ -145,8 +146,10 @@
                     android:padding="15dp">
 
                     <RelativeLayout
+                        android:id="@+id/qrCodeContainer"
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
+                        android:visibility="gone"
                         android:layout_marginBottom="30dp">
 
                         <Button
@@ -160,7 +163,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:contentDescription="@string/todo"
-                            android:visibility="visible"
                             android:background="@android:color/transparent"
                             tools:srcCompat="@tools:sample/avatars" />
 
@@ -201,7 +203,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
-
                             android:layout_centerInParent="true"
                             android:text="--:--\n--/--/----"
                             android:textAlignment="textStart"
@@ -247,9 +248,20 @@
                         android:orientation="vertical">
                     </LinearLayout>
 
+                    <TextView
+                        android:id="@+id/ticketListEmpty"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/white"
+                        android:visibility="gone"
+                        android:text="Não existem problemas reportados para reserva"
+                        android:textSize="15sp"/>
+
                     <RelativeLayout
+                        android:id="@+id/reportButtonContainer"
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
+                        android:visibility="gone"
                         android:background="@drawable/gradient_orange">
 
                         <ImageView
@@ -268,6 +280,8 @@
                             android:background="@android:color/transparent"/>
 
                     </RelativeLayout>
+
+
 
                 </LinearLayout>
 
