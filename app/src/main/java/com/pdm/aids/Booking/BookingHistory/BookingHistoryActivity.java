@@ -48,29 +48,59 @@ public class BookingHistoryActivity extends AppCompatActivity {
     ActivityBookingHistoryBinding binding;
     BookingHistoryAdapter listAdapter;
     ArrayList<ListData> dataArrayList = new ArrayList<>();
-    List<Booking> bookings = new ArrayList<>();
+    ArrayList<Booking> bookings = new ArrayList<>();
     List<Room> rooms = new ArrayList<>();
     Room currentRoom;
     Bitmap currentRoomImage;
     ListData listData;
     private String id;
     private NetworkChecker networkChecker;
+    public static Booking selectedBooking;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_booking_history);
         binding = ActivityBookingHistoryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         id = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE)
                 .getString("Id", "");
 
         OutsystemsAPI.getBookingsHistory(id, this, bookingArrayList -> {
-            bookings = bookingArrayList;
-            updateUIWithBookings();
+            bookings.clear();
+            bookings.addAll(bookingArrayList);
         });
 
+        try (DbManager dataBaseHelper = new DbManager(this)) {
+            OutsystemsAPI.getDataFromAPI(id, this, new OutsystemsAPI.DataLoadCallback() {
+                @Override
+                public void onDataLoaded() {
+                    rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
+
+                    for (int i = 0; i < bookings.size(); i++) {
+                        for (int j = 0; j < rooms.size(); j++) {
+                            if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
+                                currentRoom = rooms.get(j);
+                                currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
+                            }
+                        }
+                        listData = new ListData(currentRoom.getName(),
+                                bookings.get(i).getExpectedStartDate(),
+                                bookings.get(i).getExpectedEndDate(),
+                                currentRoomImage);
+                        dataArrayList.add(listData);
+                    }
+                    updateUIWithBookings();
+                }
+
+                @Override
+                public void onError(String error) {
+                    Toast.makeText(getApplicationContext(), "Failed to load data: " + error, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
 
         TextView textTitle_toolbar = findViewById(R.id.toolbar_booking_history_title);
 //        Toolbar toolbar = findViewById(R.id.toolbar_booking_history_list);
@@ -107,12 +137,12 @@ public class BookingHistoryActivity extends AppCompatActivity {
         binding.buttonUpcoming.setOnClickListener(v -> finish());
 
         listItem.setOnItemClickListener((adapterView, view, i, l) -> {
+            selectedBooking = bookings.get(i);
             Intent intent = new Intent(BookingHistoryActivity.this, BookingDetailActivity.class);
-            intent.putExtra("bookingHash", bookings.get(i).getHash());
             startActivity(intent);
         });
 
-        //finish history activity and finish booking list activity
+
         binding.buttonGoToHome.setOnClickListener(v -> {
             finish();
             startActivity(new Intent(BookingHistoryActivity.this, HomeActivity.class));
@@ -122,45 +152,14 @@ public class BookingHistoryActivity extends AppCompatActivity {
     }
 
     private void updateUIWithBookings() {
-        try (DbManager dataBaseHelper = new DbManager(this)) {
-            OutsystemsAPI.getDataFromAPI(id, this, new OutsystemsAPI.DataLoadCallback() {
-                @Override
-                public void onDataLoaded() {
-                    rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
-
-                    for (int i = 0; i < bookings.size(); i++) {
-                        for (int j = 0; j < rooms.size(); j++) {
-                            if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
-                                currentRoom = rooms.get(j);
-                                currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
-                            }
-                        }
-                        listData = new ListData(currentRoom.getName(),
-                                bookings.get(i).getExpectedStartDate(),
-                                bookings.get(i).getExpectedEndDate(),
-                                currentRoomImage);
-                        dataArrayList.add(listData);
-                    }
-                }
-
-                @Override
-                public void onError(String error) {
-                    Toast.makeText(getApplicationContext(), "Failed to load data: " + error, Toast.LENGTH_SHORT).show();
-                }
-            });
-
-//            if (dataArrayList.size() == 0) {
+            if (dataArrayList.size() == 0) {
                 binding.emptyBookingList.setVisibility(View.VISIBLE);
                 binding.listView.setVisibility(View.GONE);
-//            } else {
+            } else {
                 listAdapter = new BookingHistoryAdapter(this, dataArrayList, this);
                 binding.listView.setAdapter(listAdapter);
                 binding.listView.setClickable(true);
-//            }
-
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+            }
     }
 
 

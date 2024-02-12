@@ -1,6 +1,5 @@
 package com.pdm.aids.Booking;
 
-import com.google.gson.Gson;
 import java.util.Date;
 
 public class Booking {

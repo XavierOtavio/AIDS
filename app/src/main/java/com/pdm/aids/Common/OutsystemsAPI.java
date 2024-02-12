@@ -70,6 +70,13 @@ public class OutsystemsAPI extends AppCompatActivity {
         void onBookingsReceived(ArrayList<Booking> bookingArrayList);
     }
 
+    public interface RoomCallback {
+        void onRoomsReceived(ArrayList<Room> roomArrayList);
+    }
+    public interface TicketCallback {
+        void onTicketReceived(ArrayList<Ticket> ticketArrayList);
+    }
+
     static String apiUrl = "https://personal-8o07igno.outsystemscloud.com/AIDS/rest/RestAPI/";
 
     public static void checkLogin(String username, String password, Context context, VolleyCallback callback) {
@@ -148,6 +155,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         cursor.close();
 
         checkBookingStatus(IdList, context, db, dbManager, volleyCallback);
+        getRoomsINeed(userId,context, db, dbManager, volleyCallback);
         getBookingsByUser(userId, context, db, dbManager, volleyCallback);
         getRoomImages(userId, context, db, dbManager, volleyCallback);
         getTicketsByUser(userId, context, db, dbManager, volleyCallback);
@@ -334,6 +342,43 @@ public class OutsystemsAPI extends AppCompatActivity {
                             }
 
                             callback.onBookingsReceived(bookingArrayList);
+                        } else {
+                            Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }, error -> {
+            try {
+                JSONObject obj = new JSONObject(error.getMessage());
+                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        queue.add(stringRequest);
+    }
+    public static void getRoomById(int roomId, Context context, RoomCallback callback) {
+        String url = apiUrl + "GetRoomById?RoomId=" + roomId;
+        ArrayList<Room> roomArrayList = new ArrayList<>();
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            JSONArray roomList = new JSONArray(obj.getString("RoomList"));
+
+                            for (int i = 0; i < roomList.length(); i++) {
+                                JSONObject roomListJSONObject = roomList.getJSONObject(i);
+                                Room room = new Room(roomListJSONObject.getInt("Id"), roomListJSONObject.getString("Name"), roomListJSONObject.getString("Description"));
+                                roomArrayList.add(room);
+                            }
+
+                            callback.onRoomsReceived(roomArrayList);
                         } else {
                             Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
                         }
@@ -595,6 +640,52 @@ public class OutsystemsAPI extends AppCompatActivity {
                         Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
+                    }
+                }, error -> {
+            try {
+                JSONObject obj = new JSONObject(error.getMessage());
+                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+        );
+        queue.add(stringRequest);
+    }
+    public static void getTicketsByBookingUUIDOnline(String bookingUUID, Context context, TicketCallback callback) {
+        String url = apiUrl + "GetTicketsByBooking?BookingUUID=" + bookingUUID;
+        ArrayList<Ticket> ticketArrayList = new ArrayList<>();
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            JSONArray ticketList = new JSONArray(obj.getString("TicketList"));
+
+                            for (int i = 0; i < ticketList.length(); i++) {
+                                JSONObject ticketObj = ticketList.getJSONObject(i);
+                                //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+                                Ticket ticket = new Ticket(
+                                        ticketObj.getString("TicketUUID"),
+                                        ticketObj.getString("BookingUUID"),
+                                        true,
+                                        ticketObj.getString("Title"),
+                                        ticketObj.getString("Description"),
+                                        Utils.convertUnixToDate(ticketObj.getString("CreatedOn")),
+                                        Utils.convertUnixToDate(ticketObj.getString("ModifiedOn"))
+                                );
+                                ticketArrayList.add(ticket);
+                            }
+                            callback.onTicketReceived(ticketArrayList);
+                        } else {
+                            Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }, error -> {
             try {

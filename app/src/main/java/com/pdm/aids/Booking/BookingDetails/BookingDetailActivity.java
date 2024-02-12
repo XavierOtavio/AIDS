@@ -1,5 +1,6 @@
 package com.pdm.aids.Booking.BookingDetails;
 
+import static com.pdm.aids.Booking.BookingHistory.BookingHistoryActivity.selectedBooking;
 import static java.text.DateFormat.getDateTimeInstance;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 import com.pdm.aids.Booking.Booking;
+import com.pdm.aids.Booking.BookingHistory.BookingHistoryActivity;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.Common.HomeActivity;
@@ -84,8 +86,16 @@ public class BookingDetailActivity extends AppCompatActivity {
         binding.progressBar.setVisibility(View.VISIBLE);
 //        binding.linearLayoutTop.setVisibility(View.GONE);
         binding.linearLayoutContent.setVisibility(View.GONE);
+        Booking selectedBooking = BookingHistoryActivity.selectedBooking;
+
         setupNetworkChecker();
-        loadDataInBackGround();
+
+        if (selectedBooking != null) {
+            loadDataInBackGround();
+        } else {
+            loadLocalDataInBackGround();
+        }
+
 
         binding.buttonReport.setOnClickListener(v -> {
             Intent intent = new Intent(BookingDetailActivity.this, CreateTicketActivity.class);
@@ -129,6 +139,43 @@ public class BookingDetailActivity extends AppCompatActivity {
     }
 
     private void loadDataInBackGround() {
+        executorService.submit(() -> {
+            if (networkChecker.isInternetConnected()) {
+                String userId = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", "");
+
+                try {
+                    System.out.println(selectedBooking.getHash());
+                    OutsystemsAPI.getRoomById(selectedBooking.getRoomId(), BookingDetailActivity.this, rooms -> room = rooms.get(0));
+                    OutsystemsAPI.getTicketsByBookingUUIDOnline(selectedBooking.getHash(), BookingDetailActivity.this, ticketArrayList -> tickets = ticketArrayList);
+
+                    System.out.println(room);
+                    System.out.println(tickets);
+
+                    for (Ticket ticket : tickets) {
+                        listData = ticketLisDataArray.stream().filter(t -> t.getUuid().equals(ticket.getId())).findFirst().orElse(null);
+                        if(listData == null) {
+                            listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId(), ticket.getIsSynchronized());
+                            ticketLisDataArray.add(listData);
+                        }
+                    }
+
+                    uiHandler.post(() -> {
+                        populateUIFromDatabase();
+                        binding.progressBar.setVisibility(View.GONE);
+//                            binding.linearLayoutTop.setVisibility(View.VISIBLE);
+                        binding.linearLayoutContent.setVisibility(View.VISIBLE);
+                    });
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    uiHandler.post(() -> Toast.makeText(BookingDetailActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                }
+
+            } else {
+                onDestroy();
+            }
+        });
+    }
+    private void loadLocalDataInBackGround() {
         executorService.submit(new Runnable() {
             @Override
             public void run() {
@@ -213,6 +260,7 @@ public class BookingDetailActivity extends AppCompatActivity {
     }
 
     private void populateUIFromDatabase() {
+        System.out.println(1);
         binding.toolbarTitle.setText(String.format("Reserva: %s", room != null ? room.getName() : ""));
         binding.startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "--:--\n--/--/----" : dateFormatHour.format(booking.getExpectedStartDate()) + "\n" + dateFormatDay.format(booking.getExpectedStartDate()));
         binding.endDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "--:--\n--/--/----" : dateFormatHour.format(booking.getExpectedEndDate()) + "\n" + dateFormatDay.format(booking.getExpectedEndDate()));
@@ -310,7 +358,11 @@ public class BookingDetailActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        loadDataInBackGround();
+        if (selectedBooking != null) {
+            // Do something with selectedBooking
+        } else {
+            loadLocalDataInBackGround();
+        }
         if (networkChecker != null) {
             networkChecker.registerNetworkCallback();
         }
@@ -321,6 +373,7 @@ public class BookingDetailActivity extends AppCompatActivity {
         super.onStop();
         // Desregistra o NetworkCallback
 //        networkChecker.unregisterNetworkCallback();
+        selectedBooking = null;
         if (networkChecker != null) {
             networkChecker.unregisterNetworkCallback();
         }
@@ -334,6 +387,7 @@ public class BookingDetailActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        selectedBooking = null;
         if (executorService != null && !executorService.isShutdown()) {
             executorService.shutdown();
         }
