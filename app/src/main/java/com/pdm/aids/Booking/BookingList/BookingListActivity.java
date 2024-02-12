@@ -183,7 +183,7 @@ public class BookingListActivity extends AppCompatActivity {
 
 
                 } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    throw new RuntimeException(e);
                 }
             }
         });

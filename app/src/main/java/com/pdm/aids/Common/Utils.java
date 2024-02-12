@@ -77,14 +77,19 @@ public class Utils {
 
 
     public static boolean isDateNull(Date dateToCheck) {
+        if (dateToCheck == null) {
+            return true;
+        }
+
         try {
-            if (dateToCheck != null) {
-                Date referenceDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse("1900-01-01 00:00:00");
-                return dateToCheck.equals(referenceDate);
-            }
-            return false;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            Date defaultNullDate = dateFormat.parse("1900-01-01 00:00:00");
+            Date potentialErrorDate = dateFormat.parse("1899-12-31 23:23:15");
+
+            return dateToCheck.equals(defaultNullDate) || dateToCheck.equals(potentialErrorDate);
+
+        } catch (ParseException e) {
+            throw new RuntimeException("Error parsing date string", e);
         }
     }
 

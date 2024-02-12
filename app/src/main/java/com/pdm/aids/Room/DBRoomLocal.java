@@ -61,6 +61,14 @@ public class DBRoomLocal {
         }
     }
 
+    public static boolean RoomExists(int roomId, Context context, SQLiteDatabase db) {
+        Room roomInDb = getRoomById(roomId, db);
+        if (roomInDb == null) {
+            return false;
+        }
+        return true;
+    }
+
     @SuppressLint("Range")
     public List<Room> getAllRooms(SQLiteDatabase db) {
         List<Room> roomList = new ArrayList<>();

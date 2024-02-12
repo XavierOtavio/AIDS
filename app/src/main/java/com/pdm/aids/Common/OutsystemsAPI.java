@@ -28,6 +28,7 @@ import com.pdm.aids.Room.Room;
 import com.pdm.aids.Room.RoomImage;
 import com.pdm.aids.Ticket.DBTicketLocal;
 import com.pdm.aids.Ticket.Ticket;
+import com.pdm.aids.Ticket.TicketDetails.CreateTicketActivity;
 import com.pdm.aids.Ticket.TicketImage;
 
 import org.json.JSONArray;
@@ -111,7 +112,7 @@ public class OutsystemsAPI extends AppCompatActivity {
     public static void getDataFromAPI(String userId, Context context, final DataLoadCallback finalCallback) {
         DbManager dbManager = new DbManager(context);
         SQLiteDatabase db = dbManager.getWritableDatabase();
-        final int[] pendingTasks = {5};
+        final int[] pendingTasks = {4};
         final String[] errorMessages = {null};
 
         VolleyCallback volleyCallback = new VolleyCallback() {
@@ -148,7 +149,6 @@ public class OutsystemsAPI extends AppCompatActivity {
 
         checkBookingStatus(IdList, context, db, dbManager, volleyCallback);
         getBookingsByUser(userId, context, db, dbManager, volleyCallback);
-        getRoomsINeed(userId, context, db, dbManager, volleyCallback);
         getRoomImages(userId, context, db, dbManager, volleyCallback);
         getTicketsByUser(userId, context, db, dbManager, volleyCallback);
 //        getTicketImages(userId, context, db, dbManager, volleyCallback);
@@ -183,7 +183,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         };
 
         getBookingsByUser(userId, context, db, dbManager, volleyCallback);
-        getRoomsINeed(userId, context, db, dbManager, volleyCallback);
+        submitPendingTickets(userId, context, db, dbManager, volleyCallback);
     }
 
     public static void RefreshBookingDetail(String userId, String bookingUUID, Context context, final DataLoadCallback finalCallback) {
@@ -467,7 +467,6 @@ public class OutsystemsAPI extends AppCompatActivity {
                                     obj.getString("UUID")
                             );
                             DBBookingLocal.createBooking(booking, db);
-
                             callback.onSuccess("Validation successful");
                         } else {
                             callback.onError(obj.getString("Message"));
@@ -491,6 +490,43 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
+    @SuppressLint("Range")
+    public static void submitPendingTickets(String userId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
+        Cursor cursor = db.rawQuery("SELECT * FROM " + dbManager.TICKET_TABLE + " WHERE IS_SYNCHRONIZED = 0", null);
+        if (cursor.getCount() != 0 && cursor.moveToFirst()) {
+            do {
+                Ticket ticket = new Ticket(
+                        cursor.getString(cursor.getColumnIndex("TICKET_ID")),
+                        cursor.getString(cursor.getColumnIndex("BOOKING_ID")),
+                        false,
+                        cursor.getString(cursor.getColumnIndex("TITLE")),
+                        cursor.getString(cursor.getColumnIndex("DESCRIPTION")),
+                        Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex("TICKET_STARTDATE"))),
+                        Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex("TICKET_MODIFIED")))
+                );
+                submitTicket(ticket, userId, context, new VolleyCallback() {
+                    @Override
+                    public void onSuccess(String result) throws ParseException {
+                        db.execSQL("UPDATE " + dbManager.TICKET_TABLE + " SET IS_SYNCHRONIZED = 1 WHERE TICKET_ID = '" + ticket.getId() + "'");
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        callback.onError(error);
+                    }
+                });
+
+            } while (cursor.moveToNext());
+        }
+        try {
+            callback.onSuccess("All tickets submitted successfully");
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        cursor.close();
+    }
+
     public static void submitTicket(Ticket ticket, String userId, Context context, VolleyCallback callback) {
         String url = apiUrl + "SubmitTicket";
         DbManager dbManager = new DbManager(context);
@@ -501,21 +537,19 @@ public class OutsystemsAPI extends AppCompatActivity {
             ticketJsonObject.put("tickets", new JSONObject(ticket.toJsonWithoutImages(Integer.parseInt(userId))));
             ticketJsonObject.put("ticketImages", new JSONArray(ticket.toJsonImagesOnly(db)));
 
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, ticketJsonObject,
-                    response -> {
-                        try {
-                            if (response.getString("HTTPCode").equals("200")) {
-                                callback.onSuccess("All good! " + response.getString("Message"));
-                            } else {
-                                callback.onError("Error in images but " +response.getString("Message"));
-                            }
-                        } catch (JSONException e) {
-                            callback.onError("Error parsing response");
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
-                        }
-                    },
-                    error -> callback.onError("Error submitting ticket: " + error.getMessage()));
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, ticketJsonObject, response -> {
+                try {
+                    if (response.getString("HTTPCode").equals("200")) {
+                        callback.onSuccess("All good! " + response.getString("Message"));
+                    } else {
+                        callback.onError("Error in images but " + response.getString("Message"));
+                    }
+                } catch (JSONException e) {
+                    callback.onError("Error parsing response");
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+            }, error -> callback.onError("Error submitting ticket: " + error.getMessage()));
 
             RequestQueue queue = Volley.newRequestQueue(context);
             queue.add(jsonObjectRequest);
