@@ -38,6 +38,16 @@ import java.util.Locale;
 
 public class Utils {
 
+    public static final Date NULL_DATE;
+
+    static {
+        try {
+            NULL_DATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse("1900-01-01 00:00:00");
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Date convertUnixToDate(String unix) {
         try {
             Date date = new Date(Long.parseLong(unix) * 1000);
