@@ -57,7 +57,9 @@ public class DBRoomLocal {
         if (roomInDb == null) {
             createRoom(room, context, db);
         } else {
-            updateRoom(room, context, db);
+            if (room.getLastUpdate().after(roomInDb.getLastUpdate())) {
+                updateRoom(room, context, db);
+            }
         }
     }
 
