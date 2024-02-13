@@ -106,7 +106,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center_vertical"
-                        android:text="Laboratório "
+                        android:text="Location"
                         android:textColor="@color/white"
                         android:textSize="18sp"
                         android:textStyle="bold" />

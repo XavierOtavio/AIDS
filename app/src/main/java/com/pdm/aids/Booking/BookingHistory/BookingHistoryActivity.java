@@ -87,7 +87,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
                         listData = new ListData(currentRoom.getName(),
                                 bookings.get(i).getExpectedStartDate(),
                                 bookings.get(i).getExpectedEndDate(),
-                                currentRoomImage);
+                                bookings.get(i).getBookingStatusId());
                         dataArrayList.add(listData);
                     }
                     updateUIWithBookings();
@@ -103,11 +103,9 @@ public class BookingHistoryActivity extends AppCompatActivity {
         }
 
         TextView textTitle_toolbar = findViewById(R.id.toolbar_booking_history_title);
-//        Toolbar toolbar = findViewById(R.id.toolbar_booking_history_list);
         ListView listItem = findViewById(R.id.listView);
 
         textTitle_toolbar.setText("Reservas");
-//        toolbar.setNavigationOnClickListener(v -> finish());
         networkChecker = new NetworkChecker(this);
 
         LinearLayout internetConnectionWarning = findViewById(R.id.internetConnectionWarning);
@@ -141,7 +139,6 @@ public class BookingHistoryActivity extends AppCompatActivity {
             Intent intent = new Intent(BookingHistoryActivity.this, BookingDetailActivity.class);
             startActivity(intent);
         });
-
 
         binding.buttonGoToHome.setOnClickListener(v -> {
             finish();

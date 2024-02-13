@@ -84,7 +84,6 @@ public class BookingDetailActivity extends AppCompatActivity {
         executorService = Executors.newSingleThreadExecutor();
         uiHandler = new Handler(Looper.getMainLooper());
         binding.progressBar.setVisibility(View.VISIBLE);
-//        binding.linearLayoutTop.setVisibility(View.GONE);
         binding.linearLayoutContent.setVisibility(View.GONE);
         Booking selectedBooking = BookingHistoryActivity.selectedBooking;
 

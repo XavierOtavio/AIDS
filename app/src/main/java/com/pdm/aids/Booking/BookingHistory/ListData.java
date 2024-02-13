@@ -11,11 +11,12 @@ public class ListData {
     String expectedStartDate;
     String expectedEndDate;
     Bitmap roomImage;
+    Integer bookingStatusId;
     SimpleDateFormat dateFormatHour = new SimpleDateFormat("HH:mm", Locale.getDefault());
     SimpleDateFormat dateFormatDay = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-    public ListData(String roomName, Date startDate, Date endDate, Bitmap roomImage) {
+    public ListData(String roomName, Date startDate, Date endDate, Integer bookingStatusId) {
         this.roomName = roomName;
-        this.roomImage = roomImage;
+        this.bookingStatusId = bookingStatusId;
         this.expectedStartDate = dateFormatHour.format(startDate) + "\n" + dateFormatDay.format(startDate);
         this.expectedEndDate = dateFormatHour.format(endDate) + "\n" + dateFormatDay.format(endDate);
     }

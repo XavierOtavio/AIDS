@@ -72,7 +72,6 @@ public class BookingListActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         //-----------------Toolbar-----------------
-//        binding.toolbarBookingList.setNavigationOnClickListener(v -> finish());
         binding.toolbarBookingTitle.setText("Reservas");
 
         //-----------------Lazy Loading Variables-----------------
