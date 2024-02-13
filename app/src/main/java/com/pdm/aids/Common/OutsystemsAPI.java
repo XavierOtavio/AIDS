@@ -73,6 +73,7 @@ public class OutsystemsAPI extends AppCompatActivity {
     public interface RoomCallback {
         void onRoomsReceived(ArrayList<Room> roomArrayList);
     }
+
     public interface TicketCallback {
         void onTicketReceived(ArrayList<Ticket> ticketArrayList);
     }
@@ -119,7 +120,7 @@ public class OutsystemsAPI extends AppCompatActivity {
     public static void getDataFromAPI(String userId, Context context, final DataLoadCallback finalCallback) {
         DbManager dbManager = new DbManager(context);
         SQLiteDatabase db = dbManager.getWritableDatabase();
-        final int[] pendingTasks = {4};
+        final int[] pendingTasks = {6};
         final String[] errorMessages = {null};
 
         VolleyCallback volleyCallback = new VolleyCallback() {
@@ -155,17 +156,19 @@ public class OutsystemsAPI extends AppCompatActivity {
         cursor.close();
 
         checkBookingStatus(IdList, context, db, dbManager, volleyCallback);
-        getRoomsINeed(userId,context, db, dbManager, volleyCallback);
+        getRoomsINeed(userId, context, db, dbManager, volleyCallback);
         getBookingsByUser(userId, context, db, dbManager, volleyCallback);
+        getRoomsINeed(userId, context, db, dbManager, volleyCallback);
         getRoomImages(userId, context, db, dbManager, volleyCallback);
         getTicketsByUser(userId, context, db, dbManager, volleyCallback);
-//        getTicketImages(userId, context, db, dbManager, volleyCallback);
+        getTicketImages(userId, context, db, dbManager, volleyCallback);
     }
 
+    @SuppressLint("Range")
     public static void RefreshBookings(String userId, Context context, final DataLoadCallback finalCallback) {
         DbManager dbManager = new DbManager(context);
         SQLiteDatabase db = dbManager.getWritableDatabase();
-        final int[] pendingTasks = {2};
+        final int[] pendingTasks = {3};
         final String[] errorMessages = {null};
 
         VolleyCallback volleyCallback = new VolleyCallback() {
@@ -190,9 +193,22 @@ public class OutsystemsAPI extends AppCompatActivity {
             }
         };
 
+        ArrayList<Integer> IdList = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT ID FROM " + dbManager.BOOKING_TABLE, null);
+        if (cursor.moveToFirst()) {
+            IdList = new ArrayList<>();
+            do {
+                IdList.add(cursor.getInt(cursor.getColumnIndex("ID")));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        checkBookingStatus(IdList, context, db, dbManager, volleyCallback);
         getBookingsByUser(userId, context, db, dbManager, volleyCallback);
         submitPendingTickets(userId, context, db, dbManager, volleyCallback);
     }
+
+    @SuppressLint("Range")
 
     public static void RefreshBookingDetail(String userId, String bookingUUID, Context context, final DataLoadCallback finalCallback) {
         DbManager dbManager = new DbManager(context);
@@ -222,6 +238,17 @@ public class OutsystemsAPI extends AppCompatActivity {
             }
         };
 
+        ArrayList<Integer> IdList = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT ID FROM " + dbManager.BOOKING_TABLE, null);
+        if (cursor.getCount() != 0 && cursor.moveToFirst()) {
+            IdList = new ArrayList<>();
+            do {
+                IdList.add(cursor.getInt(cursor.getColumnIndex("ID")));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        checkBookingStatus(IdList, context, db, dbManager, volleyCallback);
         getBookingsByUser(userId, context, db, dbManager, volleyCallback);
         getTicketsByBookingUUID(bookingUUID, context, db, dbManager, volleyCallback);
     }
@@ -238,7 +265,8 @@ public class OutsystemsAPI extends AppCompatActivity {
                     response -> {
                         try {
                             if (response.getString("HTTPCode").equals("200")) {
-                                db.execSQL("DELETE FROM " + dbManager.BOOKING_TABLE + " WHERE HASH IN (\"" + response.getString("IdsToDelete") + "\")");
+                                String idsToDelete = String.join("\",\"",response.getString("IdsToDelete").split(","));
+                                db.execSQL("DELETE FROM " + dbManager.BOOKING_TABLE + " WHERE HASH IN (\"" + idsToDelete + "\")");
                                 callback.onSuccess("Booking status checked successfully");
                             } else {
                                 callback.onError(response.getString("Message"));
@@ -272,24 +300,25 @@ public class OutsystemsAPI extends AppCompatActivity {
                         if (obj.getString("HTTPCode").equals("200")) {
                             db.execSQL("DELETE FROM " + dbManager.BOOKING_TABLE + " WHERE NOT USER_ID = " + userId);
                             JSONArray bookingList = new JSONArray(obj.getString("BookingList"));
+                            if (bookingList != null) {
+                                for (int i = 0; i < bookingList.length(); i++) {
+                                    JSONObject bookingObj = bookingList.getJSONObject(i);
+                                    //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
 
-                            for (int i = 0; i < bookingList.length(); i++) {
-                                JSONObject bookingObj = bookingList.getJSONObject(i);
-                                //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-
-                                Booking booking = new Booking(
-                                        bookingObj.getInt("Id"),
-                                        bookingObj.getInt("RoomId"),
-                                        bookingObj.getInt("ReservedBy"),
-                                        bookingObj.getInt("BookingStatusId"),
-                                        Utils.convertUnixToDate(bookingObj.getString("ExpectedStartDate")),
-                                        Utils.convertUnixToDate(bookingObj.getString("ExpectedEndDate")),
-                                        Utils.convertUnixToDate(bookingObj.getString("ActualStartDate")),
-                                        Utils.convertUnixToDate(bookingObj.getString("ActualEndDate")),
-                                        Utils.convertUnixToDate(bookingObj.getString("ModifiedOn")),
-                                        bookingObj.getString("UUID")
-                                );
-                                DBBookingLocal.createOrUpdateBooking(booking, db);
+                                    Booking booking = new Booking(
+                                            bookingObj.getInt("Id"),
+                                            bookingObj.getInt("RoomId"),
+                                            bookingObj.getInt("ReservedBy"),
+                                            bookingObj.getInt("BookingStatusId"),
+                                            Utils.convertUnixToDate(bookingObj.getString("ExpectedStartDate")),
+                                            Utils.convertUnixToDate(bookingObj.getString("ExpectedEndDate")),
+                                            Utils.convertUnixToDate(bookingObj.getString("ActualStartDate")),
+                                            Utils.convertUnixToDate(bookingObj.getString("ActualEndDate")),
+                                            Utils.convertUnixToDate(bookingObj.getString("ModifiedOn")),
+                                            bookingObj.getString("UUID")
+                                    );
+                                    DBBookingLocal.createOrUpdateBooking(booking, db);
+                                }
                             }
                             callback.onSuccess("Bookings fetched successfully");
                         } else {
@@ -359,6 +388,7 @@ public class OutsystemsAPI extends AppCompatActivity {
 
         queue.add(stringRequest);
     }
+
     public static void getRoomById(int roomId, Context context, RoomCallback callback) {
         String url = apiUrl + "GetRoomById?RoomId=" + roomId;
         ArrayList<Room> roomArrayList = new ArrayList<>();
@@ -498,9 +528,8 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
-                            db.execSQL("DELETE FROM " + dbManager.BOOKING_TABLE + " WHERE Hash = '" + hash + "'");
-
                             Booking booking = new Booking(
+                                    obj.getInt("Id"),
                                     obj.getInt("RoomId"),
                                     obj.getInt("ReservedBy"),
                                     obj.getInt("BookingStatusId"),
@@ -511,7 +540,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                                     Utils.convertUnixToDate(obj.getString("ModifiedOn")),
                                     obj.getString("UUID")
                             );
-                            DBBookingLocal.createBooking(booking, db);
+                            DBBookingLocal.createOrUpdateBooking(booking, db);
                             callback.onSuccess("Validation successful");
                         } else {
                             callback.onError(obj.getString("Message"));
@@ -652,6 +681,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         );
         queue.add(stringRequest);
     }
+
     public static void getTicketsByBookingUUIDOnline(String bookingUUID, Context context, TicketCallback callback) {
         String url = apiUrl + "GetTicketsByBooking?BookingUUID=" + bookingUUID;
         ArrayList<Ticket> ticketArrayList = new ArrayList<>();

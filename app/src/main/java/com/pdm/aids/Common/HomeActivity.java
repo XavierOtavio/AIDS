@@ -89,7 +89,7 @@ public class HomeActivity extends AppCompatActivity {
 
             btnActiveBooking.setVisibility(View.VISIBLE);
         } else {
-            btnActiveBooking.setVisibility(View.GONE);
+            binding.activeBooking.setVisibility(View.GONE);
         }
 
         //-----------------Listeners-----------------

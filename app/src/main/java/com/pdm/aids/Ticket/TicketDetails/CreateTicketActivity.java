@@ -233,6 +233,7 @@ public class CreateTicketActivity extends AppCompatActivity {
                     } else {
                         ticket = new DBTicketLocal().getTicketByUUID(uuid, dbManager.getWritableDatabase());
                         ticket.setTitle(title);
+                        ticket.setIsSynchronized(false);
                         ticket.setDescription(description);
                         ticket.setLastModified(new Date(System.currentTimeMillis()));
                     }
@@ -245,7 +246,6 @@ public class CreateTicketActivity extends AppCompatActivity {
 
                         TicketImage ticketImage = new TicketImage(ticket.getId(), ticket.getId() + "_" + i + ".jpg", filepath);
                         boolean imageIsInserted = new DBTicketLocal().createTicketImage(ticketImage, this, dbManager.getWritableDatabase());
-
 
                         allImages.add(ticketImage);
                     }

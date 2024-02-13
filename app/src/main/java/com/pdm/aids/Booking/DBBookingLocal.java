@@ -243,11 +243,10 @@ public class DBBookingLocal {
     @SuppressLint("Range")
     public Booking getCurrentAvaliableBooking(SQLiteDatabase db) {
         Booking booking = null;
-        Date currentDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        String selectQuery = "SELECT * FROM " + BOOKING_TABLE + " WHERE datetime('now') BETWEEN " + COLUMN_EXPECTED_START_DATE + " AND " + COLUMN_EXPECTED_END_DATE;
+        String selectQuery = "SELECT * FROM " + BOOKING_TABLE + " WHERE datetime('now') BETWEEN " + COLUMN_EXPECTED_START_DATE + " AND " + COLUMN_EXPECTED_END_DATE + " LIMIT 1";
         Cursor cursor = db.rawQuery(selectQuery, null);
-        if (cursor.moveToFirst()) {
+        if (cursor.getCount() != 0 && cursor.moveToFirst()) {
             try {
                 Date expectedStartDate, expectedEndDate;
                 String actualStartDateString = cursor.getString(cursor.getColumnIndex(COLUMN_ACTUAL_START_DATE));

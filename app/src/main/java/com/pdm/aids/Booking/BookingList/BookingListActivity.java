@@ -151,6 +151,7 @@ public class BookingListActivity extends AppCompatActivity {
                             @Override
                             public void onError(String error) {
                                 Toast.makeText(getApplicationContext(), "Failed to load data: " + error, Toast.LENGTH_SHORT).show();
+                                throw new RuntimeException("Failed to load data: " + error);
                             }
                         });
                     } else {
