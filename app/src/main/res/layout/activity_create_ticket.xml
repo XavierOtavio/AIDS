@@ -156,7 +156,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/currentDateTime"
+                        android:id="@+id/createdDateTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -178,6 +178,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Título"
+                        android:visibility="visible"
                         android:textColorHint="@color/white">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -189,11 +190,22 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <TextView
+                        android:id="@+id/readOnlyTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Title"
+                        android:textColor="@android:color/white"
+                        android:textSize="20dp"
+                        android:visibility="gone"
+                        android:textStyle="bold" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/layout_text_description"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Descrição"
+                        android:visibility="visible"
                         android:layout_marginTop="10dp"
                         android:textColorHint="@color/white">
 
@@ -206,6 +218,15 @@
                             android:textColor="@color/white" />
 
                     </com.google.android.material.textfield.TextInputLayout>
+                    <TextView
+                        android:id="@+id/readOnlyDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Descrição"
+                        android:visibility="gone"
+                        android:textColor="@android:color/white"
+                        android:textSize="15dp"/>
 
                 </LinearLayout>
 

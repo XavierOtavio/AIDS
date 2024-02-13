@@ -58,9 +58,9 @@ public class CreateTicketActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private EditText titleEditText;
     private EditText descriptionEditText;
-    private TextView facility, currentDateTime, toolBarTitle;
+    private TextView facility, createdDateTime, toolBarTitle, readOnlyTitle, readOnlyDescription;
     private CarouselAdapter adapter;
-    private Button takePictureButton;
+    private Button takePictureButton, buttonSave, buttonCancel;
     private byte[] pictureByteArray;
     private ImageView camera, takenPicture;
     private List<Booking> booking;
@@ -69,6 +69,8 @@ public class CreateTicketActivity extends AppCompatActivity {
     private List<String> picturesToSend;
     private String userId;
     private String uuid;
+    SimpleDateFormat dateFormatHour = new SimpleDateFormat("HH:mm");
+    SimpleDateFormat dateFormatDay = new SimpleDateFormat("dd/MM/yyyy");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,12 +81,14 @@ public class CreateTicketActivity extends AppCompatActivity {
         uuid = intent.getStringExtra("uuid");
         String title = "";
         String description = "";
+        Date createdDate = new Date();
         dbManager = new DbManager(this);
         if (uuid != null) {
             try {
                 Ticket ticket = new DBTicketLocal().getTicketByUUID(uuid, dbManager.getWritableDatabase());
                 title = ticket.getTitle();
                 description = ticket.getDescription();
+                createdDate = ticket.getCreationDate();
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
@@ -143,27 +147,44 @@ public class CreateTicketActivity extends AppCompatActivity {
         descriptionEditText = findViewById(R.id.edit_text_description);
         toolbar = findViewById(R.id.toolbar_main);
         toolBarTitle = findViewById(R.id.toolbar_title);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        readOnlyTitle = findViewById(R.id.readOnlyTitle);
+        readOnlyDescription = findViewById(R.id.readOnlyDescription);
+        buttonSave = findViewById(R.id.button_save);
+        buttonCancel = findViewById(R.id.button_cancel);
+        createdDateTime = findViewById(R.id.createdDateTime);
+
         if (uuid == null) {
             toolBarTitle.setText("Reportar Problema");
+            createdDateTime.setText(dateFormatHour.format(new Date()) + "\n" + dateFormatDay.format(new Date()));
         } else {
             toolBarTitle.setText("Detalhes do Problema");
+            createdDateTime.setText(Utils.isDateNull(createdDate) ? "--:--\n--/--/----" : dateFormatHour.format(createdDate) + "\n" + dateFormatDay.format(createdDate));
         }
 
-        titleEditText.setText(title);
-        descriptionEditText.setText(description);
+
+        if (booking.get(0).getBookingStatusId() == 3) {
+            titleEditText.setVisibility(View.VISIBLE);
+            descriptionEditText.setVisibility(View.VISIBLE);
+            readOnlyTitle.setVisibility(View.GONE);
+            readOnlyDescription.setVisibility(View.GONE);
+            titleEditText.setText(title);
+            descriptionEditText.setText(description);
+        } else {
+            titleEditText.setVisibility(View.GONE);
+            descriptionEditText.setVisibility(View.GONE);
+            readOnlyTitle.setVisibility(View.VISIBLE);
+            readOnlyDescription.setVisibility(View.VISIBLE);
+            readOnlyTitle.setText(title);
+            readOnlyDescription.setText(description);
+        }
 
         facility = findViewById(R.id.facility);
-//        expectedStart = findViewById(R.id.expectedStart);
-//        expectedLeave = findViewById(R.id.expectedLeave);
 
         facility.setText(new DBRoomLocal().getRoomById(booking.get(0).getRoomId(), dbManager.getWritableDatabase()).getName());
-//        expectedStart.setText(booking.get(0).getExpectedStartDate().toString());
-//        expectedLeave.setText(booking.get(0).getExpectedEndDate().toString());
 
-        Button saveButton = findViewById(R.id.button_save);
-        saveButton.setOnClickListener(v -> saveTicket());
-
+        toolbar.setNavigationOnClickListener(v -> finish());
+        buttonCancel.setOnClickListener(v -> finish());
+        buttonSave.setOnClickListener(v -> saveTicket());
     }
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
