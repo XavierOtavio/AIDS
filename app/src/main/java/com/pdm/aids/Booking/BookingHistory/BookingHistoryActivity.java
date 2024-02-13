@@ -89,6 +89,9 @@ public class BookingHistoryActivity extends AppCompatActivity {
                     });
                 }
             }
+            if(pendingTasks[0] == 0) {
+                updateUIWithBookings(pendingTasks);
+            }
         });
 
         TextView textTitle_toolbar = findViewById(R.id.toolbar_booking_history_title);
