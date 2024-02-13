@@ -1,17 +1,31 @@
 package com.pdm.aids.Ticket;
 
+import java.util.Date;
+
 public class TicketImage {
     String id;
     String ticketUuid;
     String filename;
     String imagePath;
+    Boolean isUploaded;
+    Date last_modified;
     String image;
 
-    public TicketImage(String ticketId, String filename, String imagePath, String image) {
+    public TicketImage(String ticketId, String filename, String imagePath, String image, Date last_modified, Boolean isUploaded) {
         this.ticketUuid = ticketId;
         this.filename = filename;
         this.imagePath = imagePath;
         this.image = image;
+        this.last_modified = last_modified;
+        this.isUploaded = isUploaded;
+    }
+
+    public TicketImage(String ticketId, String filename, String imagePath, Date last_modified, Boolean isUploaded) {
+        this.ticketUuid = ticketId;
+        this.filename = filename;
+        this.imagePath = imagePath;
+        this.last_modified = last_modified;
+        this.isUploaded = isUploaded;
     }
 
     public TicketImage(String ticketId, String filename, String imagePath) {
@@ -33,6 +47,22 @@ public class TicketImage {
 
     public String getFilename() {
         return filename;
+    }
+
+    public Boolean getIsUploaded() {
+        return isUploaded;
+    }
+
+    public void setIsUploaded(Boolean isUploaded) {
+        this.isUploaded = isUploaded;
+    }
+
+    public Date getLast_modified() {
+        return last_modified;
+    }
+
+    public void setLast_modified(Date last_modified) {
+        this.last_modified = last_modified;
     }
 
     public void setFilename(String filename) {

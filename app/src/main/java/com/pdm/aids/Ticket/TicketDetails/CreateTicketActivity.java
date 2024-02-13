@@ -16,10 +16,13 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 import java.io.File;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,6 +50,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public class CreateTicketActivity extends AppCompatActivity {
@@ -85,7 +89,6 @@ public class CreateTicketActivity extends AppCompatActivity {
                 throw new RuntimeException(e);
             }
         }
-
 
 
         List<Integer> statusIds = Arrays.asList(3);
@@ -219,6 +222,8 @@ public class CreateTicketActivity extends AppCompatActivity {
                     }
                     Ticket ticket = new Ticket();
                     ArrayList<TicketImage> allImages = new ArrayList<>();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
                     if (uuid == null) {
                         UUID uuid = UUID.randomUUID();
                         String id = uuid.toString();
@@ -237,15 +242,15 @@ public class CreateTicketActivity extends AppCompatActivity {
                         ticket.setDescription(description);
                         ticket.setLastModified(new Date(System.currentTimeMillis()));
                     }
-                    for (int i= 0; i < picturesToSend.size(); i++) {
+                    for (int i = 0; i < picturesToSend.size(); i++) {
                         JSONObject img = new JSONObject();
                         img.put("Filename", ticket.getId() + "_" + i + ".jpg");
                         img.put("Image", picturesToSend.get(i));
                         String path = "ticketImages";
                         String filepath = Utils.addImageToLocalStorage(path, img, this);
 
-                        TicketImage ticketImage = new TicketImage(ticket.getId(), ticket.getId() + "_" + i + ".jpg", filepath);
-                        boolean imageIsInserted = new DBTicketLocal().createTicketImage(ticketImage, this, dbManager.getWritableDatabase());
+                        TicketImage ticketImage = new TicketImage(ticket.getId(), ticket.getId() + "_" + i + ".jpg", filepath, dateFormat.parse(new Date().toString()), false);
+                        boolean imageIsInserted = new DBTicketLocal().createOrUpdateTicketImage(ticketImage, this, dbManager.getWritableDatabase());
 
                         allImages.add(ticketImage);
                     }
@@ -253,19 +258,6 @@ public class CreateTicketActivity extends AppCompatActivity {
                     boolean ticketIsInserted;
                     ticketIsInserted = new DBTicketLocal().createOrUpdateTicket(ticket, this, dbManager.getWritableDatabase());
                     if (ticketIsInserted) {
-                        Ticket finalTicket = ticket;
-                        OutsystemsAPI.submitTicket(ticket, userId, this, new OutsystemsAPI.VolleyCallback() {
-                            @Override
-                            public void onSuccess(String result) throws ParseException {
-                                finalTicket.setIsSynchronized(true);
-                                new DBTicketLocal().createOrUpdateTicket(finalTicket, CreateTicketActivity.this, dbManager.getWritableDatabase());
-                            }
-
-                            @Override
-                            public void onError(String error) {
-                                Toast.makeText(CreateTicketActivity.this, error, Toast.LENGTH_SHORT).show();
-                            }
-                        });
                         showToast("Ticket saved successfully");
                         finish();
                     } else {

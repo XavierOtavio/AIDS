@@ -116,6 +116,7 @@ public class HomeActivity extends AppCompatActivity {
         btnActiveBooking.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, BookingDetailActivity.class);
             intent.putExtra("bookingHash", booking.getHash());
+            intent.putExtra("bookingId", booking.getId());
             startActivity(intent);
         });
 

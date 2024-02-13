@@ -2,18 +2,22 @@ package com.pdm.aids.Room;
 
 import android.graphics.Bitmap;
 
+import java.util.Date;
+
 public class RoomImage {
     private int imageId;
     private String fileName;
     private String imagePath;
     private Bitmap imageBitmap;
     private int roomId;
+    private Date last_modified;
 
-    public RoomImage(int imageId, String fileName, String imagePath, int roomId) {
+    public RoomImage(int imageId, String fileName, String imagePath, int roomIdm, Date last_modified) {
         this.imageId = imageId;
         this.fileName = fileName;
         this.imagePath = imagePath;
         this.roomId = roomId;
+        this.last_modified = last_modified;
     }
 
     public RoomImage(int imageId, String fileName, Bitmap imageBitmap, int roomId) {
@@ -25,6 +29,14 @@ public class RoomImage {
 
     public RoomImage() {
 
+    }
+
+    public void setLast_modified(Date last_modified) {
+        this.last_modified = last_modified;
+    }
+
+    public Date getLast_modified() {
+        return last_modified;
     }
 
     public Bitmap getImageBitmap() {

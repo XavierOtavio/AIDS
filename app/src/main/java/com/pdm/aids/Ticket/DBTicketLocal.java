@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.pdm.aids.Common.Utils;
+
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,6 +38,7 @@ public class DBTicketLocal {
     public static final String COLUMN_FILENAME = "FILENAME";
     public static final String COLUMN_IMAGE_PATH = "IMAGE_PATH";
     public static final String COLUMN_IS_SYNCHRONIZED_IMAGE = "IS_SYNCHRONIZED";
+    public static final String COLUMN_IMAGE_MODIFIED = "LAST_MODIFIED";
 
     public static String CreateTicketTable() {
         return "CREATE TABLE " + TICKET_TABLE + " (" +
@@ -56,6 +59,7 @@ public class DBTicketLocal {
                 COLUMN_FILENAME + " TEXT, " +
                 COLUMN_IMAGE_PATH + " TEXT, " +
                 COLUMN_IS_SYNCHRONIZED_IMAGE + " BOOLEAN, " +
+                COLUMN_IMAGE_MODIFIED + " DATE, " +
                 "FOREIGN KEY(" + COLUMN_TICKET_IMAGE_ID + ") REFERENCES " +
                 TICKET_TABLE + "(" + COLUMN_TICKET_ID + ")" +
                 ")";
@@ -110,13 +114,43 @@ public class DBTicketLocal {
     public static boolean createTicketImage(TicketImage ticketImage, Context context, SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
         cv.put(COLUMN_TICKET_IMAGE_ID, ticketImage.getTicketUuid());
         cv.put(COLUMN_FILENAME, ticketImage.getFilename());
         cv.put(COLUMN_IMAGE_PATH, ticketImage.getImagePath());
-
+        cv.put(COLUMN_IS_SYNCHRONIZED_IMAGE, ticketImage.getIsUploaded());
+        cv.put(COLUMN_IMAGE_MODIFIED, dateFormat.format(ticketImage.getLast_modified()));
 
         long insert = db.insert(TICKET_IMAGE_TABLE, null, cv);
         return insert != -1;
+    }
+
+    public static boolean updateTicketImage(TicketImage ticketImage, Context context, SQLiteDatabase db) {
+        ContentValues cv = new ContentValues();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        cv.put(COLUMN_TICKET_IMAGE_ID, ticketImage.getTicketUuid());
+        cv.put(COLUMN_FILENAME, ticketImage.getFilename());
+        cv.put(COLUMN_IMAGE_PATH, ticketImage.getImagePath());
+        cv.put(COLUMN_IS_SYNCHRONIZED_IMAGE, ticketImage.getIsUploaded());
+        cv.put(COLUMN_IMAGE_MODIFIED, dateFormat.format(ticketImage.getLast_modified()));
+
+        long insert = db.update(TICKET_IMAGE_TABLE, cv, COLUMN_FILENAME + " = ?", new String[]{ticketImage.getFilename()});
+        return insert != -1;
+    }
+
+    public static boolean createOrUpdateTicketImage(TicketImage ticketImage, Context context, SQLiteDatabase db) {
+        TicketImage foundTicketImage = getTicketImageByFilename(ticketImage, db);
+        if (foundTicketImage == null) {
+            return createTicketImage(ticketImage, context, db);
+        } else {
+            if (foundTicketImage.getLast_modified().before(ticketImage.getLast_modified())) {
+                return updateTicketImage(ticketImage, context, db);
+            }
+            return true;
+        }
     }
 
 
@@ -196,12 +230,12 @@ public class DBTicketLocal {
 
 
     @SuppressLint("Range")
-    public static ArrayList<Ticket> getAllTicketsByBookingId(String bookingId, SQLiteDatabase db) throws ParseException {
+    public static ArrayList<Ticket> getAllTicketsByBookingId(String bookingHash, SQLiteDatabase db) throws ParseException {
         ArrayList<Ticket> ticketList = new ArrayList<>();
 
         String query = "SELECT * FROM " + TICKET_TABLE +
-                " WHERE " + COLUMN_BOOKING_ID + " = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{bookingId});
+                " WHERE " + COLUMN_BOOKING_ID + " = \"" + bookingHash + "\"";
+        Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.moveToFirst()) {
             do {
@@ -217,7 +251,7 @@ public class DBTicketLocal {
 
                 ArrayList<TicketImage> ticketImages = getTicketImagesForTicket(ticketId, db);
 
-                Ticket ticket = new Ticket(ticketId, bookingId, isSynchronized, title, description, startDate, modifiedDate, ticketImages);
+                Ticket ticket = new Ticket(ticketId, bookingHash, isSynchronized, title, description, startDate, modifiedDate, ticketImages);
                 ticketList.add(ticket);
             } while (cursor.moveToNext());
         }
@@ -279,6 +313,25 @@ public class DBTicketLocal {
             if (imgFile.exists()) {
                 return BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             }
+        }
+        if (!cursor.isClosed()) {
+            cursor.close();
+        }
+        return null;
+    }
+
+    @SuppressLint("Range")
+    public static TicketImage getTicketImageByFilename(TicketImage ticketImage, SQLiteDatabase db) {
+        String query = "SELECT * FROM " + TICKET_IMAGE_TABLE + " WHERE " + COLUMN_FILENAME + " = \"" + ticketImage.getFilename() + "\"";
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.getCount() != 0 && cursor.moveToFirst()) {
+            String ticketId = cursor.getString(cursor.getColumnIndex(COLUMN_TICKET_IMAGE_ID));
+            String imagePath = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH));
+            String filename = cursor.getString(cursor.getColumnIndex(COLUMN_FILENAME));
+            String image = Utils.imageConvert(BitmapFactory.decodeFile(new File(cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH))).getAbsolutePath()));
+            boolean isUploaded = cursor.getInt(cursor.getColumnIndex(COLUMN_IS_SYNCHRONIZED_IMAGE)) > 0;
+            Date last_modified = Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_MODIFIED)));
+            return new TicketImage(ticketId, filename, imagePath, image, last_modified, isUploaded);
         }
         if (!cursor.isClosed()) {
             cursor.close();

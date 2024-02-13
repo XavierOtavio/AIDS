@@ -164,7 +164,8 @@ public class BookingDetailActivity extends AppCompatActivity {
                         public void onRoomImageReceived(RoomImage roomImage) {
                             onlineRoomImage = roomImage.getImageBitmap();
                             uiHandler.post(() -> {
-                                        binding.banner.setBackground(new BitmapDrawable(getResources(), onlineRoomImage));
+                                        Drawable roomImageDrawable = new BitmapDrawable(getResources(), onlineRoomImage);
+                                        binding.banner.setBackground(roomImageDrawable);
                                         binding.roomName.setText(room.getName());
                                     }
                             );
@@ -190,7 +191,7 @@ public class BookingDetailActivity extends AppCompatActivity {
             public void run() {
                 if (networkChecker.isInternetConnected()) {
                     String userId = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", "");
-                    OutsystemsAPI.RefreshBookingDetail(userId, getIntent().getStringExtra("bookingHash"), BookingDetailActivity.this, new OutsystemsAPI.DataLoadCallback() {
+                    OutsystemsAPI.RefreshBookingDetail(userId, getIntent().getStringExtra("bookingHash"), getIntent().getIntExtra("bookingId", 0), BookingDetailActivity.this, new OutsystemsAPI.DataLoadCallback() {
                         @Override
                         public void onDataLoaded() {
                             try (DbManager dbManager = new DbManager(BookingDetailActivity.this)) {
@@ -214,6 +215,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                             } catch (Exception e) {
                                 System.out.println(e.getMessage());
                                 uiHandler.post(() -> Toast.makeText(BookingDetailActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                                throw new RuntimeException("Error: " + e.getMessage());
                             }
                         }
 
@@ -229,8 +231,7 @@ public class BookingDetailActivity extends AppCompatActivity {
                         tickets = DBTicketLocal.getAllTicketsByBookingId(booking.getHash(), dbManager.getReadableDatabase());
 
                         for (Ticket ticket : tickets) {
-                            listData = ticketLisDataArray.stream().filter(t -> t.getUuid().equals(ticket.getId())).findFirst().orElse(null);
-                            if (listData == null) {
+                            if (ticketLisDataArray.stream().noneMatch(t -> t.getUuid().equals(ticket.getId()))) {
                                 listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId(), ticket.getIsSynchronized());
                                 ticketLisDataArray.add(listData);
                             }
@@ -378,19 +379,19 @@ public class BookingDetailActivity extends AppCompatActivity {
         }
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (selectedBooking != null) {
-            // Do something with selectedBooking
-        } else {
-            loadLocalDataInBackGround();
-        }
-        if (networkChecker != null) {
-            networkChecker.registerNetworkCallback();
-        }
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        if (networkChecker != null) {
+//            networkChecker.registerNetworkCallback();
+//            if (selectedBooking != null) {
+//                // Do something with selectedBooking
+//            } else {
+//                loadLocalDataInBackGround();
+//                populateTicketsLinearLayout(ticketLisDataArray);
+//            }
+//        }
+//    }
 
     @Override
     protected void onStop() {

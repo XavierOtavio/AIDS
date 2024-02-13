@@ -41,14 +41,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLOutput;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 
@@ -74,6 +70,7 @@ public class OutsystemsAPI extends AppCompatActivity {
 
     public interface RoomCallback {
         void onRoomsReceived(Room room);
+
         void onError(String error);
     }
 
@@ -230,11 +227,10 @@ public class OutsystemsAPI extends AppCompatActivity {
     }
 
     @SuppressLint("Range")
-
-    public static void RefreshBookingDetail(String userId, String bookingUUID, Context context, final DataLoadCallback finalCallback) {
+    public static void RefreshBookingDetail(String userId, String bookingUUID, int bookingId, Context context, final DataLoadCallback finalCallback) {
         DbManager dbManager = new DbManager(context);
         SQLiteDatabase db = dbManager.getWritableDatabase();
-        final int[] pendingTasks = {2};
+        final int[] pendingTasks = {4};
         final String[] errorMessages = {null};
 
         VolleyCallback volleyCallback = new VolleyCallback() {
@@ -270,7 +266,8 @@ public class OutsystemsAPI extends AppCompatActivity {
         cursor.close();
 
         checkBookingStatus(IdList, context, db, dbManager, volleyCallback);
-        getBookingsByUser(userId, context, db, dbManager, volleyCallback);
+        submitPendingTickets(userId, context, db, dbManager, volleyCallback);
+        getBookingById(bookingId, context, db, dbManager, volleyCallback);
         getTicketsByBookingUUID(bookingUUID, context, db, dbManager, volleyCallback);
     }
 
@@ -320,6 +317,53 @@ public class OutsystemsAPI extends AppCompatActivity {
             callback.onError("Error converting Ticket to JSON " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public static void getBookingById(int bookingId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
+        String url = apiUrl + "GetBookingById?BookingId=" + bookingId;
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            JSONObject bookingObj = new JSONObject(obj.getString("Booking"));
+                            Booking booking = new Booking(
+                                    bookingObj.getInt("Id"),
+                                    bookingObj.getInt("RoomId"),
+                                    bookingObj.getInt("ReservedBy"),
+                                    bookingObj.getInt("BookingStatusId"),
+                                    Utils.convertUnixToDate(bookingObj.getString("ExpectedStartDate")),
+                                    Utils.convertUnixToDate(bookingObj.getString("ExpectedEndDate")),
+                                    Utils.convertUnixToDate(bookingObj.getString("ActualStartDate")),
+                                    Utils.convertUnixToDate(bookingObj.getString("ActualEndDate")),
+                                    Utils.convertUnixToDate(bookingObj.getString("ModifiedOn")),
+                                    bookingObj.getString("UUID"));
+                            DBBookingLocal.createOrUpdateBooking(booking, db);
+                            callback.onSuccess("Booking fetched successfully");
+                        } else {
+                            Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                        }
+
+                    } catch (
+                            JSONException e) {
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    } catch (
+                            ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                }, error -> {
+            try {
+                JSONObject obj = new JSONObject(error.getMessage());
+                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+        );
+        queue.add(stringRequest);
     }
 
     public static void getBookingsByUser(String userId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
@@ -451,6 +495,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                             roomImage.setFileName(imageObj.getString("Filename"));
                             roomImage.setImageBitmap(Utils.imageConvert(imageObj.getString("Image")));
                             roomImage.setRoomId(imageObj.getInt("RoomId"));
+                            roomImage.setLast_modified(Utils.convertUnixToDate(imageObj.getString("ModifiedOn")));
                             callback.onRoomImageReceived(roomImage);
                         } else {
                             callback.onError(obj.getString("Message"));
@@ -887,8 +932,6 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
-                            //TODO: ISTO NÃO PODE ACONTECER. OS TICKETS PODEM AINDA NÃO TEREM SIDO SINCRONIZADOS
-                            db.execSQL("DELETE FROM " + dbManager.TICKET_IMAGE_TABLE);
                             JSONArray imageList = new JSONArray(obj.getString("TicketImageList"));
                             for (int i = 0; i < imageList.length(); i++) {
                                 JSONObject imageObj = imageList.getJSONObject(i);
@@ -898,8 +941,10 @@ public class OutsystemsAPI extends AppCompatActivity {
                                 ticketImage.setFilename(imageObj.getString("Filename"));
                                 ticketImage.setImagePath(filePath);
                                 ticketImage.setTicketUuid((imageObj.getString("TicketUUID")));
+                                ticketImage.setIsUploaded(true);
+                                ticketImage.setLast_modified(Utils.convertUnixToDate(imageObj.getString("ModifiedOn")));
 
-                                DBTicketLocal.createTicketImage(ticketImage, context, db);
+                                DBTicketLocal.createOrUpdateTicketImage(ticketImage, context, db);
                             }
                             callback.onSuccess("Ticket Images fetched successfully");
                         } else {

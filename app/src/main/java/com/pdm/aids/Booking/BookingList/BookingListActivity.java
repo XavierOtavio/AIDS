@@ -102,6 +102,7 @@ public class BookingListActivity extends AppCompatActivity {
         binding.listView.setOnItemClickListener((adapterView, view, i, l) -> {
             Intent intent = new Intent(BookingListActivity.this, BookingDetailActivity.class);
             intent.putExtra("bookingHash", bookings.get(i).getHash());
+            intent.putExtra("bookingId", bookings.get(i).getId());
             startActivity(intent);
         });
 
