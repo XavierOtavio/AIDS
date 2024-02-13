@@ -564,6 +564,19 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
+
+//################################################################
+//||                                                            ||
+//||            _______  _        _          _                  ||
+//||           |__   __|(_)      | |        | |                 ||
+//||              | |    _   ___ | | __ ___ | |_  ___           ||
+//||              | |   | | / __|| |/ // _ \| __|/ __|          ||
+//||              | |   | || (__ |   <|  __/| |_ \__ \          ||
+//||              |_|   |_| \___||_|\_\\___| \__||___/          ||
+//||                                                            ||
+//################################################################
+
+
     @SuppressLint("Range")
     public static void submitPendingTickets(String userId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
         Cursor cursor = db.rawQuery("SELECT * FROM " + dbManager.TICKET_TABLE + " WHERE IS_SYNCHRONIZED = 0", null);

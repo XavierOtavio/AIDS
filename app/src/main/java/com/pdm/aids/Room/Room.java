@@ -1,8 +1,11 @@
 package com.pdm.aids.Room;
 
+import java.util.Date;
+
 public class Room {
     int id;
     String name, description;
+    Date LastUpdate;
 
     public Room(int id, String name, String description){
         this.id = id;
@@ -19,5 +22,13 @@ public class Room {
 
     public String getName() {
         return name;
+    }
+
+    public Date getLastUpdate() {
+        return LastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.LastUpdate = lastUpdate;
     }
 }
