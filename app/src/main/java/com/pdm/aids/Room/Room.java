@@ -7,10 +7,11 @@ public class Room {
     String name, description;
     Date LastUpdate;
 
-    public Room(int id, String name, String description){
+    public Room(int id, String name, String description, Date modifiedDate){
         this.id = id;
         this.name = name;
         this.description = description;
+        this.LastUpdate = modifiedDate;
     }
 
     public int getId() {
