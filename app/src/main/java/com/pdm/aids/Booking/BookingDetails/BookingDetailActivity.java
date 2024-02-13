@@ -62,7 +62,7 @@ public class BookingDetailActivity extends AppCompatActivity {
     private ActivityBookingDetailBinding binding;
     private Booking booking;
     private Room room;
-    private Bitmap qrBitmap, roomImageBitmap, onlineRoomImage;
+    private Bitmap qrBitmap, roomImageBitmap;
     private Utils utils;
     ListData listData;
     ArrayList<ListData> ticketLisDataArray = new ArrayList<>();
@@ -162,9 +162,9 @@ public class BookingDetailActivity extends AppCompatActivity {
                     OutsystemsAPI.getRoomImageOnline(room.getId(), BookingDetailActivity.this, new OutsystemsAPI.RoomImageCallback() {
                         @Override
                         public void onRoomImageReceived(RoomImage roomImage) {
-                            onlineRoomImage = roomImage.getImageBitmap();
+                            roomImageBitmap = roomImage.getImageBitmap();
                             uiHandler.post(() -> {
-                                        Drawable roomImageDrawable = new BitmapDrawable(getResources(), onlineRoomImage);
+                                        Drawable roomImageDrawable = new BitmapDrawable(getResources(), roomImageBitmap);
                                         binding.banner.setBackground(roomImageDrawable);
                                         binding.roomName.setText(room.getName());
                                     }
@@ -379,19 +379,19 @@ public class BookingDetailActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        if (networkChecker != null) {
-//            networkChecker.registerNetworkCallback();
-//            if (selectedBooking != null) {
-//                // Do something with selectedBooking
-//            } else {
-//                loadLocalDataInBackGround();
-//                populateTicketsLinearLayout(ticketLisDataArray);
-//            }
-//        }
-//    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (networkChecker != null) {
+            networkChecker.registerNetworkCallback();
+            if (selectedBooking != null) {
+                // Do something with selectedBooking
+            } else {
+                loadLocalDataInBackGround();
+                populateTicketsLinearLayout(ticketLisDataArray);
+            }
+        }
+    }
 
     @Override
     protected void onStop() {
