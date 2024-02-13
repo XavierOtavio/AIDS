@@ -7,6 +7,24 @@
     android:background="@color/primary"
     tools:context=".Login.RegisterActivity">
 
+    <LinearLayout
+        android:id="@+id/loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone"
+        android:background="#20000000"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"
+            android:indeterminateTint="#F39C12"
+            android:visibility="visible" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

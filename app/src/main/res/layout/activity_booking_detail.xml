@@ -254,7 +254,8 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
                         android:visibility="gone"
-                        android:text="Não existem problemas reportados para reserva"
+                        android:layout_marginBottom="8dp"
+                        android:text="Não existem problemas"
                         android:textSize="15sp"/>
 
                     <RelativeLayout
