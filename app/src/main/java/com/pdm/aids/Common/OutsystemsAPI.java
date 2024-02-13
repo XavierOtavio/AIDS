@@ -427,8 +427,8 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    public static void getRoomImages(String roomId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
-        String url = apiUrl + "GetRoomImagesUserNeeds?UserId=" + roomId;
+    public static void getRoomImages(String userId, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
+        String url = apiUrl + "GetRoomImagesUserNeeds?UserId=" + userId;
 
         RequestQueue queue = Volley.newRequestQueue(context);
 
@@ -825,4 +825,5 @@ public class OutsystemsAPI extends AppCompatActivity {
         );
         queue.add(stringRequest);
     }
+
 }

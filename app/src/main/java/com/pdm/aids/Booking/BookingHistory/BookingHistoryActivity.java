@@ -50,12 +50,14 @@ public class BookingHistoryActivity extends AppCompatActivity {
     ArrayList<ListData> dataArrayList = new ArrayList<>();
     ArrayList<Booking> bookings = new ArrayList<>();
     List<Room> rooms = new ArrayList<>();
+    List<Bitmap> roomImages = new ArrayList<>();
     Room currentRoom;
     Bitmap currentRoomImage;
     ListData listData;
     private String id;
     private NetworkChecker networkChecker;
     public static Booking selectedBooking;
+    public static Room selectedRoom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +86,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
                                 currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
                             }
                         }
+                        roomImages.add(currentRoomImage);
                         listData = new ListData(currentRoom.getName(),
                                 bookings.get(i).getExpectedStartDate(),
                                 bookings.get(i).getExpectedEndDate(),
@@ -136,6 +139,11 @@ public class BookingHistoryActivity extends AppCompatActivity {
 
         listItem.setOnItemClickListener((adapterView, view, i, l) -> {
             selectedBooking = bookings.get(i);
+            for (int j = 0; j < rooms.size(); j++) {
+                if (rooms.get(j).getId() == selectedBooking.getRoomId()) {
+                    selectedRoom = rooms.get(j);
+                }
+            }
             Intent intent = new Intent(BookingHistoryActivity.this, BookingDetailActivity.class);
             startActivity(intent);
         });
