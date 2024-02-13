@@ -14,6 +14,10 @@ public class Room {
         this.LastUpdate = modifiedDate;
     }
 
+    public Room() {
+
+    }
+
     public int getId() {
         return id;
     }

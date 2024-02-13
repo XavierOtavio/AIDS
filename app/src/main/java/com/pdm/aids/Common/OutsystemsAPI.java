@@ -49,6 +49,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 
 public class OutsystemsAPI extends AppCompatActivity {
@@ -72,7 +73,14 @@ public class OutsystemsAPI extends AppCompatActivity {
     }
 
     public interface RoomCallback {
-        void onRoomsReceived(ArrayList<Room> roomArrayList);
+        void onRoomsReceived(Room room);
+        void onError(String error);
+    }
+
+    public interface RoomImageCallback {
+        void onRoomImageReceived(RoomImage roomImage);
+
+        void onError(String error);
     }
 
     public interface TicketCallback {
@@ -116,6 +124,18 @@ public class OutsystemsAPI extends AppCompatActivity {
         );
         queue.add(stringRequest);
     }
+
+//############################################################//
+//                                                            //
+//            ______     _         _                          //
+//           |  ____|   | |       | |                         //
+//           | |__  ___ | |_  ___ | |__    ___  ___           //
+//           |  __|/ _ \| __|/ __|| '_ \  / _ \/ __|          //
+//           | |  |  __/| |_| (__ | | | ||  __/\__ \          //
+//           |_|   \___| \__|\___||_| |_| \___||___/          //
+//                                                            //
+//############################################################//
+
 
     @SuppressLint("Range")
     public static void getDataFromAPI(String userId, Context context, final DataLoadCallback finalCallback) {
@@ -254,6 +274,19 @@ public class OutsystemsAPI extends AppCompatActivity {
         getTicketsByBookingUUID(bookingUUID, context, db, dbManager, volleyCallback);
     }
 
+//############################################################//
+//                                                            //
+//         ____                 _     _                       //
+//        |  _ \               | |   (_)                      //
+//        | |_) |  ___    ___  | | __ _  _ __    __ _         //
+//        |  _ <  / _ \  / _ \ | |/ /| || '_ \  / _` |        //
+//        | |_) || (_) || (_) ||   < | || | | || (_| |        //
+//        |____/  \___/  \___/ |_|\_\|_||_| |_| \__, |        //
+//                                               __/ |        //
+//                                              |___/         //
+//                                                            //
+//############################################################//
+
     public static void checkBookingStatus(ArrayList<Integer> bookingIds, Context context, SQLiteDatabase db, DbManager dbManager, final VolleyCallback callback) {
         String url = apiUrl + "CheckBookingStatus";
 
@@ -359,6 +392,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                             for (int i = 0; i < bookingList.length(); i++) {
                                 JSONObject bookingObj = bookingList.getJSONObject(i);
                                 Booking booking = new Booking(
+                                        bookingObj.getInt("Id"),
                                         bookingObj.getInt("RoomId"),
                                         bookingObj.getInt("ReservedBy"),
                                         bookingObj.getInt("BookingStatusId"),
@@ -390,9 +424,20 @@ public class OutsystemsAPI extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    public static void getRoomById(int roomId, Context context, RoomCallback callback) {
-        String url = apiUrl + "GetRoomById?RoomId=" + roomId;
-        ArrayList<Room> roomArrayList = new ArrayList<>();
+//############################################################//
+//             _____                                          //
+//            |  __ \                                         //
+//            | |__) | ___    ___   _ __ ___   ___            //
+//            |  _  / / _ \  / _ \ | '_ ` _ \ / __|           //
+//            | | \ \| (_) || (_) || | | | | |\__ \           //
+//            |_|  \_\\___/  \___/ |_| |_| |_||___/           //
+//                                                            //
+//############################################################//
+
+
+    public static void getRoomImageOnline(int RoomId, Context context, RoomImageCallback callback) {
+        String url = apiUrl + "GetRoomImageByRoom?RoomId=" + RoomId;
+        RoomImage roomImage = new RoomImage();
 
         RequestQueue queue = Volley.newRequestQueue(context);
 
@@ -401,20 +446,50 @@ public class OutsystemsAPI extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
+                            JSONObject imageObj = new JSONObject(obj.getString("RoomImage"));
+                            roomImage.setImageId(imageObj.getInt("Id"));
+                            roomImage.setFileName(imageObj.getString("Filename"));
+                            roomImage.setImageBitmap(Utils.imageConvert(imageObj.getString("Image")));
+                            roomImage.setRoomId(imageObj.getInt("RoomId"));
+                            callback.onRoomImageReceived(roomImage);
+                        } else {
+                            callback.onError(obj.getString("Message"));
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }, error -> {
+            try {
+                JSONObject obj = new JSONObject(error.getMessage());
+                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+        );
+        queue.add(stringRequest);
+    }
+
+    public static void getRoomById(int roomId, Context context, RoomCallback callback) {
+        String url = apiUrl + "GetRoomById?RoomId=" + roomId;
+        RequestQueue queue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            Room room = new Room();
                             JSONArray roomList = new JSONArray(obj.getString("RoomList"));
                             for (int i = 0; i < roomList.length(); i++) {
                                 JSONObject roomListJSONObject = roomList.getJSONObject(i);
-
-                                Room room = new Room(
+                                room = new Room(
                                         roomListJSONObject.getInt("Id"),
                                         roomListJSONObject.getString("Name"),
                                         roomListJSONObject.getString("Description"),
                                         Utils.convertUnixToDate(roomListJSONObject.getString("ModifiedOn"))
                                 );
-                                roomArrayList.add(room);
                             }
-
-                            callback.onRoomsReceived(roomArrayList);
+                            callback.onRoomsReceived(room);
                         } else {
                             Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
                         }
@@ -423,7 +498,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                     }
                 }, error -> {
             try {
-                JSONObject obj = new JSONObject(error.getMessage());
+                JSONObject obj = new JSONObject(Objects.requireNonNull(error.getMessage()));
                 Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
             } catch (JSONException e) {
                 Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -576,16 +651,15 @@ public class OutsystemsAPI extends AppCompatActivity {
     }
 
 
-//################################################################
-//||                                                            ||
-//||            _______  _        _          _                  ||
-//||           |__   __|(_)      | |        | |                 ||
-//||              | |    _   ___ | | __ ___ | |_  ___           ||
-//||              | |   | | / __|| |/ // _ \| __|/ __|          ||
-//||              | |   | || (__ |   <|  __/| |_ \__ \          ||
-//||              |_|   |_| \___||_|\_\\___| \__||___/          ||
-//||                                                            ||
-//################################################################
+//############################################################//
+//            _______  _        _          _                  //
+//           |__   __|(_)      | |        | |                 //
+//              | |    _   ___ | | __ ___ | |_  ___           //
+//              | |   | | / __|| |/ // _ \| __|/ __|          //
+//              | |   | || (__ |   <|  __/| |_ \__ \          //
+//              |_|   |_| \___||_|\_\\___| \__||___/          //
+//                                                            //
+//############################################################//
 
 
     @SuppressLint("Range")

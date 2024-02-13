@@ -31,7 +31,7 @@ public class DBRoomLocal {
                 COLUMN_ID + " INTEGER, " +
                 COLUMN_NAME + " TEXT, " +
                 COLUMN_DESCRIPTION + " TEXT, " +
-                COLUMN_LAST_UPDATE + " DATETIME" +
+                COLUMN_LAST_UPDATE + " DATE" +
                 ");";
     }
 

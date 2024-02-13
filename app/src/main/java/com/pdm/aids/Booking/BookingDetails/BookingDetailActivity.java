@@ -86,11 +86,11 @@ public class BookingDetailActivity extends AppCompatActivity {
         uiHandler = new Handler(Looper.getMainLooper());
         binding.progressBar.setVisibility(View.VISIBLE);
         binding.linearLayoutContent.setVisibility(View.GONE);
-        Booking selectedBooking = BookingHistoryActivity.selectedBooking;
 
         setupNetworkChecker();
 
-        if (selectedBooking != null) {
+        if (selectedBooking != null && BookingHistoryActivity.selectedBooking != null) {
+            booking = BookingHistoryActivity.selectedBooking;
             loadDataInBackGround();
         } else {
             loadLocalDataInBackGround();
@@ -139,38 +139,51 @@ public class BookingDetailActivity extends AppCompatActivity {
     }
 
     private void loadDataInBackGround() {
+        final int[] pendingTasks = {2};
         executorService.submit(new Runnable() {
             @Override
             public void run() {
-            if (networkChecker.isInternetConnected()) {
-                String userId = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", "");
+                if (networkChecker.isInternetConnected()) {
+                    String userId = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE).getString("Id", "");
+                    room = BookingHistoryActivity.selectedRoom;
+                    OutsystemsAPI.getTicketsByBookingUUIDOnline(booking.getHash(), BookingDetailActivity.this, ticketArrayList -> {
+                        tickets = ticketArrayList;
+                        for (Ticket ticket : tickets) {
+                            listData = ticketLisDataArray.stream().filter(t -> t.getUuid().equals(ticket.getId())).findFirst().orElse(null);
 
-                            booking = selectedBooking;
-                            room = BookingHistoryActivity.selectedRoom;
-                            OutsystemsAPI.getTicketsByBookingUUIDOnline(booking.getHash(), BookingDetailActivity.this, ticketArrayList -> {
-                                tickets = ticketArrayList;
-                                System.out.println("TIKETS111: " + tickets);
-                                for (Ticket ticket : tickets) {
-                                    listData = ticketLisDataArray.stream().filter(t -> t.getUuid().equals(ticket.getId())).findFirst().orElse(null);
-
-                                    if(listData == null) {
-                                        listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId(), ticket.getIsSynchronized());
-                                        ticketLisDataArray.add(listData);
+                            if (listData == null) {
+                                listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId(), ticket.getIsSynchronized());
+                                ticketLisDataArray.add(listData);
+                            }
+                        }
+                        pendingTasks[0]--;
+                        UI_Run(pendingTasks);
+                    });
+                    OutsystemsAPI.getRoomImageOnline(room.getId(), BookingDetailActivity.this, new OutsystemsAPI.RoomImageCallback() {
+                        @Override
+                        public void onRoomImageReceived(RoomImage roomImage) {
+                            onlineRoomImage = roomImage.getImageBitmap();
+                            uiHandler.post(() -> {
+                                        binding.banner.setBackground(new BitmapDrawable(getResources(), onlineRoomImage));
+                                        binding.roomName.setText(room.getName());
                                     }
-                                }
-                                uiHandler.post(() -> {
-                                    populateUIFromDatabase();
-                                    binding.progressBar.setVisibility(View.GONE);
-                                    binding.linearLayoutContent.setVisibility(View.VISIBLE);
-                                });
-                            });
+                            );
+                            pendingTasks[0]--;
+                            UI_Run(pendingTasks);
+                        }
 
-            } else {
-                onDestroy();
-            }
+                        @Override
+                        public void onError(String error) {
+                            throw new RuntimeException("Error: " + error);
+                        }
+                    });
+                } else {
+                    onDestroy();
+                }
             }
         });
     }
+
     private void loadLocalDataInBackGround() {
         executorService.submit(new Runnable() {
             @Override
@@ -187,14 +200,14 @@ public class BookingDetailActivity extends AppCompatActivity {
 
                                 for (Ticket ticket : tickets) {
                                     listData = ticketLisDataArray.stream().filter(t -> t.getUuid().equals(ticket.getId())).findFirst().orElse(null);
-                                    if(listData == null) {
+                                    if (listData == null) {
                                         listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId(), ticket.getIsSynchronized());
                                         ticketLisDataArray.add(listData);
                                     }
                                 }
 
                                 uiHandler.post(() -> {
-                                    populateUIFromDatabase();
+                                    populateUIFromDatabase(false);
                                     binding.progressBar.setVisibility(View.GONE);
                                     binding.linearLayoutContent.setVisibility(View.VISIBLE);
                                 });
@@ -217,14 +230,14 @@ public class BookingDetailActivity extends AppCompatActivity {
 
                         for (Ticket ticket : tickets) {
                             listData = ticketLisDataArray.stream().filter(t -> t.getUuid().equals(ticket.getId())).findFirst().orElse(null);
-                            if(listData == null) {
+                            if (listData == null) {
                                 listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId(), ticket.getIsSynchronized());
                                 ticketLisDataArray.add(listData);
                             }
                         }
 
                         uiHandler.post(() -> {
-                            populateUIFromDatabase();
+                            populateUIFromDatabase(false);
                             binding.progressBar.setVisibility(View.GONE);
                             binding.linearLayoutContent.setVisibility(View.VISIBLE);
                         });
@@ -253,7 +266,24 @@ public class BookingDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void populateUIFromDatabase() {
+    public void UI_Run(int[] count) {
+        if (count[0] == 0) {
+            executorService.submit(new Runnable() {
+                public void run() {
+                    uiHandler.post(() ->
+
+                    {
+                        populateUIFromDatabase(true);
+                        binding.progressBar.setVisibility(View.GONE);
+                        binding.linearLayoutContent.setVisibility(View.VISIBLE);
+                    });
+                }
+            });
+        }
+    }
+
+    private void populateUIFromDatabase(boolean fromHistory) {
+
         System.out.println(1);
         binding.toolbarTitle.setText(String.format("Reserva: %s", room != null ? room.getName() : ""));
         binding.startDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "--:--\n--/--/----" : dateFormatHour.format(booking.getExpectedStartDate()) + "\n" + dateFormatDay.format(booking.getExpectedStartDate()));
@@ -269,7 +299,7 @@ public class BookingDetailActivity extends AppCompatActivity {
             binding.ticketListEmpty.setVisibility(View.VISIBLE);
         }
 
-        if (room != null) {
+        if (room != null && !fromHistory) {
             roomImageBitmap = DBRoomImageLocal.getRoomImageByRoomId(room.getId(), new DbManager(this).getReadableDatabase());
             Drawable roomImageDrawable = new BitmapDrawable(getResources(), roomImageBitmap);
             binding.banner.setBackground(roomImageDrawable);
@@ -309,7 +339,8 @@ public class BookingDetailActivity extends AppCompatActivity {
                 binding.bookingStatus.setTextColor(getResources().getColor(R.color.red));
                 binding.bookingStatus.setBackgroundTintList(getResources().getColorStateList(R.color.red));
                 break;
-            default: break;
+            default:
+                break;
         }
     }
 
@@ -346,7 +377,6 @@ public class BookingDetailActivity extends AppCompatActivity {
             ticketsContainer.addView(ticketItemView);
         }
     }
-
 
 
     @Override
@@ -430,7 +460,6 @@ public class BookingDetailActivity extends AppCompatActivity {
 
         qrCodeLauncher.launch(options);
     }
-
 
 
     private ActivityResultLauncher<ScanOptions> qrCodeLauncher = registerForActivityResult(new ScanContract(), result -> {

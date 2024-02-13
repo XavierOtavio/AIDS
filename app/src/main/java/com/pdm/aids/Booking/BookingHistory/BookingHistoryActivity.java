@@ -43,6 +43,7 @@ import com.pdm.aids.databinding.ActivityBookingHistoryBinding;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class BookingHistoryActivity extends AppCompatActivity {
     ActivityBookingHistoryBinding binding;
@@ -50,10 +51,6 @@ public class BookingHistoryActivity extends AppCompatActivity {
     ArrayList<ListData> dataArrayList = new ArrayList<>();
     ArrayList<Booking> bookings = new ArrayList<>();
     List<Room> rooms = new ArrayList<>();
-    List<Bitmap> roomImages = new ArrayList<>();
-    Room currentRoom;
-    Bitmap currentRoomImage;
-    ListData listData;
     private String id;
     private NetworkChecker networkChecker;
     public static Booking selectedBooking;
@@ -71,39 +68,28 @@ public class BookingHistoryActivity extends AppCompatActivity {
         OutsystemsAPI.getBookingsHistory(id, this, bookingArrayList -> {
             bookings.clear();
             bookings.addAll(bookingArrayList);
-        });
-
-        try (DbManager dataBaseHelper = new DbManager(this)) {
-            OutsystemsAPI.getDataFromAPI(id, this, new OutsystemsAPI.DataLoadCallback() {
-                @Override
-                public void onDataLoaded() {
-                    rooms = new DBRoomLocal().getAllRooms(dataBaseHelper.getWritableDatabase());
-
-                    for (int i = 0; i < bookings.size(); i++) {
-                        for (int j = 0; j < rooms.size(); j++) {
-                            if (rooms.get(j).getId() == bookings.get(i).getRoomId()) {
-                                currentRoom = rooms.get(j);
-                                currentRoomImage = new DBRoomImageLocal().getRoomImageByRoomId(currentRoom.getId(), dataBaseHelper.getWritableDatabase());
+            final int[] pendingTasks = {bookings.stream().mapToInt(Booking::getRoomId).distinct().toArray().length};
+            for (int i = 0; i < bookings.size(); i++) {
+                int tempRoomId = bookings.get(i).getRoomId();
+                if (rooms.stream().noneMatch(room -> room.getId() == tempRoomId)) {
+                    OutsystemsAPI.getRoomById(tempRoomId, this, new OutsystemsAPI.RoomCallback() {
+                        @Override
+                        public void onRoomsReceived(Room room) {
+                            if(rooms.stream().noneMatch(r -> r.getId() == room.getId())) {
+                                rooms.add(room);
+                                pendingTasks[0]--;
+                                updateUIWithBookings(pendingTasks);
                             }
                         }
-                        roomImages.add(currentRoomImage);
-                        listData = new ListData(currentRoom.getName(),
-                                bookings.get(i).getExpectedStartDate(),
-                                bookings.get(i).getExpectedEndDate(),
-                                bookings.get(i).getBookingStatusId());
-                        dataArrayList.add(listData);
-                    }
-                    updateUIWithBookings();
-                }
 
-                @Override
-                public void onError(String error) {
-                    Toast.makeText(getApplicationContext(), "Failed to load data: " + error, Toast.LENGTH_SHORT).show();
+                        @Override
+                        public void onError(String error) {
+                            throw new RuntimeException("Error getting room: " + error);
+                        }
+                    });
                 }
-            });
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+            }
+        });
 
         TextView textTitle_toolbar = findViewById(R.id.toolbar_booking_history_title);
         ListView listItem = findViewById(R.id.listView);
@@ -151,12 +137,21 @@ public class BookingHistoryActivity extends AppCompatActivity {
         binding.buttonGoToHome.setOnClickListener(v -> {
             finish();
             startActivity(new Intent(BookingHistoryActivity.this, HomeActivity.class));
-    }  );
+        });
 
         binding.buttonReadQrCode.setOnClickListener(view -> checkPermissionAndShowActivity(this));
     }
 
-    private void updateUIWithBookings() {
+    private void updateUIWithBookings(int[] pendingTasks) {
+        if (pendingTasks[0] == 0) {
+            for (int i = 0; i < bookings.size(); i++) {
+                int tempRoomId = bookings.get(i).getRoomId();
+                dataArrayList.add(new ListData(
+                        rooms.stream().filter(room -> room.getId() == tempRoomId).findFirst().get().getName(),
+                        bookings.get(i).getExpectedStartDate(),
+                        bookings.get(i).getExpectedEndDate(),
+                        bookings.get(i).getBookingStatusId()));
+            }
             if (dataArrayList.size() == 0) {
                 binding.emptyBookingList.setVisibility(View.VISIBLE);
                 binding.listView.setVisibility(View.GONE);
@@ -165,6 +160,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
                 binding.listView.setAdapter(listAdapter);
                 binding.listView.setClickable(true);
             }
+        }
     }
 
 

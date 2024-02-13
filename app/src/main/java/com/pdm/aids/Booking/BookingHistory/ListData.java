@@ -10,7 +10,6 @@ public class ListData {
     String roomName;
     String expectedStartDate;
     String expectedEndDate;
-    Bitmap roomImage;
     Integer bookingStatusId;
     SimpleDateFormat dateFormatHour = new SimpleDateFormat("HH:mm", Locale.getDefault());
     SimpleDateFormat dateFormatDay = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
