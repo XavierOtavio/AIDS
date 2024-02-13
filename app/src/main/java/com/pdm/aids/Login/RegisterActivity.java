@@ -19,6 +19,11 @@ import org.json.JSONObject;
 public class RegisterActivity extends AppCompatActivity {
 
     private NetworkChecker networkChecker;
+    Button btnRegister;
+    TextInputLayout nameLayout, nMecLayout, passwordLayout, confirmPasswordLayout;
+    EditText name, nMec, password, confirmPassword;
+    LinearLayout layoutWithoutInternet, layoutWithInternet, loading;
+    TextView txtTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,18 +35,20 @@ public class RegisterActivity extends AppCompatActivity {
             finish();
         });
 
-        Button btnRegister = (Button) findViewById(R.id.button_register);
-        TextInputLayout nameLayout = (TextInputLayout) findViewById(R.id.textInputLayout_Name);
-        TextInputLayout nMecLayout = (TextInputLayout) findViewById(R.id.textInputLayout_NMec);
-        TextInputLayout passwordLayout = (TextInputLayout) findViewById(R.id.textInputLayout_Password);
-        TextInputLayout confirmPasswordLayout = (TextInputLayout) findViewById(R.id.textInputLayout_ConfirmPassword);
-        EditText name = (EditText) findViewById(R.id.edit_text_name);
-        EditText nMec = (EditText) findViewById(R.id.edit_text_nmechanographic);
-        EditText password = (EditText) findViewById(R.id.edit_text_password);
-        EditText confirmPassword = (EditText) findViewById(R.id.edit_text_confirm_password);
-        LinearLayout layoutWithoutInternet = (LinearLayout) findViewById(R.id.layoutWithoutInternet);
-        LinearLayout layoutWithInternet = (LinearLayout) findViewById(R.id.layoutWithInternet);
-        TextView txtTitle = (TextView) findViewById(R.id.textView_Title);
+        btnRegister = (Button) findViewById(R.id.button_register);
+        nameLayout = (TextInputLayout) findViewById(R.id.textInputLayout_Name);
+        nMecLayout = (TextInputLayout) findViewById(R.id.textInputLayout_NMec);
+        passwordLayout = (TextInputLayout) findViewById(R.id.textInputLayout_Password);
+        confirmPasswordLayout = (TextInputLayout) findViewById(R.id.textInputLayout_ConfirmPassword);
+        name = (EditText) findViewById(R.id.edit_text_name);
+        nMec = (EditText) findViewById(R.id.edit_text_nmechanographic);
+        password = (EditText) findViewById(R.id.edit_text_password);
+        confirmPassword = (EditText) findViewById(R.id.edit_text_confirm_password);
+        layoutWithoutInternet = (LinearLayout) findViewById(R.id.layoutWithoutInternet);
+        layoutWithInternet = (LinearLayout) findViewById(R.id.layoutWithInternet);
+        txtTitle = (TextView) findViewById(R.id.textView_Title);
+        loading = (LinearLayout) findViewById(R.id.loading);
+        loading.setZ(1000);
 
         networkChecker = new NetworkChecker(this);
 
@@ -77,9 +84,12 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         btnRegister.setOnClickListener(v -> {
+            disablePage();
             if (!validateName(nameLayout) | !validateNMec(nMecLayout) | !validatePassword(passwordLayout) | !validateConfirmPassword(passwordLayout, confirmPasswordLayout)) {
+                enablePage();
                 return;
             }
+            loading.setVisibility(LinearLayout.VISIBLE);
             OutsystemsAPI.registerUser(name.getText().toString(), nMec.getText().toString(), password.getText().toString(), RegisterActivity.this, new OutsystemsAPI.VolleyCallback() {
                 @Override
                 public void onSuccess(String result) {
@@ -97,9 +107,13 @@ public class RegisterActivity extends AppCompatActivity {
                 @Override
                 public void onError(String error) {
                     try {
+                        loading.setVisibility(LinearLayout.GONE);
+                        enablePage();
                         JSONObject obj = new JSONObject(error);
                         Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
+                        loading.setVisibility(LinearLayout.GONE);
+                        enablePage();
                         Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -182,5 +196,27 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
+    private void disablePage() {
+        name.setEnabled(false);
+        nMec.setEnabled(false);
+        password.setEnabled(false);
+        confirmPassword.setEnabled(false);
+        btnRegister.setEnabled(false);
+        nameLayout.setEnabled(false);
+        nMecLayout.setEnabled(false);
+        passwordLayout.setEnabled(false);
+        confirmPasswordLayout.setEnabled(false);
+    }
 
+    private void enablePage() {
+        name.setEnabled(true);
+        nMec.setEnabled(true);
+        password.setEnabled(true);
+        confirmPassword.setEnabled(true);
+        btnRegister.setEnabled(true);
+        nameLayout.setEnabled(true);
+        nMecLayout.setEnabled(true);
+        passwordLayout.setEnabled(true);
+        confirmPasswordLayout.setEnabled(true);
+    }
 }

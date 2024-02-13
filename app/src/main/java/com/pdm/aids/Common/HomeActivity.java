@@ -70,27 +70,27 @@ public class HomeActivity extends AppCompatActivity {
 
         binding.username.setText(sharedpreferences.getString("Name", ""));
 
-        booking = new DBBookingLocal().getCurrentOnGoingBooking(dbHelper.getWritableDatabase());
-        if (booking != null) {
-            String hash = booking.getHash();
-            int roomId = booking.getRoomId();
-            room = new DBRoomLocal().getRoomById(roomId, dbHelper.getWritableDatabase());
-
-            binding.roomTitle.setText(room.getName());
-            binding.expectedStartDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormatHour.format(booking.getExpectedStartDate()) + "\n" + dateFormatDay.format(booking.getExpectedStartDate()));
-            binding.expectedEndDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormatHour.format(booking.getExpectedEndDate()) + "\n" + dateFormatDay.format(booking.getExpectedEndDate()));
-
-            qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
-            binding.buttonShowQrCode.setImageBitmap(qrBitmap);
-
-            binding.bookingStatus.setText("Ativa");
-            binding.bookingStatus.setTextColor(getResources().getColor(R.color.green));
-            binding.bookingStatus.setBackgroundTintList(getResources().getColorStateList(R.color.green));
-
-            btnActiveBooking.setVisibility(View.VISIBLE);
-        } else {
-            binding.activeBooking.setVisibility(View.GONE);
-        }
+//        booking = new DBBookingLocal().getCurrentOnGoingBooking(dbHelper.getWritableDatabase());
+//        if (booking != null) {
+//            String hash = booking.getHash();
+//            int roomId = booking.getRoomId();
+//            room = new DBRoomLocal().getRoomById(roomId, dbHelper.getWritableDatabase());
+//
+//            binding.roomTitle.setText(room.getName());
+//            binding.expectedStartDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormatHour.format(booking.getExpectedStartDate()) + "\n" + dateFormatDay.format(booking.getExpectedStartDate()));
+//            binding.expectedEndDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormatHour.format(booking.getExpectedEndDate()) + "\n" + dateFormatDay.format(booking.getExpectedEndDate()));
+//
+//            qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
+//            binding.buttonShowQrCode.setImageBitmap(qrBitmap);
+//
+//            binding.bookingStatus.setText("Ativa");
+//            binding.bookingStatus.setTextColor(getResources().getColor(R.color.green));
+//            binding.bookingStatus.setBackgroundTintList(getResources().getColorStateList(R.color.green));
+//
+//            btnActiveBooking.setVisibility(View.VISIBLE);
+//        } else {
+//            binding.activeBooking.setVisibility(View.GONE);
+//        }
 
         //-----------------Listeners-----------------
         //Booking List
@@ -139,6 +139,32 @@ public class HomeActivity extends AppCompatActivity {
 
         //Capture QR Code
         binding.buttonReadQrCode.setOnClickListener(view -> checkPermissionAndShowActivity(this));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        booking = new DBBookingLocal().getCurrentOnGoingBooking(dbHelper.getWritableDatabase());
+        if (booking != null) {
+            String hash = booking.getHash();
+            int roomId = booking.getRoomId();
+            room = new DBRoomLocal().getRoomById(roomId, dbHelper.getWritableDatabase());
+
+            binding.roomTitle.setText(room.getName());
+            binding.expectedStartDate.setText(Utils.isDateNull(booking.getExpectedStartDate()) ? "-" : dateFormatHour.format(booking.getExpectedStartDate()) + "\n" + dateFormatDay.format(booking.getExpectedStartDate()));
+            binding.expectedEndDate.setText(Utils.isDateNull(booking.getExpectedEndDate()) ? "-" : dateFormatHour.format(booking.getExpectedEndDate()) + "\n" + dateFormatDay.format(booking.getExpectedEndDate()));
+
+            qrBitmap = BitmapFactory.decodeByteArray(u.getQrImage(hash), 0, u.getQrImage(hash).length);
+            binding.buttonShowQrCode.setImageBitmap(qrBitmap);
+
+            binding.bookingStatus.setText("Ativa");
+            binding.bookingStatus.setTextColor(getResources().getColor(R.color.green));
+            binding.bookingStatus.setBackgroundTintList(getResources().getColorStateList(R.color.green));
+
+            btnActiveBooking.setVisibility(View.VISIBLE);
+        } else {
+            binding.activeBooking.setVisibility(View.GONE);
+        }
     }
 
     private void logout() {
