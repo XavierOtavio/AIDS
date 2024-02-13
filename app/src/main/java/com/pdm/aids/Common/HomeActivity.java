@@ -201,6 +201,7 @@ public class HomeActivity extends AppCompatActivity {
                     Toast.makeText(HomeActivity.this, result, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(HomeActivity.this, BookingDetailActivity.class);
                     intent.putExtra("bookingHash", bookingHash);
+                    intent.putExtra("bookingId", booking.getId());
                     startActivity(intent);
                 }
 
