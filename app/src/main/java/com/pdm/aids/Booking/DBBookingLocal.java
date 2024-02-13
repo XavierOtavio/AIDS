@@ -123,15 +123,10 @@ public class DBBookingLocal {
                     int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
                     int bookingStatusId = cursor.getInt(cursor.getColumnIndex(COLUMN_BOOKING_STATUS_ID));
                     expectedStartDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_START_DATE)));
-                    //expectedStartDate = Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_START_DATE)));
                     expectedEndDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_END_DATE)));
-                    //expectedEndDate = Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex(COLUMN_EXPECTED_END_DATE)));
                     Date actualStartDate = actualStartDateString != null ? dateFormat.parse(actualStartDateString) : null;
-                    //Date actualStartDate = actualStartDateString != null ? Utils.convertStringToDate(actualStartDateString) : null;
                     Date actualEndDate = actualEndDateString != null ? dateFormat.parse(actualEndDateString) : null;
-                    //Date actualEndDate = actualEndDateString != null ? Utils.convertStringToDate(actualEndDateString) : null;
                     Date dateTime = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE)));
-                    //Date dateTime = Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE)));
                     String hash = cursor.getString(cursor.getColumnIndex(COLUMN_HASH));
 
                     Booking booking = new Booking(roomId, userId, bookingStatusId, expectedStartDate,

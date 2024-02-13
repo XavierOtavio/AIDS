@@ -11,20 +11,27 @@ import androidx.annotation.Nullable;
 
 import com.pdm.aids.Booking.DBBookingLocal;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class DBRoomLocal {
     public static final String ROOM_TABLE = "ROOM_TABLE";
     public static final String COLUMN_ID = "ID";
     public static final String COLUMN_NAME = "NAME";
     public static final String COLUMN_DESCRIPTION = "DESCRIPTION";
+    public static final String COLUMN_LAST_UPDATE = "LAST_UPDATE";
 
     public static String CreateTableRoom() {
         return "CREATE TABLE IF NOT EXISTS " + ROOM_TABLE + " (" +
                 COLUMN_ID + " INTEGER, " +
                 COLUMN_NAME + " TEXT, " +
-                COLUMN_DESCRIPTION + " TEXT" +
+                COLUMN_DESCRIPTION + " TEXT, " +
+                COLUMN_LAST_UPDATE + " DATETIME" +
                 ");";
     }
 
@@ -35,6 +42,9 @@ public class DBRoomLocal {
         values.put(COLUMN_NAME, room.getName());
         values.put(COLUMN_DESCRIPTION, room.getDescription());
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        values.put(COLUMN_LAST_UPDATE, dateFormat.format(room.getLastUpdate()));
+
         db.insert(ROOM_TABLE, null, values);
     }
 
@@ -44,6 +54,9 @@ public class DBRoomLocal {
         values.put(COLUMN_ID, room.getId());
         values.put(COLUMN_NAME, room.getName());
         values.put(COLUMN_DESCRIPTION, room.getDescription());
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        values.put(COLUMN_LAST_UPDATE, dateFormat.format(room.getLastUpdate()));
 
         db.update(ROOM_TABLE, values, COLUMN_ID + "=?", new String[]{String.valueOf(room.getId())});
     }
@@ -65,10 +78,7 @@ public class DBRoomLocal {
 
     public static boolean RoomExists(int roomId, Context context, SQLiteDatabase db) {
         Room roomInDb = getRoomById(roomId, db);
-        if (roomInDb == null) {
-            return false;
-        }
-        return true;
+        return roomInDb != null;
     }
 
     @SuppressLint("Range")
@@ -76,15 +86,21 @@ public class DBRoomLocal {
         List<Room> roomList = new ArrayList<>();
 
         Cursor cursor = db.rawQuery("SELECT * FROM " + ROOM_TABLE, null);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         if (cursor.moveToFirst()) {
-            do {
-                int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
-                String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
-                String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+            try {
+                do {
+                    int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+                    String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
+                    String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+                    Date lastUpdate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE)));
 
-                Room room = new Room(id, name, description);
-                roomList.add(room);
-            } while (cursor.moveToNext());
+                    Room room = new Room(id, name, description, lastUpdate);
+                    roomList.add(room);
+                } while (cursor.moveToNext());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
         cursor.close();
@@ -95,18 +111,24 @@ public class DBRoomLocal {
     public static Room getRoomById(int roomId, SQLiteDatabase db) {
 
         Cursor cursor = db.query(ROOM_TABLE,
-                new String[]{COLUMN_ID, COLUMN_NAME, COLUMN_DESCRIPTION},
+                new String[]{COLUMN_ID, COLUMN_NAME, COLUMN_DESCRIPTION, COLUMN_LAST_UPDATE},
                 COLUMN_ID + "=?",
                 new String[]{String.valueOf(roomId)},
                 null, null, null, null);
 
         Room room = null;
-        if (cursor != null && cursor.moveToFirst()) {
-            int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
-            String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
-            String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+        try {
+            if (cursor.getCount() != 0 && cursor.moveToFirst()) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+                String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
+                String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+                Date lastUpdate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE)));
 
-            room = new Room(id, name, description);
+                room = new Room(id, name, description, lastUpdate);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
         if (cursor != null) {

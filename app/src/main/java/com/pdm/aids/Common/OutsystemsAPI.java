@@ -41,6 +41,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLOutput;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -265,7 +266,7 @@ public class OutsystemsAPI extends AppCompatActivity {
                     response -> {
                         try {
                             if (response.getString("HTTPCode").equals("200")) {
-                                String idsToDelete = String.join("\",\"",response.getString("IdsToDelete").split(","));
+                                String idsToDelete = String.join("\",\"", response.getString("IdsToDelete").split(","));
                                 db.execSQL("DELETE FROM " + dbManager.BOOKING_TABLE + " WHERE HASH IN (\"" + idsToDelete + "\")");
                                 callback.onSuccess("Booking status checked successfully");
                             } else {
@@ -401,10 +402,15 @@ public class OutsystemsAPI extends AppCompatActivity {
                         JSONObject obj = new JSONObject(response);
                         if (obj.getString("HTTPCode").equals("200")) {
                             JSONArray roomList = new JSONArray(obj.getString("RoomList"));
-
                             for (int i = 0; i < roomList.length(); i++) {
                                 JSONObject roomListJSONObject = roomList.getJSONObject(i);
-                                Room room = new Room(roomListJSONObject.getInt("Id"), roomListJSONObject.getString("Name"), roomListJSONObject.getString("Description"));
+
+                                Room room = new Room(
+                                        roomListJSONObject.getInt("Id"),
+                                        roomListJSONObject.getString("Name"),
+                                        roomListJSONObject.getString("Description"),
+                                        Utils.convertUnixToDate(roomListJSONObject.getString("ModifiedOn"))
+                                );
                                 roomArrayList.add(room);
                             }
 
@@ -489,7 +495,12 @@ public class OutsystemsAPI extends AppCompatActivity {
 
                             for (int i = 0; i < roomList.length(); i++) {
                                 JSONObject roomObj = roomList.getJSONObject(i);
-                                Room room = new Room(roomObj.getInt("Id"), roomObj.getString("Name"), roomObj.getString("Description"));
+                                Room room = new Room(
+                                        roomObj.getInt("Id"),
+                                        roomObj.getString("Name"),
+                                        roomObj.getString("Description"),
+                                        Utils.convertUnixToDate(roomObj.getString("ModifiedOn"))
+                                );
                                 DBRoomLocal.createOrUpdateRoom(room, context, db);
                             }
                         } else {
@@ -685,8 +696,10 @@ public class OutsystemsAPI extends AppCompatActivity {
                     }
                 }, error -> {
             try {
-                JSONObject obj = new JSONObject(error.getMessage());
-                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                if (error.getMessage() != null) {
+                    JSONObject obj = new JSONObject(error.getMessage());
+                    Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+                }
             } catch (JSONException e) {
                 Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
