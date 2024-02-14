@@ -28,6 +28,13 @@ public class TicketImage {
         this.isUploaded = isUploaded;
     }
 
+    public TicketImage(String ticketId, String filename, String image, Date last_modified) {
+        this.ticketUuid = ticketId;
+        this.filename = filename;
+        this.image = image;
+        this.last_modified = last_modified;
+    }
+
     public TicketImage(String ticketId, String filename, String imagePath) {
         this.ticketUuid = ticketId;
         this.filename = filename;
