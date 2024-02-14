@@ -43,7 +43,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText numMec;
     private EditText password;
     private Button btnLogin;
-    private Button btnXavier;
     private Button btnRegister;
     private LinearLayout layoutWithoutInternet, layoutWithInternet, loading;
     private TextView txtTitle;
@@ -63,7 +62,6 @@ public class LoginActivity extends AppCompatActivity {
         numMec = (EditText) findViewById(R.id.edit_text_nmechanographic);
         password = (EditText) findViewById(R.id.edit_text_password);
         btnLogin = (Button) findViewById(R.id.button_login);
-        btnXavier = (Button) findViewById(R.id.button_login_0);
         btnRegister = (Button) findViewById(R.id.button_register);
         layoutWithoutInternet = (LinearLayout) findViewById(R.id.layoutWithoutInternet);
         layoutWithInternet = (LinearLayout) findViewById(R.id.layoutWithInternet);
@@ -113,61 +111,7 @@ public class LoginActivity extends AppCompatActivity {
             enablePage();
         });
 
-        //-----------------Xavier Login Button-----------------
-        btnXavier.setOnClickListener(v -> {
-            disablePage();
-            loading.setVisibility(LinearLayout.VISIBLE);//Show loading
-            OutsystemsAPI.checkLogin("0", "admin", LoginActivity.this, new OutsystemsAPI.VolleyCallback() {
-                @Override
-                public void onSuccess(String result) {
-                    SharedPreferences.Editor editor = sharedpreferences.edit();
-                    try {
-                        JSONObject obj = new JSONObject(result);
-                        if (obj.getString("HTTPCode").equals("200")) {
-                            editor.putString("Name", obj.getString("Name"));
-                            editor.putString("Username", obj.getString("Username"));
-                            editor.putString("Password", obj.getString("Password"));
-                            editor.putString("Id", obj.getString("Id"));
-                            editor.apply();
 
-                            OutsystemsAPI.getDataFromAPI(obj.getString("Id"), LoginActivity.this, new OutsystemsAPI.DataLoadCallback() {
-                                @Override
-                                public void onDataLoaded() {
-                                    // All data fetched successfully, proceed to HomeActivity
-                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                                    startActivity(intent);
-                                    finish(); // Close LoginActivity
-                                }
-
-                                @Override
-                                public void onError(String error) {
-                                    // Handle errors, possibly retry or show a message
-                                    loading.setVisibility(LinearLayout.GONE);
-                                    enablePage();
-                                    Toast.makeText(getApplicationContext(), "Failed to load data: " + error, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        } else {
-                            enablePage();
-                            Toast.makeText(getApplicationContext(), obj.getString("Message"), Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onError(String error) {
-                    try {
-                        JSONObject obj = new JSONObject(error);
-                        Toast.makeText(getApplicationContext(), "Login" + obj.getString("Message"), Toast.LENGTH_SHORT).show();
-                    } catch (JSONException e) {
-                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                    enablePage();
-                }
-            });
-        });
 
         //-----------------Login Button-----------------
         btnLogin.setOnClickListener(v -> {
@@ -278,7 +222,6 @@ public class LoginActivity extends AppCompatActivity {
         password.setEnabled(false);
         btnLogin.setEnabled(false);
         btnRegister.setEnabled(false);
-        btnXavier.setEnabled(false);
     }
 
     private void enablePage() {
@@ -286,7 +229,6 @@ public class LoginActivity extends AppCompatActivity {
         password.setEnabled(true);
         btnLogin.setEnabled(true);
         btnRegister.setEnabled(true);
-        btnXavier.setEnabled(true);
     }
 
 }
