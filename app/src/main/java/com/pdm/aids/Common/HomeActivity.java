@@ -226,6 +226,7 @@ public class HomeActivity extends AppCompatActivity {
                 public void onSuccess(String result) {
                     Toast.makeText(HomeActivity.this, result, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(HomeActivity.this, BookingDetailActivity.class);
+                    booking = new DBBookingLocal().getCurrentOnGoingBooking(dbHelper.getWritableDatabase());
                     intent.putExtra("bookingHash", bookingHash);
                     intent.putExtra("bookingId", booking.getId());
                     startActivity(intent);

@@ -218,6 +218,12 @@ public class BookingDetailActivity extends AppCompatActivity {
                         tickets = DBTicketLocal.getAllTicketsByBookingId(booking.getHash(), dbManager.getReadableDatabase());
 
                         for (Ticket ticket : tickets) {
+                            ticketLisDataArray = ticketLisDataArray.stream().map(t -> {
+                                if (t.getUuid().equals(ticket.getId()) && t.isSynchronized() != ticket.getIsSynchronized()) {
+                                    return new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId(), ticket.getIsSynchronized());
+                                }
+                                return t;
+                            }).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
                             if (ticketLisDataArray.stream().noneMatch(t -> t.getUuid().equals(ticket.getId()))) {
                                 listData = new ListData(ticket.getTitle(), ticket.getDescription(), ticket.getCreationDate(), ticket.getId(), ticket.getIsSynchronized());
                                 ticketLisDataArray.add(listData);

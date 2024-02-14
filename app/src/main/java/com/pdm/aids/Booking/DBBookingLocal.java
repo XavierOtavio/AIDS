@@ -2,16 +2,9 @@ package com.pdm.aids.Booking;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
-import android.widget.Toast;
-
-import androidx.annotation.Nullable;
-
-import com.pdm.aids.Common.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -147,8 +140,6 @@ public class DBBookingLocal {
 
     @SuppressLint("Range")
     public static Booking getBookingByHash(String hash, SQLiteDatabase db) {
-        Booking booking = null;
-
         String selectQuery = "SELECT * FROM " + BOOKING_TABLE + " WHERE " + COLUMN_HASH + " = '" + hash + "'";
         Cursor cursor = db.rawQuery(selectQuery, null);
 
@@ -170,16 +161,14 @@ public class DBBookingLocal {
                 Date dateTime = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE)));
                 String hashBooking = cursor.getString(cursor.getColumnIndex(COLUMN_HASH));
 
-                booking = new Booking(roomId, userId, bookingStatusId, expectedStartDate,
+                cursor.close();
+                return new Booking(id, roomId, userId, bookingStatusId, expectedStartDate,
                         expectedEndDate, actualStartDate, actualEndDate, dateTime, hashBooking);
-                booking.setId(id);
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        cursor.close();
-        return booking;
+        return null;
     }
 
     @SuppressLint("Range")

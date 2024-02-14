@@ -110,13 +110,7 @@ public class DBRoomLocal {
     @SuppressLint("Range")
     public static Room getRoomById(int roomId, SQLiteDatabase db) {
 
-        Cursor cursor = db.query(ROOM_TABLE,
-                new String[]{COLUMN_ID, COLUMN_NAME, COLUMN_DESCRIPTION, COLUMN_LAST_UPDATE},
-                COLUMN_ID + "=?",
-                new String[]{String.valueOf(roomId)},
-                null, null, null, null);
-
-        Room room = null;
+        Cursor cursor = db.rawQuery("SELECT * FROM " + ROOM_TABLE + " WHERE " + COLUMN_ID + " = " + roomId, null);
         try {
             if (cursor.getCount() != 0 && cursor.moveToFirst()) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -125,7 +119,7 @@ public class DBRoomLocal {
                 String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
                 Date lastUpdate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE)));
 
-                room = new Room(id, name, description, lastUpdate);
+                return new Room(id, name, description, lastUpdate);
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -134,6 +128,6 @@ public class DBRoomLocal {
         if (cursor != null) {
             cursor.close();
         }
-        return room;
+        return null;
     }
 }

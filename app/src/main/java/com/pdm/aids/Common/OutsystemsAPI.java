@@ -815,8 +815,8 @@ public class OutsystemsAPI extends AppCompatActivity {
 
         try {
             JSONObject ticketJsonObject = new JSONObject();
-            ticketJsonObject.put("tickets", new JSONObject(ticket.toJsonWithoutImages(Integer.parseInt(userId))));
-            ticketJsonObject.put("ticketImages", new JSONArray(ticket.toJsonImagesOnly(db)));
+            ticketJsonObject.put("Ticket", new JSONObject(ticket.toJsonWithoutImages(Integer.parseInt(userId))));
+            ticketJsonObject.put("TicketImages", new JSONArray(ticket.toJsonImagesOnly(db)));
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, ticketJsonObject, response -> {
                 try {
