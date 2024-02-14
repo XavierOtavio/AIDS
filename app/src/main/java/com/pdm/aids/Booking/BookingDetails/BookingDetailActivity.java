@@ -1,18 +1,8 @@
 package com.pdm.aids.Booking.BookingDetails;
 
 import static com.pdm.aids.Booking.BookingHistory.BookingHistoryActivity.selectedBooking;
-import static java.text.DateFormat.getDateTimeInstance;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
-import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,19 +12,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.journeyapps.barcodescanner.ScanContract;
-import com.journeyapps.barcodescanner.ScanOptions;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.BookingHistory.BookingHistoryActivity;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
-import com.pdm.aids.Common.HomeActivity;
 import com.pdm.aids.Common.NetworkChecker;
 import com.pdm.aids.Common.OutsystemsAPI;
 import com.pdm.aids.Common.Utils;
@@ -47,13 +35,11 @@ import com.pdm.aids.Room.RoomImage;
 import com.pdm.aids.Ticket.DBTicketLocal;
 import com.pdm.aids.Ticket.Ticket;
 import com.pdm.aids.Ticket.TicketDetails.CreateTicketActivity;
-import com.pdm.aids.Ticket.TicketList.ListAdapter;
 import com.pdm.aids.Ticket.TicketList.ListData;
 import com.pdm.aids.databinding.ActivityBookingDetailBinding;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -86,6 +72,7 @@ public class BookingDetailActivity extends AppCompatActivity {
         uiHandler = new Handler(Looper.getMainLooper());
         binding.progressBar.setVisibility(View.VISIBLE);
         binding.linearLayoutContent.setVisibility(View.GONE);
+        Intent getIntent = getIntent();
 
         setupNetworkChecker();
 
@@ -370,6 +357,8 @@ public class BookingDetailActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent intent = new Intent(BookingDetailActivity.this, CreateTicketActivity.class);
                     intent.putExtra("uuid", ticketData.getUuid());
+                    boolean online = getIntent().getBooleanExtra("online", false);
+                    intent.putExtra("online", online);
                     startActivity(intent);
                 }
             });
@@ -384,9 +373,7 @@ public class BookingDetailActivity extends AppCompatActivity {
         super.onResume();
         if (networkChecker != null) {
             networkChecker.registerNetworkCallback();
-            if (selectedBooking != null) {
-                // Do something with selectedBooking
-            } else {
+            if (selectedBooking == null) {
                 loadLocalDataInBackGround();
                 populateTicketsLinearLayout(ticketLisDataArray);
             }
@@ -404,11 +391,6 @@ public class BookingDetailActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -425,67 +407,6 @@ public class BookingDetailActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-//        binding.imageViewCaptured.setOnClickListener(view -> checkPermissionAndShowActivity(this));
         binding.toolbarMain.setNavigationOnClickListener(v -> finish());
     }
-
-    private void checkPermissionAndShowActivity(Context context) {
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED) {
-            showCamera();
-        } else if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-            Toast.makeText(context, "Camera permission required", Toast.LENGTH_SHORT).show();
-        } else {
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
-        }
-    }
-
-    private ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    showCamera();
-                } else {
-                    Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-    private void showCamera() {
-        ScanOptions options = new ScanOptions();
-        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
-        options.setPrompt("Scan QR code");
-        options.setBeepEnabled(false);
-        options.setBarcodeImageEnabled(true);
-        options.setOrientationLocked(false);
-
-        qrCodeLauncher.launch(options);
-    }
-
-
-    private ActivityResultLauncher<ScanOptions> qrCodeLauncher = registerForActivityResult(new ScanContract(), result -> {
-        if (result.getContents() == null) {
-            Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
-        } else {
-            Intent intent = getIntent();
-            String hash = intent.getStringExtra("bookingHash");
-
-            SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
-            String id = sharedPreferences.getString("Id", "");
-
-            OutsystemsAPI.validateEntry(hash, id, result.getContents(), this, new OutsystemsAPI.VolleyCallback() {
-                @Override
-                public void onSuccess(String result) {
-                    Toast.makeText(BookingDetailActivity.this, result, Toast.LENGTH_SHORT).show();
-                    recreate();
-                }
-
-                @Override
-                public void onError(String error) {
-                    Toast.makeText(BookingDetailActivity.this, "Validation failed: " + error, Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    });
-
 }

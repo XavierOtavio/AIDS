@@ -134,6 +134,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
                 }
             }
             Intent intent = new Intent(BookingHistoryActivity.this, BookingDetailActivity.class);
+            intent.putExtra("online", true);
             startActivity(intent);
         });
 

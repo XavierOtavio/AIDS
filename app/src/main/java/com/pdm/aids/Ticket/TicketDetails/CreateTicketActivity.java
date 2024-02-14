@@ -17,20 +17,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.Toolbar;
-
-import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.pdm.aids.Booking.Booking;
-import com.pdm.aids.Booking.BookingDetails.BookingDetailActivity;
 import com.pdm.aids.Booking.DBBookingLocal;
 import com.pdm.aids.Common.DbManager;
 import com.pdm.aids.Common.OutsystemsAPI;
@@ -38,6 +30,7 @@ import com.pdm.aids.Common.Utils;
 import com.pdm.aids.Login.LoginActivity;
 import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomLocal;
+import com.pdm.aids.Room.Room;
 import com.pdm.aids.Ticket.DBTicketLocal;
 import com.pdm.aids.Ticket.Ticket;
 import com.pdm.aids.Ticket.TicketImage;
@@ -45,6 +38,9 @@ import com.pdm.aids.Ticket.TicketImage;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -56,16 +52,22 @@ import java.util.UUID;
 public class CreateTicketActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
-    private EditText titleEditText;
-    private EditText descriptionEditText;
+    private EditText titleEditText, descriptionEditText;
     private TextView facility, createdDateTime, toolBarTitle, readOnlyTitle, readOnlyDescription;
     private CarouselAdapter adapter;
+    private ViewPager viewPager;
+    private RelativeLayout layoutSave, layoutCancel, cameraLayout;
+    private ImageButton btnLeftArrow, btnRightArrow;
     private Button takePictureButton, buttonSave, buttonCancel;
     private byte[] pictureByteArray;
     private ImageView camera, takenPicture;
     private List<Booking> booking;
     private DbManager dbManager;
-    private List<Bitmap> pictures;
+    public String title, description;
+    public Date createdDate;
+    public Ticket ticket;
+    public ArrayList<TicketImage> ticketImages = new ArrayList<>();
+    private List<Bitmap> pictures = new ArrayList<>();
     private List<String> picturesToSend;
     private String userId;
     private String uuid;
@@ -79,55 +81,107 @@ public class CreateTicketActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         uuid = intent.getStringExtra("uuid");
-        String title = "";
-        String description = "";
-        Date createdDate = new Date();
+        boolean online = intent.getBooleanExtra("online", false);
         dbManager = new DbManager(this);
         if (uuid != null) {
-            try {
-                Ticket ticket = new DBTicketLocal().getTicketByUUID(uuid, dbManager.getWritableDatabase());
-                title = ticket.getTitle();
-                description = ticket.getDescription();
-                createdDate = ticket.getCreationDate();
-            } catch (ParseException e) {
-                throw new RuntimeException(e);
+            if (online) {
+                OutsystemsAPI.getTicketById(uuid, this, dbManager.getWritableDatabase(), new OutsystemsAPI.OnlineTicketCallback() {
+                    @Override
+                    public void onTicketImageReceived(Ticket ticketOnline, Room roomOnline, ArrayList<TicketImage> ticketImageArrayList) {
+                        ticket = ticketOnline;
+                        title = ticket.getTitle();
+                        description = ticket.getDescription();
+                        createdDate = ticket.getCreationDate();
+                        createdDateTime.setText(dateFormatHour.format(createdDate) + "\n" + dateFormatDay.format(createdDate));
+
+                        facility.setText(roomOnline.getName());
+
+                        titleEditText.setVisibility(View.GONE);
+                        descriptionEditText.setVisibility(View.GONE);
+                        readOnlyTitle.setVisibility(View.VISIBLE);
+                        readOnlyDescription.setVisibility(View.VISIBLE);
+                        readOnlyTitle.setText(title);
+                        readOnlyDescription.setText(description);
+
+                        buttonSave.setVisibility(View.GONE);
+                        layoutSave.setVisibility(View.GONE);
+                        buttonCancel.setVisibility(View.GONE);
+                        layoutCancel.setVisibility(View.GONE);
+                        cameraLayout.setVisibility(View.GONE);
+
+
+                        ticketImages = ticketImageArrayList;
+                        if (ticketImages != null && !ticketImages.isEmpty()) {
+                            for (TicketImage ticketImage : ticketImages) {
+                                Bitmap bitmap = Utils.imageConvert(ticketImage.getImage());
+                                pictures.add(bitmap);
+                                adapter.notifyDataSetChanged();
+                            }
+                        } else {
+                            viewPager.setVisibility(View.GONE);
+                            btnLeftArrow.setVisibility(View.GONE);
+                            btnRightArrow.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        throw new RuntimeException("Error getting ticket: " + error);
+                    }
+                });
+            } else {
+                try {
+                    ticket = new DBTicketLocal().getTicketByUUID(uuid, dbManager.getWritableDatabase());
+                    title = ticket.getTitle();
+                    description = ticket.getDescription();
+                    createdDate = ticket.getCreationDate();
+                    List<Integer> statusIds = Arrays.asList(3);
+                    booking = new DBBookingLocal().getBookingsByStatus(statusIds, dbManager.getWritableDatabase());
+                    pictures = new ArrayList<>();
+                    picturesToSend = new ArrayList<>();
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
-
-
-        List<Integer> statusIds = Arrays.asList(3);
-        booking = new DBBookingLocal().getBookingsByStatus(statusIds, dbManager.getWritableDatabase());
-        pictures = new ArrayList<>();
-        picturesToSend = new ArrayList<>();
 
         userId = getSharedPreferences(LoginActivity.MyPREFERENCES, MODE_PRIVATE)
                 .getString("Id", "");
 
-        ViewPager viewPager = findViewById(R.id.viewPager);
+        viewPager = findViewById(R.id.viewPager);
 
         adapter = new CarouselAdapter(this, pictures);
         viewPager.setAdapter(adapter);
+        if (!online) {
+            List<String> paths = new DBTicketLocal().getImagePath(uuid, dbManager.getWritableDatabase());
+            if (paths != null) {
+                viewPager.setVisibility(View.VISIBLE);
+                btnLeftArrow.setVisibility(View.VISIBLE);
+                btnRightArrow.setVisibility(View.VISIBLE);
+                for (String imagePath : paths) {
 
-        List<String> paths = new DBTicketLocal().getImagePath(uuid, dbManager.getWritableDatabase());
+                    File imgFile = new File(imagePath);
 
-        for (String imagePath : paths) {
-
-            File imgFile = new File(imagePath);
-
-            if (imgFile.exists()) {
-                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                pictures.add(bitmap);
-                adapter.notifyDataSetChanged();
+                    if (imgFile.exists()) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                        pictures.add(bitmap);
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Log.e("Image Loading", "Image file does not exist: " + imagePath);
+                    }
+                }
             } else {
-                Log.e("Image Loading", "Image file does not exist: " + imagePath);
+                viewPager.setVisibility(View.GONE);
+                btnLeftArrow.setVisibility(View.GONE);
+                btnRightArrow.setVisibility(View.GONE);
             }
         }
 
 
-        RelativeLayout cameraLayout = findViewById(R.id.cameraLayout);
+        cameraLayout = findViewById(R.id.cameraLayout);
         cameraLayout.setOnClickListener(v -> dispatchTakePictureIntent());
 
-        ImageButton btnLeftArrow = findViewById(R.id.btnLeftArrow);
+        btnLeftArrow = findViewById(R.id.btnLeftArrow);
         btnLeftArrow.setOnClickListener(v -> {
             int currentItem = viewPager.getCurrentItem();
             if (currentItem > 0) {
@@ -135,7 +189,7 @@ public class CreateTicketActivity extends AppCompatActivity {
             }
         });
 
-        ImageButton btnRightArrow = findViewById(R.id.btnRightArrow);
+        btnRightArrow = findViewById(R.id.btnRightArrow);
         btnRightArrow.setOnClickListener(v -> {
             int currentItem = viewPager.getCurrentItem();
             if (currentItem < adapter.getCount() - 1) {
@@ -149,9 +203,12 @@ public class CreateTicketActivity extends AppCompatActivity {
         toolBarTitle = findViewById(R.id.toolbar_title);
         readOnlyTitle = findViewById(R.id.readOnlyTitle);
         readOnlyDescription = findViewById(R.id.readOnlyDescription);
+        layoutSave = findViewById(R.id.layout_save);
+        layoutCancel = findViewById(R.id.layout_cancel);
         buttonSave = findViewById(R.id.button_save);
         buttonCancel = findViewById(R.id.button_cancel);
         createdDateTime = findViewById(R.id.createdDateTime);
+
 
         if (uuid == null) {
             toolBarTitle.setText("Reportar Problema");
@@ -162,25 +219,19 @@ public class CreateTicketActivity extends AppCompatActivity {
         }
 
 
-        if (booking.get(0).getBookingStatusId() == 3) {
+        if (!online && booking.get(0).getBookingStatusId() == 3) {
             titleEditText.setVisibility(View.VISIBLE);
             descriptionEditText.setVisibility(View.VISIBLE);
             readOnlyTitle.setVisibility(View.GONE);
             readOnlyDescription.setVisibility(View.GONE);
             titleEditText.setText(title);
             descriptionEditText.setText(description);
-        } else {
-            titleEditText.setVisibility(View.GONE);
-            descriptionEditText.setVisibility(View.GONE);
-            readOnlyTitle.setVisibility(View.VISIBLE);
-            readOnlyDescription.setVisibility(View.VISIBLE);
-            readOnlyTitle.setText(title);
-            readOnlyDescription.setText(description);
         }
 
         facility = findViewById(R.id.facility);
-
-        facility.setText(new DBRoomLocal().getRoomById(booking.get(0).getRoomId(), dbManager.getWritableDatabase()).getName());
+        if (!online) {
+            facility.setText(new DBRoomLocal().getRoomById(booking.get(0).getRoomId(), dbManager.getWritableDatabase()).getName());
+        }
 
         toolbar.setNavigationOnClickListener(v -> finish());
         buttonCancel.setOnClickListener(v -> finish());
@@ -214,6 +265,9 @@ public class CreateTicketActivity extends AppCompatActivity {
                 picturesToSend.add(Base64.getEncoder().encodeToString(pictureByteArray));
                 pictures.add(imageBitmap);
                 System.out.println("fotos tiradas " + pictures);
+                viewPager.setVisibility(View.VISIBLE);
+                btnLeftArrow.setVisibility(View.VISIBLE);
+                btnRightArrow.setVisibility(View.VISIBLE);
                 adapter.notifyDataSetChanged();
             } else {
                 showToast("Failed to capture image");

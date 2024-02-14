@@ -84,6 +84,11 @@ public class OutsystemsAPI extends AppCompatActivity {
         void onTicketReceived(ArrayList<Ticket> ticketArrayList);
     }
 
+    public interface OnlineTicketCallback {
+        void onTicketImageReceived(Ticket ticket, Room room, ArrayList<TicketImage> ticketImageArrayList);
+
+        void onError(String error);
+    }
     static String apiUrl = "https://personal-8o07igno.outsystemscloud.com/AIDS/rest/RestAPI/";
 
     public static void checkLogin(String username, String password, Context context, VolleyCallback callback) {
@@ -705,6 +710,65 @@ public class OutsystemsAPI extends AppCompatActivity {
 //              |_|   |_| \___||_|\_\\___| \__||___/          //
 //                                                            //
 //############################################################//
+
+
+    public static void getTicketById(String UUID, Context context, SQLiteDatabase db, OnlineTicketCallback callback) {
+        String url = apiUrl + "GetTicketById?TicketUUID=" + UUID;
+        RequestQueue queue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getString("HTTPCode").equals("200")) {
+                            JSONObject ticketObj = new JSONObject(obj.getString("Ticket"));
+                            Ticket ticket = new Ticket(
+                                    ticketObj.getString("TicketUUID"),
+                                    ticketObj.getString("BookingUUID"),
+                                    true,
+                                    ticketObj.getString("Title"),
+                                    ticketObj.getString("Description"),
+                                    Utils.convertUnixToDate(ticketObj.getString("CreatedOn")),
+                                    Utils.convertUnixToDate(ticketObj.getString("ModifiedOn"))
+                            );
+                            JSONObject roomObj = new JSONObject(obj.getString("Room"));
+                            Room room = new Room(
+                                    roomObj.getInt("Id"),
+                                    roomObj.getString("Name"),
+                                    roomObj.getString("Description"),
+                                    Utils.convertUnixToDate(roomObj.getString("ModifiedOn"))
+                            );
+                            ArrayList<TicketImage> ticketImageArrayList = new ArrayList<>();
+                            JSONArray ticketImageList = new JSONArray(obj.getString("TicketImagesList"));
+                            for (int i = 0; i < ticketImageList.length(); i++) {
+                                JSONObject ticketImageObj = ticketImageList.getJSONObject(i);
+                                if(ticketImageObj.getInt("Id") == 0) {
+                                    continue;
+                                }
+                                TicketImage ticketImage = new TicketImage(
+                                        ticketImageObj.getString("TicketUUID"),
+                                        ticketImageObj.getString("Filename"),
+                                        ticketImageObj.getString("Image"),
+                                        Utils.convertUnixToDate(ticketImageObj.getString("ModifiedOn"))
+                                );
+                                ticketImageArrayList.add(ticketImage);
+                            }
+                            callback.onTicketImageReceived(ticket, room, ticketImageArrayList);
+                        } else {
+                            callback.onError(obj.getString("Message"));
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }, error -> {
+            try {
+                JSONObject obj = new JSONObject(error.getMessage());
+                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        queue.add(stringRequest);
+    }
 
 
     @SuppressLint("Range")
