@@ -374,8 +374,8 @@ public class BookingDetailActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
+    protected void onResume() {
+        super.onResume();
         if (networkChecker != null) {
             networkChecker.registerNetworkCallback();
             if (onlineBooking == null) {

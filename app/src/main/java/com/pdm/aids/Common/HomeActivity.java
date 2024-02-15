@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanIntentResult;
 import com.journeyapps.barcodescanner.ScanOptions;
 import com.pdm.aids.Booking.Booking;
 import com.pdm.aids.Booking.BookingDetails.BookingDetailActivity;
@@ -30,11 +31,9 @@ import com.pdm.aids.R;
 import com.pdm.aids.Room.DBRoomLocal;
 import com.pdm.aids.Room.Room;
 import com.pdm.aids.Ticket.TicketDetails.CreateTicketActivity;
-import com.pdm.aids.Ticket.TicketList.TicketListActivity;
 import com.pdm.aids.databinding.ActivityHomeBinding;
 
 import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -216,28 +215,47 @@ public class HomeActivity extends AppCompatActivity {
             Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
         } else {
             DbManager dbHelper = new DbManager(HomeActivity.this);
-            String bookingHash = new DBBookingLocal().getCurrentAvaliableBooking(dbHelper.getWritableDatabase()).getHash();
-            Toast.makeText(this, "Scanned: " + bookingHash, Toast.LENGTH_SHORT).show();
             SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
             String id = sharedPreferences.getString("Id", "");
+            Booking b = new DBBookingLocal().getCurrentAvaliableBooking(dbHelper.getWritableDatabase());
+            if (b == null) {
+                OutsystemsAPI.RefreshBookings(id, this, new OutsystemsAPI.DataLoadCallback() {
+                    @Override
+                    public void onDataLoaded() {
+                        Booking b = new DBBookingLocal().getCurrentAvaliableBooking(dbHelper.getWritableDatabase());
+                        String bookingHash = b.getHash();
+                        validate(bookingHash, id, result);
+                    }
 
-            OutsystemsAPI.validateEntry(bookingHash, id, result.getContents(), this, new OutsystemsAPI.VolleyCallback() {
-                @Override
-                public void onSuccess(String result) {
-                    Toast.makeText(HomeActivity.this, result, Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(HomeActivity.this, BookingDetailActivity.class);
-                    booking = new DBBookingLocal().getCurrentOnGoingBooking(dbHelper.getWritableDatabase());
-                    intent.putExtra("bookingHash", bookingHash);
-                    intent.putExtra("bookingId", booking.getId());
-                    startActivity(intent);
-                }
-
-                @Override
-                public void onError(String error) {
-                    Toast.makeText(HomeActivity.this, "Validation failed: " + error, Toast.LENGTH_SHORT).show();
-                }
-            });
+                    @Override
+                    public void onError(String error) {
+                        Toast.makeText(HomeActivity.this, "Booking not found: " + error, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                String bookingHash = b.getHash();
+                validate(bookingHash, id, result);
+            }
         }
     });
+
+    private void validate(String bookingHash, String id, ScanIntentResult result) {
+        OutsystemsAPI.validateEntry(bookingHash, id, result.getContents(), HomeActivity.this, new OutsystemsAPI.VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                Toast.makeText(HomeActivity.this, result, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(HomeActivity.this, BookingDetailActivity.class);
+                booking = new DBBookingLocal().getCurrentOnGoingBooking(dbHelper.getWritableDatabase());
+                intent.putExtra("bookingHash", bookingHash);
+                intent.putExtra("bookingId", booking.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(HomeActivity.this, "Validation failed: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
 }

@@ -143,7 +143,7 @@ public class OutsystemsAPI extends AppCompatActivity {
     public static void getDataFromAPI(String userId, Context context, final DataLoadCallback finalCallback) {
         DbManager dbManager = new DbManager(context);
         SQLiteDatabase db = dbManager.getWritableDatabase();
-        final int[] pendingTasks = {6};
+        final int[] pendingTasks = {7};
         final String[] errorMessages = {null};
 
         VolleyCallback volleyCallback = new VolleyCallback() {
