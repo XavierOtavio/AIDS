@@ -284,23 +284,32 @@ public class DBTicketLocal {
     }
 
     @SuppressLint("Range")
-    public static ArrayList<Bitmap> getTicketImageByTicketId(String ticketId, SQLiteDatabase db) {
-        ArrayList<Bitmap> imageBytes = new ArrayList<>();
-        String query = "SELECT * FROM " + TICKET_IMAGE_TABLE + " WHERE " + COLUMN_TICKET_IMAGE_ID + " = " + ticketId;
+    public static ArrayList<TicketImage> getTicketImageByTicketId(String ticketId, SQLiteDatabase db) {
+        ArrayList<TicketImage> ticketImages = new ArrayList<>();
+        Bitmap imageBytes = null;
+        String query = "SELECT * FROM " + TICKET_IMAGE_TABLE + " WHERE " + COLUMN_TICKET_IMAGE_ID + " = \"" + ticketId + "\"";
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
             do {
                 String imagePath = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH));
                 File imgFile = new File(imagePath);
                 if (imgFile.exists()) {
-                    imageBytes.add(BitmapFactory.decodeFile(imgFile.getAbsolutePath()));
+                    imageBytes = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 }
+                ticketImages.add(
+                        new TicketImage(
+                                cursor.getString(cursor.getColumnIndex("TICKET_ID")),
+                                cursor.getString(cursor.getColumnIndex("FILENAME")),
+                                Utils.imageConvert(imageBytes),
+                                Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex("LAST_MODIFIED")))
+                        )
+                );
             } while (cursor.moveToNext());
         }
         if (!cursor.isClosed()) {
             cursor.close();
         }
-        return imageBytes;
+        return ticketImages;
     }
 
     @SuppressLint("Range")

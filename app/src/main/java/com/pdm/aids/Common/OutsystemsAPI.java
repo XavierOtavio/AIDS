@@ -776,6 +776,7 @@ public class OutsystemsAPI extends AppCompatActivity {
         Cursor cursor = db.rawQuery("SELECT * FROM " + dbManager.TICKET_TABLE + " WHERE IS_SYNCHRONIZED = 0", null);
         if (cursor.getCount() != 0 && cursor.moveToFirst()) {
             do {
+                ArrayList<TicketImage> ticketImageArrayList = DBTicketLocal.getTicketImageByTicketId(cursor.getString(cursor.getColumnIndex("TICKET_ID")), db);
                 Ticket ticket = new Ticket(
                         cursor.getString(cursor.getColumnIndex("TICKET_ID")),
                         cursor.getString(cursor.getColumnIndex("BOOKING_ID")),
@@ -783,7 +784,8 @@ public class OutsystemsAPI extends AppCompatActivity {
                         cursor.getString(cursor.getColumnIndex("TITLE")),
                         cursor.getString(cursor.getColumnIndex("DESCRIPTION")),
                         Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex("TICKET_STARTDATE"))),
-                        Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex("TICKET_MODIFIED")))
+                        Utils.convertStringToDate(cursor.getString(cursor.getColumnIndex("TICKET_MODIFIED"))),
+                        ticketImageArrayList
                 );
                 submitTicket(ticket, userId, context, new VolleyCallback() {
                     @Override

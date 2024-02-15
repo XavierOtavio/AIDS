@@ -46,7 +46,7 @@ import java.util.concurrent.Executors;
 
 public class BookingDetailActivity extends AppCompatActivity {
     private ActivityBookingDetailBinding binding;
-    private Booking booking;
+    private Booking booking, onlineBooking;
     private Room room;
     private Bitmap qrBitmap, roomImageBitmap;
     private Utils utils;
@@ -72,11 +72,10 @@ public class BookingDetailActivity extends AppCompatActivity {
         uiHandler = new Handler(Looper.getMainLooper());
         binding.progressBar.setVisibility(View.VISIBLE);
         binding.linearLayoutContent.setVisibility(View.GONE);
-        Intent getIntent = getIntent();
-
+        onlineBooking = BookingHistoryActivity.selectedBooking;
         setupNetworkChecker();
 
-        if (selectedBooking != null && BookingHistoryActivity.selectedBooking != null) {
+        if (onlineBooking != null) {
             booking = BookingHistoryActivity.selectedBooking;
             loadDataInBackGround();
         } else {
@@ -375,11 +374,11 @@ public class BookingDetailActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onRestart() {
+        super.onRestart();
         if (networkChecker != null) {
             networkChecker.registerNetworkCallback();
-            if (selectedBooking == null) {
+            if (onlineBooking == null) {
                 loadLocalDataInBackGround();
                 populateTicketsLinearLayout(ticketLisDataArray);
             }
